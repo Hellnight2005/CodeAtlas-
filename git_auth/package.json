@@ -1,0 +1,23 @@
+{
+  "name": "git_auth",
+  "version": "1.0.0",
+  "description": "this will handel all the git authentication api ",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.13.2",
+    "cookie-session": "^2.1.1",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "nodemon": "^3.1.11",
+    "passport": "^0.7.0",
+    "passport-github2": "^0.1.12",
+    "pino": "^10.1.0",
+    "pino-loki": "^2.6.0",
+    "prom-client": "^15.1.3"
+  }
+}
