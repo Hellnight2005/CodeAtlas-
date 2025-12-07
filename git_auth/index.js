@@ -1,7 +1,7 @@
 const express = require("express");
 const passport = require("passport");
 const GitHubStrategy = require("passport-github2").Strategy;
-const cookieSession = require("cookie-session");
+const session = require("express-session");
 const client = require("prom-client");
 require("dotenv").config();
 
@@ -14,7 +14,6 @@ const app = express();
 const register = new client.Registry();
 client.collectDefaultMetrics({ register });
 
-// Metrics endpoint
 app.get("/metrics", async (req, res) => {
   try {
     res.set("Content-Type", register.contentType);
@@ -33,10 +32,11 @@ app.use((req, res, next) => {
 
 // ------------------- Session Setup -------------------
 app.use(
-  cookieSession({
-    name: "github-auth-session",
-    keys: [process.env.SESSION_SECRET || "default_secret"],
-    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+  session({
+    secret: process.env.SESSION_SECRET || "default_secret",
+    resave: false,
+    saveUninitialized: false,
+    cookie: { maxAge: 24 * 60 * 60 * 1000 }, // 24 hours
   })
 );
 
@@ -54,7 +54,7 @@ passport.use(
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
       callbackURL: process.env.CALLBACK_URL,
     },
-    function (accessToken, refreshToken, profile, done) {
+    (accessToken, refreshToken, profile, done) => {
       logger.info({ username: profile.username }, "GitHub OAuth successful");
       return done(null, profile);
     }
@@ -83,12 +83,17 @@ app.get("/profile", ensureAuthenticated, (req, res) => {
 });
 
 // Logout route
-app.get("/logout", (req, res) => {
-  req.logout(() => {
+app.get("/logout", (req, res, next) => {
+  req.logout(function (err) {
+    if (err) {
+      logger.error({ err }, "Error logging out user");
+      return next(err);
+    }
     res.redirect("/");
   });
 });
 
+// Mount GitHub auth routes
 app.use("/auth", authRoutes);
 
 // ------------------- Start Server -------------------
