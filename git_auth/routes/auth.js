@@ -20,10 +20,14 @@ router.get(
 );
 
 // Logout route
-router.get("/logout", (req, res) => {
-  req.logout(() => {});
-  logger.info("User logged out");
-  res.redirect("/");
+router.get("/logout", (req, res, next) => {
+  req.logout((err) => {
+    if (err) {
+      logger.error({ err }, "Error logging out user");
+      return next(err);
+    }
+    res.redirect("/");
+  });
 });
 
 module.exports = router;
