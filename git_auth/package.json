@@ -2,9 +2,10 @@
   "name": "git_auth",
   "version": "1.0.0",
   "description": "this will handel all the git authentication api ",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "dev": "nodemon index.js"
+    "dev": "nodemon server.js",
+    "start": "node server.js"
   },
   "author": "",
   "license": "ISC",
@@ -14,11 +15,13 @@
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "express-session": "^1.18.2",
+    "mongoose": "^9.0.1",
     "nodemon": "^3.1.11",
     "passport": "^0.7.0",
     "passport-github2": "^0.1.12",
     "pino": "^10.1.0",
     "pino-loki": "^2.6.0",
-    "prom-client": "^15.1.3"
+    "prom-client": "^15.1.3",
+    "winston": "^3.19.0"
   }
 }
