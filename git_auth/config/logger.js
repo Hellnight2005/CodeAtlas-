@@ -4,38 +4,38 @@ const winston = require("winston");
 
 const SERVICE_NAME = process.env.SERVICE_NAME || "GitHub_Service";
 
+// Log directory: /public/log/{SERVICE_NAME}/
 const logDir = path.join(__dirname, "..", "public", "log", SERVICE_NAME);
-
-// Ensure log folder exists
 if (!fs.existsSync(logDir)) {
   fs.mkdirSync(logDir, { recursive: true });
 }
 
-// Custom format for JSON logs
+// Format logs as strict JSON
 const customFormat = winston.format.printf(
-  ({ level, message, timestamp, metadata }) => {
+  ({ level, message, timestamp, metadata: meta }) => {
+    // Ensure metadata is an object or empty
+    const m = meta || {};
+
     const logEntry = {
       timestamp,
       service_name: SERVICE_NAME,
       level,
       message,
-      request_id: metadata?.request_id || null,
-      user_id: metadata?.user_id || null,
+      request_id: m.request_id || null, // Extract request_id from metadata if passed there, or root
+      metadata: {
+        ip: m.ip || null,
+        path: m.path || null,
+        userAgent: m.userAgent || null,
+      },
     };
-
-    // Only include metadata if IP or path exists
-    if (metadata?.ip || metadata?.path) {
-      logEntry.metadata = {
-        ip: metadata?.ip || null,
-        path: metadata?.path || null,
-      };
-    }
 
     return JSON.stringify(logEntry);
   }
 );
 
-const logger = winston.createLogger({
+const MySQLTransport = require("../utils/mysqlTransport");
+
+module.exports = winston.createLogger({
   level: "info",
   format: winston.format.combine(
     winston.format.timestamp(),
@@ -55,12 +55,8 @@ const logger = winston.createLogger({
       filename: path.join(logDir, "info.log"),
       level: "info",
     }),
+    new MySQLTransport({
+      level: "info",
+    }),
   ],
 });
-
-// Console output for development
-if (process.env.NODE_ENV !== "production") {
-  logger.add(new winston.transports.Console());
-}
-
-module.exports = logger;

@@ -57,12 +57,17 @@ app.use("/auth", authRoutes); // GitHub OAuth routes
  * Error handling (optional)
  * ----------------------------------------------------- */
 app.use((err, req, res, next) => {
-  logger.error({
-    message: "Unhandled error",
-    request_id: req.request_id,
-    metadata: { ip: req.ip, path: req.originalUrl },
-    error: err,
-  });
+  if (req.log) {
+    req.log("error", `Unhandled application error: ${err.message}`);
+  } else {
+    // Fallback if req.log is not available (e.g. middleware failed)
+    logger.error({
+      message: `Unhandled application error: ${err.message}`,
+      request_id: req.request_id || null,
+      metadata: null,
+      error: err,
+    });
+  }
   res.status(500).send("Internal Server Error");
 });
 

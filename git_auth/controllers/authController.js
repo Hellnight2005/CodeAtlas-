@@ -1,84 +1,75 @@
-const logger = require("../config/logger");
 const redisClient = require("../config/redisClient");
 const generateRequestId = require("../utils/idGenerator");
+const User = require("../models/User");
 
-/* -------------------------------------------------------
- * Redirect user to GitHub OAuth
- * ----------------------------------------------------- */
+/* ----------------------------------------
+ * Redirect to GitHub OAuth
+ * -------------------------------------- */
 exports.login = (req, res) => {
-  res.redirect("/auth/github");
+  req.log("info", "Redirecting user to GitHub OAuth");
+  return res.redirect("/auth/github");
 };
 
-/* -------------------------------------------------------
- * GitHub OAuth callback
- * ----------------------------------------------------- */
+/* ----------------------------------------
+ * GitHub OAuth Callback
+ * -------------------------------------- */
 exports.githubCallback = async (req, res) => {
   try {
-    // Use existing request_id or generate a new one
-    const requestId = req.request_id || generateRequestId();
-    const ip = req.ip;
-    const path = req.originalUrl;
+    const requestId = req.request_id;
+    const githubUser = req.user;
 
-    // Save login info to Redis
-    await redisClient.set(
-      requestId,
-      JSON.stringify({
-        ip,
-        path,
-        timestamp: new Date().toISOString(),
-        user_id: null, // will update if user exists in MongoDB later
-      })
-    );
-
-    // Optional: store request_id in session for later linking
-    if (req.session) {
-      req.session.oauth_request_id = requestId;
+    if (!githubUser) {
+      req.log("error", "GitHub user missing in OAuth callback");
+      return res.status(400).send("No GitHub user data received");
     }
 
-    logger.info({
-      message: "GitHub OAuth successful, data saved to Redis",
-      request_id: requestId,
-      metadata: { ip, path },
-    });
+    const userData = {
+      githubId: githubUser.id,
+      username: githubUser.username,
+      displayName: githubUser.displayName,
+      profileUrl: githubUser.profileUrl,
+      avatarUrl: githubUser.photos?.[0]?.value || null,
+      repos: [],
 
-    // Redirect to home/dashboard
-    res.redirect("/");
+      meta: {
+        public_repos: githubUser._json.public_repos,
+        followers: githubUser._json.followers,
+        following: githubUser._json.following,
+        created_at: githubUser._json.created_at,
+        updated_at: githubUser._json.updated_at,
+      },
+    };
+
+    const savedUser = await User.findOneAndUpdate(
+      { githubId: githubUser.id },
+      userData,
+      { upsert: true, new: true }
+    );
+
+    req.log("info", `User saved/updated: ${savedUser.username}`);
+
+    await redisClient.set(requestId, JSON.stringify(req.metadata));
+
+    req.log("info", "OAuth metadata stored in Redis");
+
+    return res.redirect("/");
   } catch (err) {
-    const fallbackRequestId = req.request_id || generateRequestId();
-    logger.error({
-      message: "Error saving OAuth data to Redis",
-      request_id: fallbackRequestId,
-      metadata: { ip: req.ip, path: req.originalUrl },
-      error: err,
-    });
-
-    res.status(500).send("Internal Server Error");
+    req.log("error", `OAuth callback error: ${err.message}`);
+    return res.status(500).send("Internal Server Error");
   }
 };
 
-/* -------------------------------------------------------
- * Logout user
- * ----------------------------------------------------- */
+/* ----------------------------------------
+ * Logout
+ * -------------------------------------- */
 exports.logout = (req, res, next) => {
   req.logout((err) => {
     if (err) {
-      logger.error({
-        message: "Logout error",
-        request_id: req.request_id || generateRequestId(),
-        user_id: req?.user?.id || null,
-        metadata: { ip: req.ip, path: req.originalUrl },
-        error: err,
-      });
+      req.log("error", `Logout error: ${err.message}`);
       return next(err);
     }
 
-    logger.info({
-      message: "User logged out successfully",
-      request_id: req.request_id || generateRequestId(),
-      user_id: req?.user?.id || null,
-      metadata: { ip: req.ip, path: req.originalUrl },
-    });
-
-    res.redirect("/");
+    req.log("info", "User logged out successfully");
+    return res.redirect("/");
   });
 };

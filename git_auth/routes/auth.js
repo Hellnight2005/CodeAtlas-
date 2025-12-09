@@ -1,33 +1,22 @@
 const express = require("express");
 const passport = require("passport");
 const router = express.Router();
-const logger = require("../config/logger");
+const authController = require("../controllers/authController");
 
-// Login route
+// Route → Redirects to GitHub
 router.get(
   "/github",
   passport.authenticate("github", { scope: ["user:email"] })
 );
 
-// Callback route
+// GitHub OAuth callback → calls controller AFTER passport success
 router.get(
   "/github/callback",
   passport.authenticate("github", { failureRedirect: "/" }),
-  (req, res) => {
-    logger.info({ user: req.user.username }, "GitHub login successful");
-    res.send(`Hello ${req.user.username}! <a href="/auth/logout">Logout</a>`);
-  }
+  authController.githubCallback
 );
 
-// Logout route
-router.get("/logout", (req, res, next) => {
-  req.logout((err) => {
-    if (err) {
-      logger.error({ err }, "Error logging out user");
-      return next(err);
-    }
-    res.redirect("/");
-  });
-});
+// Logout
+router.get("/logout", authController.logout);
 
 module.exports = router;

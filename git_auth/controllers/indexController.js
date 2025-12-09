@@ -1,19 +1,5 @@
-const logger = require("../config/logger");
-
 exports.home = (req, res) => {
-  // Log the request in production structure
-  logger.info({
-    timestamp: new Date().toISOString(),
-    service_name: process.env.SERVICE_NAME || "auth-service",
-    level: "info",
-    message: "Home route accessed",
-    request_id: req.request_id,
-    user_id: req.user?.id || null,
-    metadata: {
-      ip: req.ip,
-      path: req.originalUrl,
-    },
-  });
+  req.log("info", "Home route accessed");
 
   if (req.isAuthenticated && req.isAuthenticated()) {
     return res.send(`
@@ -26,18 +12,7 @@ exports.home = (req, res) => {
 };
 
 exports.profile = (req, res) => {
-  logger.info({
-    timestamp: new Date().toISOString(),
-    service_name: process.env.SERVICE_NAME || "auth-service",
-    level: "info",
-    message: "Profile route accessed",
-    request_id: req.request_id,
-    user_id: req.user?.id || null,
-    metadata: {
-      ip: req.ip,
-      path: req.originalUrl,
-    },
-  });
+  req.log("info", "Profile route accessed");
 
   return res.json({
     username: req.user.username,
@@ -46,36 +21,15 @@ exports.profile = (req, res) => {
 };
 
 exports.logout = (req, res, next) => {
-  logger.info({
-    timestamp: new Date().toISOString(),
-    service_name: process.env.SERVICE_NAME || "auth-service",
-    level: "info",
-    message: "User logout",
-    request_id: req.request_id,
-    user_id: req.user?.id || null,
-    metadata: {
-      ip: req.ip,
-      path: req.originalUrl,
-    },
-  });
+  req.log("info", "User logout called");
 
-  req.logout(function (err) {
+  req.logout((err) => {
     if (err) {
-      logger.error({
-        timestamp: new Date().toISOString(),
-        service_name: process.env.SERVICE_NAME || "auth-service",
-        level: "error",
-        message: "Logout error",
-        request_id: req.request_id,
-        user_id: req.user?.id || null,
-        metadata: {
-          ip: req.ip,
-          path: req.originalUrl,
-        },
-        error: err,
-      });
+      req.log("error", "Logout error");
       return next(err);
     }
+
+    req.log("info", "User logged out successfully");
 
     res.redirect("/");
   });
