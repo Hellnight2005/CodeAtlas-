@@ -14,6 +14,7 @@ module.exports = function setupPassport() {
         callbackURL: process.env.CALLBACK_URL,
       },
       (accessToken, refreshToken, profile, done) => {
+        // console.log("🔥 Passport GitHub Profile:", profile);
         logger.info("GitHub OAuth successful", {
           user_id: profile.id,
           metadata: {},
