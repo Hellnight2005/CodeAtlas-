@@ -19,6 +19,8 @@ module.exports = function setupPassport() {
           user_id: profile.id,
           metadata: {},
         });
+        // Attach accessToken to profile for controller usage
+        profile.accessToken = accessToken;
         return done(null, profile);
       }
     )

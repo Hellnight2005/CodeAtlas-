@@ -12,6 +12,7 @@ const ensureAuthenticated = require("./middleware/auth");
 // Routes
 const authRoutes = require("./routes/auth");
 const indexRoutes = require("./routes/index");
+const githubRoutes = require("./routes/github");
 
 const app = express();
 
@@ -52,6 +53,7 @@ app.use(passport.session());
  * ----------------------------------------------------- */
 app.use("/", indexRoutes); // Home and profile routes
 app.use("/auth", authRoutes); // GitHub OAuth routes
+app.use("/", githubRoutes); // GitHub Service routes
 
 /* -------------------------------------------------------
  * Error handling (optional)

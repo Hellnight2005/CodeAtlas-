@@ -29,6 +29,7 @@ exports.githubCallback = async (req, res) => {
       displayName: githubUser.displayName,
       profileUrl: githubUser.profileUrl,
       avatarUrl: githubUser.photos?.[0]?.value || null,
+      githubAccessToken: githubUser.accessToken, // Store in DB
       repos: [],
 
       meta: {
@@ -48,9 +49,16 @@ exports.githubCallback = async (req, res) => {
 
     req.log("info", `User saved/updated: ${savedUser.username}`);
 
+    // Store OAuth metadata (request_id)
     await redisClient.set(requestId, JSON.stringify(req.metadata));
 
-    req.log("info", "OAuth metadata stored in Redis");
+    // Store GitHub Access Token in Redis: user:github:token:<userId>
+    // Setting expiry to matches cookie maxAge (24h)
+    await redisClient.set(`user:github:token:${savedUser.githubId}`, githubUser.accessToken, {
+      EX: 24 * 60 * 60
+    });
+
+    req.log("info", "OAuth metadata and access token stored in Redis");
 
     return res.redirect("/");
   } catch (err) {
