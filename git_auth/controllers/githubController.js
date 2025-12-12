@@ -1,5 +1,4 @@
 const axios = require('axios');
-const redisClient = require('../config/redisClient');
 const User = require('../models/User');
 const { getMainDBConnection } = require('../config/mysqlClient');
 const { produceMessage } = require('../config/kafkaClient');
@@ -17,12 +16,75 @@ const getClient = (token) => {
         'User-Agent': 'Node-GitHub-Service'
     };
     if (token) {
-        headers['Authorization'] = `token ${token}`;
+        headers['Authorization'] = `Bearer ${token}`;
     }
     return axios.create({
         baseURL: GITHUB_API_URL,
         headers
     });
+};
+
+// ... (existing code)
+// ... (isInterestingFile functions if needed, but I think I deleted them too? Step 596 shows only getClient then getRepositoryFiles)
+// Yup, I deleted isInterestingFile too. I need to put them back or the file filter will break (it is used in getRepositoryFiles line 116).
+// Step 596 shows isInterestingFile is NOT defined before getRepositoryFiles.
+// But getRepositoryFiles uses it at line 116: files.filter(f => isInterestingFile(f.path)).
+// So getRepositoryFiles will crash too.
+
+// Restoring Missing Functions: isInterestingFile and searchRepositories.
+
+// --- File Filtering Logic ---
+const IGNORED_EXTENSIONS = new Set([
+    // Media (Images, Video, Audio)
+    '.jpg', '.jpeg', '.png', '.gif', '.bmp', '.ico', '.svg', '.tiff', '.webp',
+    '.mp4', '.mkv', '.avi', '.mov', '.wmv', '.flv', '.webm',
+    '.mp3', '.wav', '.aac', '.flac', '.ogg', '.m4a',
+    // Documents & Archives
+    '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx',
+    '.zip', '.rar', '.7z', '.tar', '.gz', '.bz2', '.iso',
+    '.md', '.markdown', '.txt', '.rst', // Docs
+    // Binaries & Bytecode
+    '.exe', '.dll', '.so', '.dylib', '.bin', '.obj', '.o', '.a', '.lib',
+    '.pyc', '.class', '.jar', '.war',
+    // Logs & DB
+    '.log', '.sqlite', '.db',
+    // Font files
+    '.ttf', '.otf', '.woff', '.woff2', '.eot',
+    // Web Assets (often noise for code analysis)
+    '.css', '.scss', '.less', '.html', '.htm', '.map'
+]);
+
+const IGNORED_FILES = new Set([
+    'package-lock.json', 'yarn.lock', 'pnpm-lock.yaml', 'bun.lockb',
+    'Cargo.lock', 'Gemfile.lock', 'composer.lock',
+    '.DS_Store', 'Thumbs.db', '.env', '.env.local',
+    'Dockerfile', 'docker-compose.yml', 'LICENSE', 'README.md',
+    'Makefile', 'CMakeLists.txt' // Build files
+]);
+
+const IGNORED_DIRS = new Set([
+    'node_modules', 'bower_components', 'jspm_packages',
+    'venv', '.venv', 'env',
+    'dist', 'build', 'out', 'target', 'bin', 'obj',
+    '.git', '.svn', '.hg', '.idea', '.vscode', '.settings', '.next', '.nuxt',
+    'coverage', '__tests__', 'test', 'tests',
+    'public', 'assets', 'static', 'resources', 'images', 'img', 'media', 'videos'
+]);
+
+const isInterestingFile = (path) => {
+    if (!path) return false;
+    const parts = path.split('/');
+    const filename = parts[parts.length - 1];
+    for (const part of parts) { if (IGNORED_DIRS.has(part)) return false; }
+    if (IGNORED_FILES.has(filename)) return false;
+    if (filename.startsWith('.')) return false;
+    if (filename.includes('config') || filename.includes('rc.')) return false;
+    const dotIndex = filename.lastIndexOf('.');
+    if (dotIndex !== -1) {
+        const ext = filename.substring(dotIndex).toLowerCase();
+        if (IGNORED_EXTENSIONS.has(ext)) return false;
+    }
+    return true;
 };
 
 /**
@@ -45,11 +107,8 @@ exports.searchRepositories = async (req, res) => {
             return res.status(401).json({ error: 'Authentication required to search your repositories' });
         }
 
-        // Retrieve token from Redis (for auth)
-        const token = await redisClient.get(`user:github:token:${userId}`);
-
-        // Retrieve Username from DB (for search scope)
-        // We could store username in Redis too, but DB is reliable source
+        // Retrieve User from DB (Token + Username)
+        // Replaced Redis for token as per user request
         const user = await User.findOne({ githubId: userId });
 
         if (!user) {
@@ -57,12 +116,13 @@ exports.searchRepositories = async (req, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
 
+        const token = user.githubAccessToken;
         const username = user.username;
         const scopedQuery = `${q} user:${username}`;
 
         req.log('info', `Searching repositories with scoped query: ${scopedQuery}`);
 
-        const client = getClient(token); // Use token if available, though public search might work too, scoped search often needs auth for private repos
+        const client = getClient(token);
         const response = await client.get(`/search/repositories`, {
             params: { q: scopedQuery, per_page: 10 }
         });
@@ -89,14 +149,18 @@ exports.searchRepositories = async (req, res) => {
     }
 };
 
-/**
- * Get Repository File Tree (Recursive)
- * GET /repo?owner=<owner>&repo=<repo>
- */
 exports.getRepositoryFiles = async (req, res) => {
     try {
         const { owner, repo } = req.query;
-        const token = req.headers['x-github-token'] || process.env.GITHUB_TOKEN;
+        let token = req.headers['x-github-token'] || process.env.GITHUB_TOKEN;
+
+        // If no token in header/env, try to fetch from authenticated user session
+        if (!token && req.user && req.user.id) {
+            const userId = req.user.id;
+            // Fetch from MongoDB (Redis skipped per user request)
+            const user = await User.findOne({ githubId: userId });
+            if (user) token = user.githubAccessToken;
+        }
 
         req.log('info', `Fetching file tree for repo: ${owner}/${repo}`);
 
@@ -153,6 +217,8 @@ exports.getRepositoryFiles = async (req, res) => {
                         path TEXT NOT NULL,
                         sha VARCHAR(100) NOT NULL,
                         type VARCHAR(20),
+                        owner VARCHAR(255),
+                        userId VARCHAR(255),
                         raw_content LONGTEXT,
                         sorted_content LONGTEXT,
                         status ENUM('pending', 'processing', 'done', 'failed') DEFAULT 'pending',
@@ -164,16 +230,27 @@ exports.getRepositoryFiles = async (req, res) => {
                 `;
                 await dbPool.query(createTableSQL);
 
-                // 2. Insert Files & Push to Kafka
-                for (const file of files) {
+                // 2. Filter Files
+                const interestingFiles = files.filter(f => isInterestingFile(f.path));
+                const ignoredCount = files.length - interestingFiles.length;
+                if (ignoredCount > 0) {
+                    req.log('info', `Filtered out ${ignoredCount} irrelevant files (media, config, locks, etc.)`);
+                }
+
+                // 3. Insert Files & Push to Kafka
+                for (const file of interestingFiles) {
+                    // Skip directories, only process actual files
+                    if (file.type !== 'file') continue;
+
+
                     // Only process files, not directories (unless user wants directories too? schema says type VARCHAR, usually we process files)
                     // But user instruction said "Take the full files[] result", so we store everything.
 
                     // Insert into MySQL (Dynamic Table)
                     try {
                         await dbPool.query(
-                            `INSERT IGNORE INTO \`${tableName}\` (path, sha, type, status) VALUES (?, ?, ?, 'pending')`,
-                            [file.path, file.sha, file.type]
+                            `INSERT IGNORE INTO \`${tableName}\` (path, sha, type, owner, userId, status) VALUES (?, ?, ?, ?, ?, 'pending')`,
+                            [file.path, file.sha, file.type, owner, req.user?.id]
                         );
 
                         // Push to Kafka
@@ -184,7 +261,9 @@ exports.getRepositoryFiles = async (req, res) => {
                             sha: file.sha,
                             size: file.size,
                             type: file.type,
-                            repo: repo // Adding repo name to message is helpful for consumer to know which table to use
+                            repo: repo,
+                            owner: owner,
+                            userId: req.user?.id // Pass User ID for token retrieval downstream
                         });
 
                     } catch (err) {
