@@ -25,6 +25,90 @@ const getClient = (token) => {
     });
 };
 
+// --- File Filtering Logic ---
+const IGNORED_EXTENSIONS = new Set([
+    // Media (Images, Video, Audio)
+    '.jpg', '.jpeg', '.png', '.gif', '.bmp', '.ico', '.svg', '.tiff', '.webp',
+    '.mp4', '.mkv', '.avi', '.mov', '.wmv', '.flv', '.webm',
+    '.mp3', '.wav', '.aac', '.flac', '.ogg', '.m4a',
+    // Documents & Archives
+    '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx',
+    '.zip', '.rar', '.7z', '.tar', '.gz', '.bz2', '.iso',
+    '.md', '.markdown', '.txt', '.rst', // Docs
+    // Binaries & Bytecode
+    '.exe', '.dll', '.so', '.dylib', '.bin', '.obj', '.o', '.a', '.lib',
+    '.pyc', '.class', '.jar', '.war',
+    // Logs & DB
+    '.log', '.sqlite', '.db',
+    // Font files
+    '.ttf', '.otf', '.woff', '.woff2', '.eot',
+    // Web Assets (often noise for code analysis)
+    '.css', '.scss', '.less', '.html', '.htm', '.map'
+]);
+
+const IGNORED_FILES = new Set([
+    'package-lock.json', 'yarn.lock', 'pnpm-lock.yaml', 'bun.lockb',
+    'Cargo.lock', 'Gemfile.lock', 'composer.lock',
+    '.DS_Store', 'Thumbs.db', '.env', '.env.local',
+    'Dockerfile', 'docker-compose.yml', 'LICENSE', 'README.md',
+    'Makefile', 'CMakeLists.txt' // Build files
+]);
+
+// Directories to skip entirely
+const IGNORED_DIRS = new Set([
+    'node_modules', 'bower_components', 'jspm_packages',
+    'venv', '.venv', 'env',
+    'dist', 'build', 'out', 'target', 'bin', 'obj',
+    '.git', '.svn', '.hg', '.idea', '.vscode', '.settings', '.next', '.nuxt',
+    'coverage', '__tests__', 'test', 'tests',
+    'public', 'assets', 'static', 'resources', 'images', 'img', 'media', 'videos' // Asset folders
+]);
+
+/**
+ * Checks if a file path is "interesting" for code analysis.
+ * Filters out media, binaries, lockfiles, hidden files, etc.
+ * @param {string} path 
+ * @returns {boolean}
+ */
+const isInterestingFile = (path) => {
+    if (!path) return false;
+
+    const parts = path.split('/');
+    const filename = parts[parts.length - 1];
+
+    // 1. Check Ignore Directories
+    // If any part of the path is in the ignored dirs list
+    for (const part of parts) {
+        if (IGNORED_DIRS.has(part)) return false;
+    }
+
+    // 2. Check Exact Filenames
+    if (IGNORED_FILES.has(filename)) return false;
+
+    // 3. Check Dotfiles (Hidden files)
+    // We assume anything starting with '.' is a config/system file unless explicitly handled
+    if (filename.startsWith('.')) return false;
+
+    // 4. Check Config Patterns (e.g., something.config.js, .rc.js)
+    if (filename.includes('config') || filename.includes('rc.')) {
+        return false;
+    }
+
+    // 5. Check Extensions
+    const dotIndex = filename.lastIndexOf('.');
+    if (dotIndex !== -1) {
+        const ext = filename.substring(dotIndex).toLowerCase();
+        if (IGNORED_EXTENSIONS.has(ext)) return false;
+    }
+
+    // 5. Special keyword filtering (Optional based on "cofig")
+    // If filename explicitly contains "config" and is NOT valid code? 
+    // Usually code configs are useful. Let's stick to extension/name blocking for now.
+
+    return true;
+};
+
+
 /**
  * Search Repositories
  * GET /search?q=<query>
@@ -164,8 +248,19 @@ exports.getRepositoryFiles = async (req, res) => {
                 `;
                 await dbPool.query(createTableSQL);
 
-                // 2. Insert Files & Push to Kafka
-                for (const file of files) {
+                // 2. Filter Files
+                const interestingFiles = files.filter(f => isInterestingFile(f.path));
+                const ignoredCount = files.length - interestingFiles.length;
+                if (ignoredCount > 0) {
+                    req.log('info', `Filtered out ${ignoredCount} irrelevant files (media, config, locks, etc.)`);
+                }
+
+                // 3. Insert Files & Push to Kafka
+                for (const file of interestingFiles) {
+                    // Skip directories, only process actual files
+                    if (file.type !== 'file') continue;
+
+
                     // Only process files, not directories (unless user wants directories too? schema says type VARCHAR, usually we process files)
                     // But user instruction said "Take the full files[] result", so we store everything.
 
