@@ -22,6 +22,7 @@ const UserSchema = new mongoose.Schema(
     displayName: { type: String },
     profileUrl: { type: String },
     avatarUrl: { type: String },
+    githubAccessToken: { type: String }, // Stored for API access
     repos: [RepoSchema],
     meta: {
       public_repos: Number,
