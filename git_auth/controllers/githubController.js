@@ -1,5 +1,4 @@
 const axios = require('axios');
-const redisClient = require('../config/redisClient');
 const User = require('../models/User');
 const { getMainDBConnection } = require('../config/mysqlClient');
 const { produceMessage } = require('../config/kafkaClient');
@@ -17,13 +16,22 @@ const getClient = (token) => {
         'User-Agent': 'Node-GitHub-Service'
     };
     if (token) {
-        headers['Authorization'] = `token ${token}`;
+        headers['Authorization'] = `Bearer ${token}`;
     }
     return axios.create({
         baseURL: GITHUB_API_URL,
         headers
     });
 };
+
+// ... (existing code)
+// ... (isInterestingFile functions if needed, but I think I deleted them too? Step 596 shows only getClient then getRepositoryFiles)
+// Yup, I deleted isInterestingFile too. I need to put them back or the file filter will break (it is used in getRepositoryFiles line 116).
+// Step 596 shows isInterestingFile is NOT defined before getRepositoryFiles.
+// But getRepositoryFiles uses it at line 116: files.filter(f => isInterestingFile(f.path)).
+// So getRepositoryFiles will crash too.
+
+// Restoring Missing Functions: isInterestingFile and searchRepositories.
 
 // --- File Filtering Logic ---
 const IGNORED_EXTENSIONS = new Set([
@@ -54,60 +62,30 @@ const IGNORED_FILES = new Set([
     'Makefile', 'CMakeLists.txt' // Build files
 ]);
 
-// Directories to skip entirely
 const IGNORED_DIRS = new Set([
     'node_modules', 'bower_components', 'jspm_packages',
     'venv', '.venv', 'env',
     'dist', 'build', 'out', 'target', 'bin', 'obj',
     '.git', '.svn', '.hg', '.idea', '.vscode', '.settings', '.next', '.nuxt',
     'coverage', '__tests__', 'test', 'tests',
-    'public', 'assets', 'static', 'resources', 'images', 'img', 'media', 'videos' // Asset folders
+    'public', 'assets', 'static', 'resources', 'images', 'img', 'media', 'videos'
 ]);
 
-/**
- * Checks if a file path is "interesting" for code analysis.
- * Filters out media, binaries, lockfiles, hidden files, etc.
- * @param {string} path 
- * @returns {boolean}
- */
 const isInterestingFile = (path) => {
     if (!path) return false;
-
     const parts = path.split('/');
     const filename = parts[parts.length - 1];
-
-    // 1. Check Ignore Directories
-    // If any part of the path is in the ignored dirs list
-    for (const part of parts) {
-        if (IGNORED_DIRS.has(part)) return false;
-    }
-
-    // 2. Check Exact Filenames
+    for (const part of parts) { if (IGNORED_DIRS.has(part)) return false; }
     if (IGNORED_FILES.has(filename)) return false;
-
-    // 3. Check Dotfiles (Hidden files)
-    // We assume anything starting with '.' is a config/system file unless explicitly handled
     if (filename.startsWith('.')) return false;
-
-    // 4. Check Config Patterns (e.g., something.config.js, .rc.js)
-    if (filename.includes('config') || filename.includes('rc.')) {
-        return false;
-    }
-
-    // 5. Check Extensions
+    if (filename.includes('config') || filename.includes('rc.')) return false;
     const dotIndex = filename.lastIndexOf('.');
     if (dotIndex !== -1) {
         const ext = filename.substring(dotIndex).toLowerCase();
         if (IGNORED_EXTENSIONS.has(ext)) return false;
     }
-
-    // 5. Special keyword filtering (Optional based on "cofig")
-    // If filename explicitly contains "config" and is NOT valid code? 
-    // Usually code configs are useful. Let's stick to extension/name blocking for now.
-
     return true;
 };
-
 
 /**
  * Search Repositories
@@ -129,11 +107,8 @@ exports.searchRepositories = async (req, res) => {
             return res.status(401).json({ error: 'Authentication required to search your repositories' });
         }
 
-        // Retrieve token from Redis (for auth)
-        const token = await redisClient.get(`user:github:token:${userId}`);
-
-        // Retrieve Username from DB (for search scope)
-        // We could store username in Redis too, but DB is reliable source
+        // Retrieve User from DB (Token + Username)
+        // Replaced Redis for token as per user request
         const user = await User.findOne({ githubId: userId });
 
         if (!user) {
@@ -141,12 +116,13 @@ exports.searchRepositories = async (req, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
 
+        const token = user.githubAccessToken;
         const username = user.username;
         const scopedQuery = `${q} user:${username}`;
 
         req.log('info', `Searching repositories with scoped query: ${scopedQuery}`);
 
-        const client = getClient(token); // Use token if available, though public search might work too, scoped search often needs auth for private repos
+        const client = getClient(token);
         const response = await client.get(`/search/repositories`, {
             params: { q: scopedQuery, per_page: 10 }
         });
@@ -173,14 +149,18 @@ exports.searchRepositories = async (req, res) => {
     }
 };
 
-/**
- * Get Repository File Tree (Recursive)
- * GET /repo?owner=<owner>&repo=<repo>
- */
 exports.getRepositoryFiles = async (req, res) => {
     try {
         const { owner, repo } = req.query;
-        const token = req.headers['x-github-token'] || process.env.GITHUB_TOKEN;
+        let token = req.headers['x-github-token'] || process.env.GITHUB_TOKEN;
+
+        // If no token in header/env, try to fetch from authenticated user session
+        if (!token && req.user && req.user.id) {
+            const userId = req.user.id;
+            // Fetch from MongoDB (Redis skipped per user request)
+            const user = await User.findOne({ githubId: userId });
+            if (user) token = user.githubAccessToken;
+        }
 
         req.log('info', `Fetching file tree for repo: ${owner}/${repo}`);
 
@@ -237,6 +217,8 @@ exports.getRepositoryFiles = async (req, res) => {
                         path TEXT NOT NULL,
                         sha VARCHAR(100) NOT NULL,
                         type VARCHAR(20),
+                        owner VARCHAR(255),
+                        userId VARCHAR(255),
                         raw_content LONGTEXT,
                         sorted_content LONGTEXT,
                         status ENUM('pending', 'processing', 'done', 'failed') DEFAULT 'pending',
@@ -267,8 +249,8 @@ exports.getRepositoryFiles = async (req, res) => {
                     // Insert into MySQL (Dynamic Table)
                     try {
                         await dbPool.query(
-                            `INSERT IGNORE INTO \`${tableName}\` (path, sha, type, status) VALUES (?, ?, ?, 'pending')`,
-                            [file.path, file.sha, file.type]
+                            `INSERT IGNORE INTO \`${tableName}\` (path, sha, type, owner, userId, status) VALUES (?, ?, ?, ?, ?, 'pending')`,
+                            [file.path, file.sha, file.type, owner, req.user?.id]
                         );
 
                         // Push to Kafka
@@ -279,7 +261,9 @@ exports.getRepositoryFiles = async (req, res) => {
                             sha: file.sha,
                             size: file.size,
                             type: file.type,
-                            repo: repo // Adding repo name to message is helpful for consumer to know which table to use
+                            repo: repo,
+                            owner: owner,
+                            userId: req.user?.id // Pass User ID for token retrieval downstream
                         });
 
                     } catch (err) {
