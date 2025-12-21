@@ -1,132 +1,235 @@
-const AST_NORMALIZER_PROMPT = `You are a language-agnostic static code analyzer.
+const AST_NORMALIZER_PROMPT = `You are a language-agnostic static code analyzer...`;
 
-Convert the provided source code into a normalized, framework-independent Abstract Code Graph representation suitable for:
+/**
+ * Extract function/method calls from a node
+ */
+const extractCalls = (node, calls = new Set()) => {
+    if (!node) return calls;
 
-dependency graphs
-
-call graphs
-
-module graphs
-
-class & component graphs
-
-data-flow & side-effect analysis
-
-Global Rules:
-
-Output VALID JSON ONLY
-
-Do NOT include raw source code
-
-Do NOT assume any specific framework
-
-Prefer semantic meaning over syntax
-
-Use consistent node identifiers
-
-If something cannot be inferred safely, leave it empty
-
-REQUIRED OUTPUT SCHEMA
-{
-  "file": {
-    "path": "",
-    "language": "",
-    "moduleType": "script | module | package | library",
-    "entryPoint": false
-  },
-  "entities": {
-    "modules": [],
-    "classes": [
-      {
-        "id": "",
-        "name": "",
-        "methods": [],
-        "inherits": [],
-        "implements": []
-      }
-    ],
-    "functions": [
-      {
-        "id": "",
-        "name": "",
-        "scope": "global | class | local",
-        "async": false,
-        "parameters": [],
-        "returns": [],
-        "calls": []
-      }
-    ],
-    "variables": [
-      {
-        "id": "",
-        "name": "",
-        "scope": "",
-        "mutability": "const | mutable"
-      }
-    ]
-  },
-  "imports": [
-    {
-      "source": "",
-      "type": "standard | third-party | local",
-      "symbols": []
+    if (Array.isArray(node)) {
+        node.forEach(child => extractCalls(child, calls));
+        return calls;
     }
-  ],
-  "exports": [
-    {
-      "name": "",
-      "kind": "function | class | variable | module"
+
+    if (node.type === 'CallExpression') {
+        if (node.callee.type === 'Identifier') {
+            calls.add(node.callee.name);
+        } else if (node.callee.type === 'MemberExpression') {
+            const object =
+                node.callee.object?.name ||
+                (node.callee.object?.type === 'ThisExpression' ? 'this' : 'unknown');
+
+            let property = 'unknown';
+            if (node.callee.property?.type === 'Identifier') {
+                property = node.callee.property.name;
+            } else if (node.callee.property?.type === 'StringLiteral') {
+                property = node.callee.property.value;
+            }
+
+            calls.add(`${object}.${property}`);
+        }
     }
-  ],
-  "effects": [
-    {
-      "type": "io | network | filesystem | process | ui | database | state",
-      "trigger": ""
+
+    // Traverse children safely
+    extractCalls(node.body, calls);
+    extractCalls(node.expression, calls);
+    extractCalls(node.arguments, calls);
+    extractCalls(node.callee, calls);
+
+    return calls;
+};
+
+const normalizeAST = (ast, filePath, language) => {
+    if (!ast || !ast.body) {
+        return {
+            file: { path: filePath, language, moduleType: "unknown", entryPoint: false },
+            imports: [],
+            entities: { modules: [], classes: [], functions: [], variables: [] },
+            exports: []
+        };
     }
-  ],
-  "relationships": {
-    "importGraph": [],
-    "callGraph": [],
-    "inheritanceGraph": [],
-    "compositionGraph": [],
-    "dataFlowGraph": []
-  },
-  "metrics": {
-    "cyclomaticComplexity": null,
-    "loc": null
-  }
-}
 
-GRAPH EDGE FORMAT
-{
-  "from": "entity_id",
-  "to": "entity_id",
-  "relation": ""
-}
+    const imports = [];
+    const exports = [];
+    const classes = [];
+    const functions = [];
+    const variables = [];
 
-IDENTIFIER RULE
+    const traverse = (node, scope = 'global') => {
+        if (!node) return;
 
-Use stable IDs:
+        if (Array.isArray(node)) {
+            node.forEach(child => traverse(child, scope));
+            return;
+        }
 
-<file_path>::<entity_type>::<entity_name>
+        /* ---------------- IMPORTS ---------------- */
+        if (node.type === 'ImportDeclaration') {
+            const source = node.source.value;
+            const symbols = node.specifiers.map(spec => spec.imported?.name || spec.local.name);
+            let kind = source.startsWith('.') ? 'local' : source.startsWith('@/') ? 'alias' : 'external';
+            imports.push({ source, kind, symbols });
+        }
 
+        /* ---------------- EXPORTS ---------------- */
+        if (node.type === 'ExportNamedDeclaration') {
+            if (node.declaration) {
+                traverse(node.declaration, scope);
 
-Example:
+                if (node.declaration.type === 'VariableDeclaration') {
+                    node.declaration.declarations.forEach(decl => {
+                        if (decl.id.type === 'Identifier') exports.push({ name: decl.id.name, kind: 'variable' });
+                    });
+                }
+                if (node.declaration.type === 'FunctionDeclaration') {
+                    exports.push({ name: node.declaration.id?.name, kind: 'function' });
+                }
+                if (node.declaration.type === 'ClassDeclaration') {
+                    exports.push({ name: node.declaration.id?.name, kind: 'class' });
+                }
+            } else {
+                node.specifiers.forEach(spec => exports.push({ name: spec.exported.name, kind: 'unknown' }));
+            }
+        }
 
-src/app/main.py::function::load_data
+        if (node.type === 'ExportDefaultDeclaration') {
+            let kind = 'variable';
+            if (node.declaration.type === 'FunctionDeclaration') kind = 'function';
+            if (node.declaration.type === 'ClassDeclaration') kind = 'class';
 
-INFERENCE RULES
+            const name = node.declaration.id?.name || '__default__';
+            exports.push({ name, kind, default: true });
+            traverse(node.declaration, scope);
+        }
 
-Python → treat files as modules
+        /* ---------------- CLASSES ---------------- */
+        if (node.type === 'ClassDeclaration') {
+            const className = node.id?.name || 'anonymous';
+            const methods = [];
+            const properties = [];
 
-JS/TS → treat files as modules
+            node.body.body.forEach(member => {
+                // Class methods
+                if (member.type === 'ClassMethod') {
+                    const methodName = member.key.name || 'computed';
+                    const calls = [...extractCalls(member.body)];
 
-Classes without inheritance → inherits: []
+                    methods.push({ name: methodName, params: member.params.map(p => p.name || 'pattern'), calls });
 
-Top-level code execution → entryPoint: true
+                    functions.push({
+                        id: `${filePath}::${className}.${methodName}`,
+                        name: `${className}.${methodName}`,
+                        scope: 'class',
+                        params: member.params.map(p => p.name || 'pattern'),
+                        calls
+                    });
+                }
 
-Unknown runtime behavior → do NOT guess
+                // Class property (arrow function)
+                if (member.type === 'ClassProperty' && member.value?.type === 'ArrowFunctionExpression') {
+                    const methodName = member.key.name || 'computed';
+                    const calls = [...extractCalls(member.value.body)];
 
-If the language is unknown, infer it from syntax.`;
+                    functions.push({
+                        id: `${filePath}::${className}.${methodName}`,
+                        name: `${className}.${methodName}`,
+                        scope: 'class',
+                        params: member.value.params.map(p => p.name || 'pattern'),
+                        calls
+                    });
 
-module.exports = { AST_NORMALIZER_PROMPT };
+                    properties.push({ name: methodName, type: 'function' });
+                }
+
+                // Regular class property
+                if (member.type === 'ClassProperty') {
+                    properties.push({
+                        name: member.key.name || 'computed',
+                        type: member.typeAnnotation?.typeAnnotation?.typeName?.name || 'unknown'
+                    });
+                }
+            });
+
+            classes.push({ name: className, methods, properties });
+
+            // Recurse with class scope
+            traverse(node.body, className);
+            return;
+        }
+
+        /* ---------------- FUNCTIONS ---------------- */
+        if (node.type === 'FunctionDeclaration') {
+            const fnName = node.id?.name || 'anonymous';
+            const calls = [...extractCalls(node.body)];
+
+            functions.push({
+                id: `${filePath}::${fnName}`,
+                name: fnName,
+                scope,
+                params: node.params.map(p => p.name || 'pattern'),
+                calls
+            });
+
+            // Recurse with function scope
+            traverse(node.body, fnName);
+            return;
+        }
+
+        /* ---------------- VARIABLES ---------------- */
+        if (node.type === 'VariableDeclaration') {
+            node.declarations.forEach(decl => {
+                if (decl.id.type !== 'Identifier') return;
+                const varName = decl.id.name;
+
+                // Detect require() (CommonJS)
+                if (decl.init?.type === 'CallExpression' && decl.init.callee.name === 'require') {
+                    const source = decl.init.arguments[0].value;
+                    imports.push({
+                        source,
+                        kind: source.startsWith('.') ? 'local' : 'external',
+                        symbols: [varName]
+                    });
+                }
+
+                // Detect normal variable type
+                let valueType = 'unknown';
+                if (decl.init) {
+                    if (decl.init.type === 'NumericLiteral') valueType = 'number';
+                    else if (decl.init.type === 'StringLiteral') valueType = 'string';
+                    else if (decl.init.type === 'BooleanLiteral') valueType = 'boolean';
+                }
+                variables.push({ name: varName, kind: node.kind, valueType });
+
+                // Arrow / function expressions
+                if (decl.init && ['ArrowFunctionExpression', 'FunctionExpression'].includes(decl.init.type)) {
+                    const calls = [...extractCalls(decl.init.body)];
+                    functions.push({
+                        id: `${filePath}::${varName}`,
+                        name: varName,
+                        scope,
+                        params: decl.init.params.map(p => p.name || 'pattern'),
+                        calls
+                    });
+                }
+            });
+        }
+
+        // Recursively traverse nested nodes
+        traverse(node.body, scope);
+        traverse(node.declarations, scope);
+        traverse(node.expression, scope);
+        traverse(node.arguments, scope);
+        traverse(node.callee, scope);
+    };
+
+    traverse(ast.body);
+
+    return {
+        file: { path: filePath, language, moduleType: "module", entryPoint: false },
+        imports,
+        entities: { variables, classes, functions, modules: [] },
+        exports
+    };
+};
+
+module.exports = { AST_NORMALIZER_PROMPT, normalizeAST };

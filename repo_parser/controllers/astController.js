@@ -1,6 +1,8 @@
 const dbPool = require('../config/mysqlRepo');
 const parser = require('../utils/treeSitterParser');
 const normalizer = require('../utils/astNormalizer');
+const { exportRepoGraphData } = require('../utils/exportGraphData');
+const { importRepoGraphToNeo4j } = require('../utils/importGraphData');
 const path = require('path');
 
 const generateASTForRepo = async (req, res) => {
@@ -27,7 +29,7 @@ const generateASTForRepo = async (req, res) => {
         // Or actually, the prompt implies "get the raw content ... passed ... until all file are done".
         // It's likely a background job is preferred, but for an API trigger, maybe just do it.
 
-        processRepoFiles(tableName, files).catch(err => console.error(`[AST] Background processing failed: ${err.message}`));
+        processRepoFiles(tableName, files, repoName).catch(err => console.error(`[AST] Background processing failed: ${err.message}`));
 
         res.json({ message: `Started processing ${files.length} files for AST generation.`, status: 'processing' });
 
@@ -37,7 +39,7 @@ const generateASTForRepo = async (req, res) => {
     }
 };
 
-const processRepoFiles = async (tableName, files) => {
+const processRepoFiles = async (tableName, files, repoName) => {
     let processedCount = 0;
     const BATCH_SIZE = 10;
 
@@ -95,6 +97,12 @@ const processRepoFiles = async (tableName, files) => {
         console.log(`[AST] Processed batch ${Math.floor(i / BATCH_SIZE) + 1} (${Math.min(i + BATCH_SIZE, files.length)}/${files.length} files).`);
     }
     console.log(`[AST] Completed processing ${files.length} files for ${tableName}.`);
+
+    // Trigger Export
+    await exportRepoGraphData(repoName);
+
+    // Trigger Import to Neo4j
+    await importRepoGraphToNeo4j(repoName);
 };
 
 // Removed ensureColumnExists as user stated the column already exists and they don't want table modifications.
