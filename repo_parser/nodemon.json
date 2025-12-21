@@ -1,0 +1,8 @@
+{
+    "ignore": [
+        "public/",
+        "public/**",
+        "ast_test/",
+        "*.log"
+    ]
+}

@@ -91,6 +91,16 @@ const isInterestingFile = (path) => {
  * Search Repositories
  * GET /search?q=<query>
  */
+const taskQueue = require('../utils/concurrencyQueue');
+
+// ... (imports remain) ...
+
+// ... (getClient, isInterestingFile remain) ...
+
+/**
+ * Search Repositories
+ * GET /search?q=<query>
+ */
 exports.searchRepositories = async (req, res) => {
     try {
         const { q } = req.query;
@@ -107,8 +117,6 @@ exports.searchRepositories = async (req, res) => {
             return res.status(401).json({ error: 'Authentication required to search your repositories' });
         }
 
-        // Retrieve User from DB (Token + Username)
-        // Replaced Redis for token as per user request
         const user = await User.findOne({ githubId: userId });
 
         if (!user) {
@@ -122,9 +130,12 @@ exports.searchRepositories = async (req, res) => {
 
         req.log('info', `Searching repositories with scoped query: ${scopedQuery}`);
 
-        const client = getClient(token);
-        const response = await client.get(`/search/repositories`, {
-            params: { q: scopedQuery, per_page: 10 }
+        // QUEUE EXECUTION
+        const response = await taskQueue.add(async () => {
+            const client = getClient(token);
+            return await client.get(`/search/repositories`, {
+                params: { q: scopedQuery, per_page: 10 }
+            });
         });
 
         req.log('info', `Found ${response.data.total_count} repositories for query: ${scopedQuery}`);
@@ -144,7 +155,7 @@ exports.searchRepositories = async (req, res) => {
         req.log('error', `GitHub Search Error: ${error.message}`);
         res.status(error.response?.status || 500).json({
             error: 'Failed to search repositories',
-            details: error.response?.data?.message || error.message
+            details: error.response?.data?.message || 'Request failed due to rate limits or connectivity'
         });
     }
 };
@@ -154,10 +165,8 @@ exports.getRepositoryFiles = async (req, res) => {
         const { owner, repo } = req.query;
         let token = req.headers['x-github-token'] || process.env.GITHUB_TOKEN;
 
-        // If no token in header/env, try to fetch from authenticated user session
         if (!token && req.user && req.user.id) {
             const userId = req.user.id;
-            // Fetch from MongoDB (Redis skipped per user request)
             const user = await User.findOne({ githubId: userId });
             if (user) token = user.githubAccessToken;
         }
@@ -171,27 +180,34 @@ exports.getRepositoryFiles = async (req, res) => {
 
         const client = getClient(token);
 
-        // First get the default branch sha
-        const repoInfo = await client.get(`/repos/${owner}/${repo}`);
-        const defaultBranch = repoInfo.data.default_branch;
+        // QUEUE EXECUTION (Multiple sequential calls inside one task wrapper, or separate? 
+        // Better to treat the whole "Fetch Tree" operation as one task to avoid interleaving partial states, 
+        // OR fine-grained? User said "run every thin in single change... wait till it end".
+        // A single "Get Repo Files" request does 2 API calls (repo info + tree).
+        // I will wrap them together as one "Task".
 
-        // Get the tree recursively
-        const treeResponse = await client.get(`/repos/${owner}/${repo}/git/trees/${defaultBranch}?recursive=1`);
+        const files = await taskQueue.add(async () => {
+            // 1. Get default branch
+            const repoInfo = await client.get(`/repos/${owner}/${repo}`);
+            const defaultBranch = repoInfo.data.default_branch;
 
-        if (treeResponse.data.truncated) {
-            req.log('warn', `Repository tree truncated for ${owner}/${repo}`);
-        }
+            // 2. Get tree
+            const treeResponse = await client.get(`/repos/${owner}/${repo}/git/trees/${defaultBranch}?recursive=1`);
 
-        const files = treeResponse.data.tree.map(item => ({
-            path: item.path,
-            type: item.type === 'blob' ? 'file' : 'dir',
-            size: item.size,
-            sha: item.sha
-        }));
+            if (treeResponse.data.truncated) {
+                req.log('warn', `Repository tree truncated for ${owner}/${repo}`);
+            }
+
+            return treeResponse.data.tree.map(item => ({
+                path: item.path,
+                type: item.type === 'blob' ? 'file' : 'dir',
+                size: item.size,
+                sha: item.sha
+            }));
+        });
 
         req.log('info', `Retrieved ${files.length} items for ${owner}/${repo}. Starting processing...`);
 
-        // Send response immediately
         res.status(202).json({
             message: 'Repository processing started',
             repo: repo,
@@ -202,15 +218,10 @@ exports.getRepositoryFiles = async (req, res) => {
         // BACKGROUND PROCESSING
         (async () => {
             try {
-                // 1. MySQL Setup (Connect to 'repo' DB)
                 const dbPool = await getMainDBConnection();
-
-                // Sanitize repo name for Table Name
                 const tableName = repo.replace(/[^a-zA-Z0-9_]/g, '_');
-
                 req.log('info', `Connected to 'repo' DB. Using table: ${tableName}`);
 
-                // Create Dynamic Table
                 const createTableSQL = `
                     CREATE TABLE IF NOT EXISTS \`${tableName}\` (
                         id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -230,32 +241,17 @@ exports.getRepositoryFiles = async (req, res) => {
                 `;
                 await dbPool.query(createTableSQL);
 
-                // 2. Filter Files
                 const interestingFiles = files.filter(f => isInterestingFile(f.path));
                 const ignoredCount = files.length - interestingFiles.length;
-                if (ignoredCount > 0) {
-                    req.log('info', `Filtered out ${ignoredCount} irrelevant files (media, config, locks, etc.)`);
-                }
+                if (ignoredCount > 0) req.log('info', `Filtered out ${ignoredCount} irrelevant files.`);
 
-                // 3. Insert Files & Push to Kafka
                 for (const file of interestingFiles) {
-                    // Skip directories, only process actual files
                     if (file.type !== 'file') continue;
-
-
-                    // Only process files, not directories (unless user wants directories too? schema says type VARCHAR, usually we process files)
-                    // But user instruction said "Take the full files[] result", so we store everything.
-
-                    // Insert into MySQL (Dynamic Table)
                     try {
                         await dbPool.query(
                             `INSERT IGNORE INTO \`${tableName}\` (path, sha, type, owner, userId, status) VALUES (?, ?, ?, ?, ?, 'pending')`,
                             [file.path, file.sha, file.type, owner, req.user?.id]
                         );
-
-                        // Push to Kafka
-                        // Message format as requested: { path, sha, size, type }
-                        // Using 'repo-files-processing' topic
                         await produceMessage('repo-files-processing', {
                             path: file.path,
                             sha: file.sha,
@@ -263,14 +259,12 @@ exports.getRepositoryFiles = async (req, res) => {
                             type: file.type,
                             repo: repo,
                             owner: owner,
-                            userId: req.user?.id // Pass User ID for token retrieval downstream
+                            userId: req.user?.id
                         });
-
                     } catch (err) {
                         req.log('error', `Failed to process file ${file.path}: ${err.message}`);
                     }
                 }
-
                 req.log('info', `Backend processing for ${repo} completed. Files queued.`);
                 await dbPool.end();
 
@@ -281,18 +275,13 @@ exports.getRepositoryFiles = async (req, res) => {
 
     } catch (error) {
         req.log('error', `GitHub Repo Error: ${error.message}`);
-        // If initial fetch fails, we return error as usual
         res.status(error.response?.status || 500).json({
             error: 'Failed to fetch repository files',
-            details: error.response?.data?.message || error.message
+            details: error.response?.data?.message || 'Request failed due to rate limits or connectivity'
         });
     }
 };
 
-/**
- * Get File Content
- * GET /file?owner=<owner>&repo=<repo>&path=<path>
- */
 exports.getFileContent = async (req, res) => {
     try {
         const { owner, repo, path } = req.query;
@@ -305,81 +294,68 @@ exports.getFileContent = async (req, res) => {
             return res.status(400).json({ error: 'Owner, repo, and path parameters are required' });
         }
 
-        const client = getClient(token);
-        const response = await client.get(`/repos/${owner}/${repo}/contents/${path}`);
+        const responseData = await taskQueue.add(async () => {
+            const client = getClient(token);
+            const response = await client.get(`/repos/${owner}/${repo}/contents/${path}`);
+            return response.data;
+        });
 
-        // Content is usually base64 encoded
-        const content = response.data.content
-            ? Buffer.from(response.data.content, response.data.encoding).toString('utf-8')
+        const content = responseData.content
+            ? Buffer.from(responseData.content, responseData.encoding).toString('utf-8')
             : '';
 
-        req.log('info', `Successfully fetched content for ${path} (${response.data.size} bytes)`);
+        req.log('info', `Successfully fetched content for ${path} (${responseData.size} bytes)`);
 
         res.json({
-            name: response.data.name,
-            path: response.data.path,
-            size: response.data.size,
-            sha: response.data.sha,
-            type: response.data.type,
-            encoding: response.data.encoding, // usually 'base64'
+            name: responseData.name,
+            path: responseData.path,
+            size: responseData.size,
+            sha: responseData.sha,
+            type: responseData.type,
+            encoding: responseData.encoding,
             content: content,
-            download_url: response.data.download_url
+            download_url: responseData.download_url
         });
     } catch (error) {
         req.log('error', `GitHub File Error: ${error.message}`);
         res.status(error.response?.status || 500).json({
             error: 'Failed to fetch file content',
-            details: error.response?.data?.message || error.message
+            details: error.response?.data?.message || 'Request failed'
         });
     }
 };
 
-/**
- * Get All User Repositories (Authenticated)
- * GET /search/user-repos
- * Headers: x-user-id
- */
 exports.getUserRepos = async (req, res) => {
     try {
-        // 1. Get Token from Headers (Direct approach)
-        // Check "Authorization: prefix <token>" or "x-github-token"
         const authHeader = req.headers['authorization'];
         let token = req.headers['x-github-token'];
 
-        if (authHeader && authHeader.startsWith('token ')) {
-            token = authHeader.split(' ')[1];
-        } else if (authHeader && authHeader.startsWith('Bearer ')) {
-            token = authHeader.split(' ')[1];
-        }
+        if (authHeader && authHeader.startsWith('token ')) token = authHeader.split(' ')[1];
+        else if (authHeader && authHeader.startsWith('Bearer ')) token = authHeader.split(' ')[1];
 
         if (!token) {
             req.log('warn', 'Missing GitHub token in headers');
-            return res.status(401).json({ error: 'GitHub token required in Authorization or x-github-token header' });
+            return res.status(401).json({ error: 'GitHub token required' });
         }
 
         const { q } = req.query;
-
         req.log('info', `Fetching user repos with token. Filter: ${q || 'None'}`);
 
-        const client = getClient(token);
-
-        // Fetch all repos
-        const response = await client.get('/user/repos', {
-            params: {
-                per_page: 100,
-                type: 'all',
-                sort: 'updated'
-            }
+        const reposData = await taskQueue.add(async () => {
+            const client = getClient(token);
+            const response = await client.get('/user/repos', {
+                params: { per_page: 100, type: 'all', sort: 'updated' }
+            });
+            return response.data;
         });
 
-        // 2. Filter Results locally if 'q' is provided
-        let reposData = response.data;
+        let results = reposData;
         if (q) {
             const query = q.toLowerCase();
-            reposData = reposData.filter(repo => repo.name.toLowerCase().includes(query));
+            results = results.filter(repo => repo.name.toLowerCase().includes(query));
         }
 
-        const repos = reposData.map(repo => ({
+        const repos = results.map(repo => ({
             name: repo.name,
             owner: repo.owner.login,
             description: repo.description,
@@ -393,13 +369,12 @@ exports.getUserRepos = async (req, res) => {
         }));
 
         req.log('info', `Found ${repos.length} repositories.`);
-
         res.json({ count: repos.length, results: repos });
     } catch (error) {
         req.log('error', `Get User Repos Error: ${error.message}`);
         res.status(error.response?.status || 500).json({
             error: 'Failed to fetch user repositories',
-            details: error.response?.data?.message || error.message
+            details: error.response?.data?.message || 'Request failed'
         });
     }
 };

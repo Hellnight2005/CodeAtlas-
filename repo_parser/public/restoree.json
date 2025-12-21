@@ -1,0 +1,4125 @@
+[
+  {
+    "error": "Unsupported language or parse error"
+  },
+  {
+    "file": {
+      "path": "src/app/Certificate/page.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "react",
+        "kind": "external",
+        "symbols": [
+          "useEffect"
+        ]
+      },
+      {
+        "source": "next/navigation",
+        "kind": "external",
+        "symbols": [
+          "useRouter"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "CertificatePage",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/app/Certificate/page.tsx::CertificatePage",
+          "name": "CertificatePage",
+          "scope": "global",
+          "params": [],
+          "calls": [
+            "useEffect",
+            "router.push"
+          ]
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "__default__",
+        "kind": "variable",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/app/TermsAndConditions/page.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "@/components/certification",
+        "kind": "alias",
+        "symbols": [
+          "RestorationCertificateReact"
+        ]
+      },
+      {
+        "source": "@/components/PrivacyPolicy",
+        "kind": "alias",
+        "symbols": [
+          "PrivacyPolicy"
+        ]
+      },
+      {
+        "source": "@/components/RefundsAndCancellations",
+        "kind": "alias",
+        "symbols": [
+          "RefundsAndCancellations"
+        ]
+      },
+      {
+        "source": "@/components/TermsAndConditions",
+        "kind": "alias",
+        "symbols": [
+          "TermsContent"
+        ]
+      },
+      {
+        "source": "react",
+        "kind": "external",
+        "symbols": [
+          "React"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/app/TermsAndConditions/page.tsx::TermsAndConditions",
+          "name": "TermsAndConditions",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "__default__",
+        "kind": "variable",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/app/User_booking/page.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "react",
+        "kind": "external",
+        "symbols": [
+          "React",
+          "useEffect",
+          "useState",
+          "useRef"
+        ]
+      },
+      {
+        "source": "js-cookie",
+        "kind": "external",
+        "symbols": [
+          "Cookies"
+        ]
+      },
+      {
+        "source": "gsap",
+        "kind": "external",
+        "symbols": [
+          "gsap"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "UserBookingPage",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/app/User_booking/page.tsx::UserBookingPage",
+          "name": "UserBookingPage",
+          "scope": "global",
+          "params": [],
+          "calls": [
+            "useEffect",
+            "fetchBookings"
+          ]
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "__default__",
+        "kind": "variable",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/app/about/page.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "framer-motion",
+        "kind": "external",
+        "symbols": [
+          "motion"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "AboutPage",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/app/about/page.tsx::AboutPage",
+          "name": "AboutPage",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "__default__",
+        "kind": "variable",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/app/admin/page.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "react",
+        "kind": "external",
+        "symbols": [
+          "useEffect",
+          "useState"
+        ]
+      },
+      {
+        "source": "next/navigation",
+        "kind": "external",
+        "symbols": [
+          "useRouter"
+        ]
+      },
+      {
+        "source": "js-cookie",
+        "kind": "external",
+        "symbols": [
+          "Cookies"
+        ]
+      },
+      {
+        "source": "@/components/Dashboard",
+        "kind": "alias",
+        "symbols": [
+          "AdminDashboard"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "AdminDashboardWrapper",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/app/admin/page.tsx::AdminDashboardWrapper",
+          "name": "AdminDashboardWrapper",
+          "scope": "global",
+          "params": [],
+          "calls": [
+            "useEffect",
+            "setLoading"
+          ]
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "__default__",
+        "kind": "variable",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/app/admin/services/page.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "react",
+        "kind": "external",
+        "symbols": [
+          "useRef",
+          "useState",
+          "useEffect"
+        ]
+      },
+      {
+        "source": "framer-motion",
+        "kind": "external",
+        "symbols": [
+          "motion"
+        ]
+      },
+      {
+        "source": "next/navigation",
+        "kind": "external",
+        "symbols": [
+          "useRouter"
+        ]
+      },
+      {
+        "source": "js-cookie",
+        "kind": "external",
+        "symbols": [
+          "Cookies"
+        ]
+      },
+      {
+        "source": "@/components/AppStateProvider",
+        "kind": "alias",
+        "symbols": [
+          "useAppState"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "router",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "fileRef",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "profileCookie",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "addOrUpdate",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "editService",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "deleteService",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/app/admin/services/page.tsx::AdminServicesPage",
+          "name": "AdminServicesPage",
+          "scope": "global",
+          "params": [],
+          "calls": [
+            "useEffect",
+            "setLoading"
+          ]
+        },
+        {
+          "id": "src/app/admin/services/page.tsx::addOrUpdate",
+          "name": "addOrUpdate",
+          "scope": "AdminServicesPage",
+          "params": [],
+          "calls": [
+            "setLocalServices",
+            "setForm",
+            "setPreview"
+          ]
+        },
+        {
+          "id": "src/app/admin/services/page.tsx::editService",
+          "name": "editService",
+          "scope": "AdminServicesPage",
+          "params": [
+            "id"
+          ],
+          "calls": []
+        },
+        {
+          "id": "src/app/admin/services/page.tsx::deleteService",
+          "name": "deleteService",
+          "scope": "AdminServicesPage",
+          "params": [
+            "id"
+          ],
+          "calls": [
+            "setLocalServices",
+            "prev.filter"
+          ]
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "AdminServicesPage",
+        "kind": "function",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/app/api/Admin/blog/new_blog/route.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "next/server",
+        "kind": "external",
+        "symbols": [
+          "NextResponse"
+        ]
+      },
+      {
+        "source": "@/lib/db",
+        "kind": "alias",
+        "symbols": [
+          "connectToDb"
+        ]
+      },
+      {
+        "source": "@/models/blog",
+        "kind": "alias",
+        "symbols": [
+          "Blog"
+        ]
+      },
+      {
+        "source": "cloudinary",
+        "kind": "external",
+        "symbols": [
+          "v2"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "dataUri",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/app/api/Admin/blog/new_blog/route.js::uploadMedia",
+          "name": "uploadMedia",
+          "scope": "global",
+          "params": [
+            "buffer",
+            "fileName",
+            "_folderId",
+            "mimeType"
+          ],
+          "calls": [
+            "console.log"
+          ]
+        },
+        {
+          "id": "src/app/api/Admin/blog/new_blog/route.js::fileToBuffer",
+          "name": "fileToBuffer",
+          "scope": "global",
+          "params": [
+            "file"
+          ],
+          "calls": []
+        },
+        {
+          "id": "src/app/api/Admin/blog/new_blog/route.js::POST",
+          "name": "POST",
+          "scope": "global",
+          "params": [
+            "req"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "POST",
+        "kind": "function"
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/app/api/Admin/sataes/route.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "next/server",
+        "kind": "external",
+        "symbols": [
+          "NextResponse"
+        ]
+      },
+      {
+        "source": "@/lib/db",
+        "kind": "alias",
+        "symbols": [
+          "connectToDb"
+        ]
+      },
+      {
+        "source": "@/models/booking",
+        "kind": "alias",
+        "symbols": [
+          "Booking"
+        ]
+      },
+      {
+        "source": "@/models/user",
+        "kind": "alias",
+        "symbols": [
+          "User"
+        ]
+      },
+      {
+        "source": "@/models/service",
+        "kind": "alias",
+        "symbols": [
+          "Service"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/app/api/Admin/sataes/route.js::GET",
+          "name": "GET",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "GET",
+        "kind": "function"
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/app/api/Send_pdf_user/route.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "nodemailer",
+        "kind": "external",
+        "symbols": [
+          "nodemailer"
+        ]
+      },
+      {
+        "source": "puppeteer",
+        "kind": "external",
+        "symbols": [
+          "puppeteer"
+        ]
+      },
+      {
+        "source": "fs/promises",
+        "kind": "external",
+        "symbols": [
+          "fs"
+        ]
+      },
+      {
+        "source": "path",
+        "kind": "external",
+        "symbols": [
+          "path"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/app/api/Send_pdf_user/route.js::POST",
+          "name": "POST",
+          "scope": "global",
+          "params": [
+            "req"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "POST",
+        "kind": "function"
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/app/api/Service/create_service/route.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "next/server",
+        "kind": "external",
+        "symbols": [
+          "NextResponse"
+        ]
+      },
+      {
+        "source": "@/lib/db",
+        "kind": "alias",
+        "symbols": [
+          "connectToDb"
+        ]
+      },
+      {
+        "source": "@/models/service",
+        "kind": "alias",
+        "symbols": [
+          "Service"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/app/api/Service/create_service/route.js::GET",
+          "name": "GET",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        },
+        {
+          "id": "src/app/api/Service/create_service/route.js::POST",
+          "name": "POST",
+          "scope": "global",
+          "params": [
+            "req"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "GET",
+        "kind": "function"
+      },
+      {
+        "name": "POST",
+        "kind": "function"
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/app/api/bookings/[id]/route.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "next/server",
+        "kind": "external",
+        "symbols": [
+          "NextResponse"
+        ]
+      },
+      {
+        "source": "@/lib/db",
+        "kind": "alias",
+        "symbols": [
+          "connectToDb"
+        ]
+      },
+      {
+        "source": "@/models/booking",
+        "kind": "alias",
+        "symbols": [
+          "Booking"
+        ]
+      },
+      {
+        "source": "@/models/service",
+        "kind": "alias",
+        "symbols": [
+          "Service"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/app/api/bookings/[id]/route.js::GET",
+          "name": "GET",
+          "scope": "global",
+          "params": [
+            "request",
+            "pattern"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "GET",
+        "kind": "function"
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/app/api/bookings/[id]/status/route.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "next/server",
+        "kind": "external",
+        "symbols": [
+          "NextResponse"
+        ]
+      },
+      {
+        "source": "@/lib/db",
+        "kind": "alias",
+        "symbols": [
+          "connectToDb"
+        ]
+      },
+      {
+        "source": "@/models/booking",
+        "kind": "alias",
+        "symbols": [
+          "Booking"
+        ]
+      },
+      {
+        "source": "@/models/user",
+        "kind": "alias",
+        "symbols": [
+          "User"
+        ]
+      },
+      {
+        "source": "nodemailer",
+        "kind": "external",
+        "symbols": [
+          "nodemailer"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "transporter",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/app/api/bookings/[id]/status/route.js::PATCH",
+          "name": "PATCH",
+          "scope": "global",
+          "params": [
+            "request",
+            "pattern"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "PATCH",
+        "kind": "function"
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/app/api/bookings/booking/route.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "next/server",
+        "kind": "external",
+        "symbols": [
+          "NextResponse"
+        ]
+      },
+      {
+        "source": "@/lib/db",
+        "kind": "alias",
+        "symbols": [
+          "connectToDb"
+        ]
+      },
+      {
+        "source": "@/models/booking",
+        "kind": "alias",
+        "symbols": [
+          "Booking"
+        ]
+      },
+      {
+        "source": "@/models/service",
+        "kind": "alias",
+        "symbols": [
+          "Service"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/app/api/bookings/booking/route.js::POST",
+          "name": "POST",
+          "scope": "global",
+          "params": [
+            "request"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "POST",
+        "kind": "function"
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/app/api/bookings/booking_confirmed/route.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "next/server",
+        "kind": "external",
+        "symbols": [
+          "NextResponse"
+        ]
+      },
+      {
+        "source": "@/lib/db",
+        "kind": "alias",
+        "symbols": [
+          "connectToDb"
+        ]
+      },
+      {
+        "source": "@/models/booking",
+        "kind": "alias",
+        "symbols": [
+          "Booking"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/app/api/bookings/booking_confirmed/route.js::GET",
+          "name": "GET",
+          "scope": "global",
+          "params": [
+            "request"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "GET",
+        "kind": "function"
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/app/api/bookings/get_all/route.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "next/server",
+        "kind": "external",
+        "symbols": [
+          "NextResponse"
+        ]
+      },
+      {
+        "source": "@/lib/db",
+        "kind": "alias",
+        "symbols": [
+          "connectToDb"
+        ]
+      },
+      {
+        "source": "@/models/booking",
+        "kind": "alias",
+        "symbols": [
+          "Booking"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/app/api/bookings/get_all/route.js::GET",
+          "name": "GET",
+          "scope": "global",
+          "params": [
+            "request"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "GET",
+        "kind": "function"
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/app/api/user/auth/google_login/route.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "next/server",
+        "kind": "external",
+        "symbols": [
+          "NextResponse"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "params",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "url",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/app/api/user/auth/google_login/route.js::GET",
+          "name": "GET",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "GET",
+        "kind": "function"
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/app/api/user/auth/googlecallback/route.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "next/server",
+        "kind": "external",
+        "symbols": [
+          "NextResponse"
+        ]
+      },
+      {
+        "source": "next/headers",
+        "kind": "external",
+        "symbols": [
+          "cookies"
+        ]
+      },
+      {
+        "source": "@/lib/db",
+        "kind": "alias",
+        "symbols": [
+          "connectToDb"
+        ]
+      },
+      {
+        "source": "@/models/user",
+        "kind": "alias",
+        "symbols": [
+          "User"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "code",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/app/api/user/auth/googlecallback/route.js::GET",
+          "name": "GET",
+          "scope": "global",
+          "params": [
+            "req"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "GET",
+        "kind": "function"
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/app/api/user/auth/login/route.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "next/server",
+        "kind": "external",
+        "symbols": [
+          "NextResponse"
+        ]
+      },
+      {
+        "source": "next/headers",
+        "kind": "external",
+        "symbols": [
+          "cookies"
+        ]
+      },
+      {
+        "source": "@/lib/db",
+        "kind": "alias",
+        "symbols": [
+          "connectToDb"
+        ]
+      },
+      {
+        "source": "@/models/user",
+        "kind": "alias",
+        "symbols": [
+          "User"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/app/api/user/auth/login/route.js::POST",
+          "name": "POST",
+          "scope": "global",
+          "params": [
+            "req"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "POST",
+        "kind": "function"
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/app/booking/page.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "react",
+        "kind": "external",
+        "symbols": [
+          "React",
+          "useState",
+          "useEffect",
+          "ChangeEvent",
+          "FormEvent"
+        ]
+      },
+      {
+        "source": "js-cookie",
+        "kind": "external",
+        "symbols": [
+          "Cookies"
+        ]
+      },
+      {
+        "source": "next/navigation",
+        "kind": "external",
+        "symbols": [
+          "useRouter"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "Input",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "App",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/app/booking/page.tsx::Input",
+          "name": "Input",
+          "scope": "global",
+          "params": [
+            "pattern"
+          ],
+          "calls": []
+        },
+        {
+          "id": "src/app/booking/page.tsx::App",
+          "name": "App",
+          "scope": "global",
+          "params": [],
+          "calls": [
+            "useEffect",
+            "fetchServices",
+            "setUserId",
+            "getUserIdFromCookie"
+          ]
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "__default__",
+        "kind": "variable",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/app/contact/page.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "@/components/ContactContent",
+        "kind": "alias",
+        "symbols": [
+          "ContactContent"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "metadata",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/app/contact/page.tsx::ContactPage",
+          "name": "ContactPage",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "metadata",
+        "kind": "variable"
+      },
+      {
+        "name": "ContactPage",
+        "kind": "function",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/app/gallery/page.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "framer-motion",
+        "kind": "external",
+        "symbols": [
+          "motion"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "GalleryPage",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/app/gallery/page.tsx::GalleryPage",
+          "name": "GalleryPage",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "__default__",
+        "kind": "variable",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/app/layout.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "next",
+        "kind": "external",
+        "symbols": [
+          "Metadata"
+        ]
+      },
+      {
+        "source": "next/font/google",
+        "kind": "external",
+        "symbols": [
+          "Inter"
+        ]
+      },
+      {
+        "source": "./globals.css",
+        "kind": "local",
+        "symbols": []
+      },
+      {
+        "source": "@/components/theme-provider",
+        "kind": "alias",
+        "symbols": [
+          "ThemeProvider"
+        ]
+      },
+      {
+        "source": "@/components/Header",
+        "kind": "alias",
+        "symbols": [
+          "Header"
+        ]
+      },
+      {
+        "source": "@/components/Footer",
+        "kind": "alias",
+        "symbols": [
+          "Footer"
+        ]
+      },
+      {
+        "source": "@/components/AppStateProvider",
+        "kind": "alias",
+        "symbols": [
+          "AppStateProvider"
+        ]
+      },
+      {
+        "source": "@/components/WhatsAppButton",
+        "kind": "alias",
+        "symbols": [
+          "WhatsAppButton"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "inter",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "metadata",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/app/layout.tsx::RootLayout",
+          "name": "RootLayout",
+          "scope": "global",
+          "params": [
+            "pattern"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "metadata",
+        "kind": "variable"
+      },
+      {
+        "name": "RootLayout",
+        "kind": "function",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/app/page.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "react",
+        "kind": "external",
+        "symbols": [
+          "useEffect",
+          "useRef"
+        ]
+      },
+      {
+        "source": "framer-motion",
+        "kind": "external",
+        "symbols": [
+          "motion"
+        ]
+      },
+      {
+        "source": "gsap",
+        "kind": "external",
+        "symbols": [
+          "gsap"
+        ]
+      },
+      {
+        "source": "gsap/ScrollTrigger",
+        "kind": "external",
+        "symbols": [
+          "ScrollTrigger"
+        ]
+      },
+      {
+        "source": "@/components/HeroSection",
+        "kind": "alias",
+        "symbols": [
+          "HeroSection"
+        ]
+      },
+      {
+        "source": "@/components/ServiceHighlights",
+        "kind": "alias",
+        "symbols": [
+          "ServiceHighlights"
+        ]
+      },
+      {
+        "source": "@/components/BeforeAfterShowcase",
+        "kind": "alias",
+        "symbols": [
+          "BeforeAfterShowcase"
+        ]
+      },
+      {
+        "source": "@/components/BrandStoryCTA",
+        "kind": "alias",
+        "symbols": [
+          "BrandStoryCTA"
+        ]
+      },
+      {
+        "source": "@/components/TrustedBy",
+        "kind": "alias",
+        "symbols": [
+          "TrustedBy"
+        ]
+      },
+      {
+        "source": "@/components/ProcessTimeline",
+        "kind": "alias",
+        "symbols": [
+          "ProcessTimeline"
+        ]
+      },
+      {
+        "source": "@/components/Testimonials",
+        "kind": "alias",
+        "symbols": [
+          "Testimonials"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "pageRef",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "ctx",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/app/page.tsx::HomePage",
+          "name": "HomePage",
+          "scope": "global",
+          "params": [],
+          "calls": [
+            "useEffect"
+          ]
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "HomePage",
+        "kind": "function",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/app/privacy/page.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "@/components/PrivacyPolicy",
+        "kind": "alias",
+        "symbols": [
+          "PrivacyPolicy"
+        ]
+      },
+      {
+        "source": "react",
+        "kind": "external",
+        "symbols": [
+          "React"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/app/privacy/page.tsx::privacy",
+          "name": "privacy",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "__default__",
+        "kind": "variable",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/app/returns/page.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "@/components/RefundsAndCancellations",
+        "kind": "alias",
+        "symbols": [
+          "RefundsAndCancellations"
+        ]
+      },
+      {
+        "source": "react",
+        "kind": "external",
+        "symbols": [
+          "React"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/app/returns/page.tsx::Returns",
+          "name": "Returns",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "Returns",
+        "kind": "function",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/app/services/page.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "framer-motion",
+        "kind": "external",
+        "symbols": [
+          "motion"
+        ]
+      },
+      {
+        "source": "next/link",
+        "kind": "external",
+        "symbols": [
+          "Link"
+        ]
+      },
+      {
+        "source": "lucide-react",
+        "kind": "external",
+        "symbols": [
+          "CheckCircle",
+          "Clock",
+          "ArrowRight",
+          "MessageCircle"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "services",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "ServicesPage",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/app/services/page.tsx::ServicesPage",
+          "name": "ServicesPage",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "__default__",
+        "kind": "variable",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/app/shipping/page.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "react",
+        "kind": "external",
+        "symbols": [
+          "useEffect",
+          "useRef",
+          "useState"
+        ]
+      },
+      {
+        "source": "gsap",
+        "kind": "external",
+        "symbols": [
+          "gsap"
+        ]
+      },
+      {
+        "source": "gsap/dist/ScrollTrigger",
+        "kind": "external",
+        "symbols": [
+          "ScrollTrigger"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "ShippingAndDelivery",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/app/shipping/page.tsx::ShippingAndDelivery",
+          "name": "ShippingAndDelivery",
+          "scope": "global",
+          "params": [],
+          "calls": [
+            "useEffect",
+            "unknown.forEach",
+            "gsap.fromTo"
+          ]
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "__default__",
+        "kind": "variable",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/components/AddServiceModal.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "react",
+        "kind": "external",
+        "symbols": [
+          "React",
+          "useState",
+          "useRef",
+          "useEffect"
+        ]
+      },
+      {
+        "source": "framer-motion",
+        "kind": "external",
+        "symbols": [
+          "motion"
+        ]
+      },
+      {
+        "source": "gsap",
+        "kind": "external",
+        "symbols": [
+          "gsap"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "AddServiceModal",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/components/AddServiceModal.tsx::AddServiceModal",
+          "name": "AddServiceModal",
+          "scope": "global",
+          "params": [
+            "pattern"
+          ],
+          "calls": [
+            "useEffect",
+            "gsap.fromTo"
+          ]
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "__default__",
+        "kind": "variable",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/components/AppStateProvider.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "react",
+        "kind": "external",
+        "symbols": [
+          "React",
+          "createContext",
+          "useContext",
+          "useMemo",
+          "useState"
+        ]
+      },
+      {
+        "source": "@/types",
+        "kind": "alias",
+        "symbols": [
+          "AppStateShape",
+          "Service",
+          "User"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "defaultBlockedDates",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "defaultBlockedTimes",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "AppStateContext",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "AppStateProvider",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "useAppState",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/components/AppStateProvider.tsx::AppStateProvider",
+          "name": "AppStateProvider",
+          "scope": "global",
+          "params": [
+            "pattern"
+          ],
+          "calls": []
+        },
+        {
+          "id": "src/components/AppStateProvider.tsx::useAppState",
+          "name": "useAppState",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "AppStateProvider",
+        "kind": "variable"
+      },
+      {
+        "name": "useAppState",
+        "kind": "variable"
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/components/BeforeAfterShowcase.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "react",
+        "kind": "external",
+        "symbols": [
+          "useEffect",
+          "useRef",
+          "useState"
+        ]
+      },
+      {
+        "source": "framer-motion",
+        "kind": "external",
+        "symbols": [
+          "motion",
+          "PanInfo",
+          "useMotionValue"
+        ]
+      },
+      {
+        "source": "gsap",
+        "kind": "external",
+        "symbols": [
+          "gsap"
+        ]
+      },
+      {
+        "source": "gsap/ScrollTrigger",
+        "kind": "external",
+        "symbols": [
+          "ScrollTrigger"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "beforeAfterItems",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "BeforeAfterShowcase",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/components/BeforeAfterShowcase.tsx::BeforeAfterShowcase",
+          "name": "BeforeAfterShowcase",
+          "scope": "global",
+          "params": [],
+          "calls": [
+            "useEffect"
+          ]
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "__default__",
+        "kind": "variable",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/components/BookingDetailsModal.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "react",
+        "kind": "external",
+        "symbols": [
+          "React",
+          "useState"
+        ]
+      },
+      {
+        "source": "framer-motion",
+        "kind": "external",
+        "symbols": [
+          "motion"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "getStatusClasses",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "BookingDetailsModal",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/components/BookingDetailsModal.tsx::getStatusClasses",
+          "name": "getStatusClasses",
+          "scope": "global",
+          "params": [
+            "status"
+          ],
+          "calls": []
+        },
+        {
+          "id": "src/components/BookingDetailsModal.tsx::BookingDetailsModal",
+          "name": "BookingDetailsModal",
+          "scope": "global",
+          "params": [
+            "pattern"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "__default__",
+        "kind": "variable",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/components/BrandStoryCTA.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "react",
+        "kind": "external",
+        "symbols": [
+          "useEffect",
+          "useRef"
+        ]
+      },
+      {
+        "source": "framer-motion",
+        "kind": "external",
+        "symbols": [
+          "motion"
+        ]
+      },
+      {
+        "source": "gsap",
+        "kind": "external",
+        "symbols": [
+          "gsap"
+        ]
+      },
+      {
+        "source": "gsap/ScrollTrigger",
+        "kind": "external",
+        "symbols": [
+          "ScrollTrigger"
+        ]
+      },
+      {
+        "source": "next/link",
+        "kind": "external",
+        "symbols": [
+          "Link"
+        ]
+      },
+      {
+        "source": "lucide-react",
+        "kind": "external",
+        "symbols": [
+          "ArrowRight"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "stats",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "BrandStoryCTA",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/components/BrandStoryCTA.tsx::BrandStoryCTA",
+          "name": "BrandStoryCTA",
+          "scope": "global",
+          "params": [],
+          "calls": [
+            "useEffect"
+          ]
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "__default__",
+        "kind": "variable",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/components/ContactContent.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "framer-motion",
+        "kind": "external",
+        "symbols": [
+          "motion"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/components/ContactContent.tsx::ContactContent",
+          "name": "ContactContent",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "ContactContent",
+        "kind": "function",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/components/Dashboard.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "react",
+        "kind": "external",
+        "symbols": [
+          "React",
+          "useEffect",
+          "useState",
+          "useRef"
+        ]
+      },
+      {
+        "source": "framer-motion",
+        "kind": "external",
+        "symbols": [
+          "motion"
+        ]
+      },
+      {
+        "source": "./BookingDetailsModal",
+        "kind": "local",
+        "symbols": [
+          "BookingDetailsModal"
+        ]
+      },
+      {
+        "source": "./AddServiceModal",
+        "kind": "local",
+        "symbols": [
+          "AddServiceModal"
+        ]
+      },
+      {
+        "source": "@/components/UploadGalleryModal",
+        "kind": "alias",
+        "symbols": [
+          "UploadGalleryModal"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "AdminDashboard",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/components/Dashboard.tsx::AdminDashboard",
+          "name": "AdminDashboard",
+          "scope": "global",
+          "params": [],
+          "calls": [
+            "useEffect",
+            "fetchData"
+          ]
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "__default__",
+        "kind": "variable",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/components/Footer.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "next/link",
+        "kind": "external",
+        "symbols": [
+          "Link"
+        ]
+      },
+      {
+        "source": "lucide-react",
+        "kind": "external",
+        "symbols": [
+          "Mail",
+          "Phone",
+          "MapPin",
+          "Instagram",
+          "Facebook",
+          "Twitter",
+          "Linkedin",
+          "Youtube",
+          "MessageCircle"
+        ]
+      },
+      {
+        "source": "framer-motion",
+        "kind": "external",
+        "symbols": [
+          "motion"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "Footer",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/components/Footer.tsx::Footer",
+          "name": "Footer",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "__default__",
+        "kind": "variable",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/components/Header.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "react",
+        "kind": "external",
+        "symbols": [
+          "useState",
+          "useEffect"
+        ]
+      },
+      {
+        "source": "next/link",
+        "kind": "external",
+        "symbols": [
+          "Link"
+        ]
+      },
+      {
+        "source": "next-themes",
+        "kind": "external",
+        "symbols": [
+          "useTheme"
+        ]
+      },
+      {
+        "source": "lucide-react",
+        "kind": "external",
+        "symbols": [
+          "Moon",
+          "Sun",
+          "Menu",
+          "X"
+        ]
+      },
+      {
+        "source": "framer-motion",
+        "kind": "external",
+        "symbols": [
+          "motion",
+          "AnimatePresence"
+        ]
+      },
+      {
+        "source": "next/navigation",
+        "kind": "external",
+        "symbols": [
+          "useRouter"
+        ]
+      },
+      {
+        "source": "js-cookie",
+        "kind": "external",
+        "symbols": [
+          "Cookies"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "Header",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/components/Header.tsx::Header",
+          "name": "Header",
+          "scope": "global",
+          "params": [],
+          "calls": [
+            "useEffect",
+            "setMounted",
+            "checkUserProfile"
+          ]
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "__default__",
+        "kind": "variable",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/components/HeroSection.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "react",
+        "kind": "external",
+        "symbols": [
+          "useEffect",
+          "useRef"
+        ]
+      },
+      {
+        "source": "framer-motion",
+        "kind": "external",
+        "symbols": [
+          "motion"
+        ]
+      },
+      {
+        "source": "gsap",
+        "kind": "external",
+        "symbols": [
+          "gsap"
+        ]
+      },
+      {
+        "source": "lucide-react",
+        "kind": "external",
+        "symbols": [
+          "ChevronDown"
+        ]
+      },
+      {
+        "source": "next/link",
+        "kind": "external",
+        "symbols": [
+          "Link"
+        ]
+      },
+      {
+        "source": "js-cookie",
+        "kind": "external",
+        "symbols": [
+          "Cookies"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "HeroSection",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/components/HeroSection.tsx::HeroSection",
+          "name": "HeroSection",
+          "scope": "global",
+          "params": [],
+          "calls": [
+            "useEffect"
+          ]
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "__default__",
+        "kind": "variable",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/components/PrivacyPolicy.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "react",
+        "kind": "external",
+        "symbols": [
+          "useEffect",
+          "useRef",
+          "useState"
+        ]
+      },
+      {
+        "source": "gsap",
+        "kind": "external",
+        "symbols": [
+          "gsap"
+        ]
+      },
+      {
+        "source": "gsap/dist/ScrollTrigger",
+        "kind": "external",
+        "symbols": [
+          "ScrollTrigger"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "PrivacyPolicy",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/components/PrivacyPolicy.tsx::PrivacyPolicy",
+          "name": "PrivacyPolicy",
+          "scope": "global",
+          "params": [],
+          "calls": [
+            "useEffect",
+            "unknown.forEach",
+            "gsap.fromTo"
+          ]
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "__default__",
+        "kind": "variable",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/components/ProcessTimeline.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "react",
+        "kind": "external",
+        "symbols": [
+          "useEffect",
+          "useRef"
+        ]
+      },
+      {
+        "source": "framer-motion",
+        "kind": "external",
+        "symbols": [
+          "motion"
+        ]
+      },
+      {
+        "source": "gsap",
+        "kind": "external",
+        "symbols": [
+          "gsap"
+        ]
+      },
+      {
+        "source": "gsap/ScrollTrigger",
+        "kind": "external",
+        "symbols": [
+          "ScrollTrigger"
+        ]
+      },
+      {
+        "source": "lucide-react",
+        "kind": "external",
+        "symbols": [
+          "Sparkles",
+          "Brush",
+          "Wrench",
+          "ShieldCheck"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "steps",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "ProcessTimeline",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/components/ProcessTimeline.tsx::ProcessTimeline",
+          "name": "ProcessTimeline",
+          "scope": "global",
+          "params": [],
+          "calls": [
+            "useEffect"
+          ]
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "__default__",
+        "kind": "variable",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/components/RecentBookings.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "react",
+        "kind": "external",
+        "symbols": [
+          "React",
+          "useEffect",
+          "useState"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "RecentBookings",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/components/RecentBookings.tsx::RecentBookings",
+          "name": "RecentBookings",
+          "scope": "global",
+          "params": [],
+          "calls": [
+            "useEffect",
+            "unknown.catch",
+            "console.error",
+            "setLoading"
+          ]
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "__default__",
+        "kind": "variable",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/components/RefundsAndCancellations.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "react",
+        "kind": "external",
+        "symbols": [
+          "useEffect",
+          "useRef",
+          "useState"
+        ]
+      },
+      {
+        "source": "gsap",
+        "kind": "external",
+        "symbols": [
+          "gsap"
+        ]
+      },
+      {
+        "source": "gsap/dist/ScrollTrigger",
+        "kind": "external",
+        "symbols": [
+          "ScrollTrigger"
+        ]
+      },
+      {
+        "source": "lucide-react",
+        "kind": "external",
+        "symbols": [
+          "XCircle",
+          "DollarSign",
+          "Paintbrush",
+          "ShieldHalf",
+          "Box"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "RefundsAndCancellations",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/components/RefundsAndCancellations.tsx::RefundsAndCancellations",
+          "name": "RefundsAndCancellations",
+          "scope": "global",
+          "params": [],
+          "calls": [
+            "useEffect",
+            "unknown.forEach",
+            "gsap.fromTo"
+          ]
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "__default__",
+        "kind": "variable",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/components/ServiceHighlights.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "react",
+        "kind": "external",
+        "symbols": [
+          "React",
+          "useEffect",
+          "useRef",
+          "useState"
+        ]
+      },
+      {
+        "source": "framer-motion",
+        "kind": "external",
+        "symbols": [
+          "motion"
+        ]
+      },
+      {
+        "source": "gsap",
+        "kind": "external",
+        "symbols": [
+          "gsap"
+        ]
+      },
+      {
+        "source": "gsap/ScrollTrigger",
+        "kind": "external",
+        "symbols": [
+          "ScrollTrigger"
+        ]
+      },
+      {
+        "source": "lucide-react",
+        "kind": "external",
+        "symbols": [
+          "ShoppingBag",
+          "Sparkles",
+          "Scissors",
+          "Settings",
+          "Palette"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "services",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "ServiceHighlights",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/components/ServiceHighlights.tsx::ServiceHighlights",
+          "name": "ServiceHighlights",
+          "scope": "global",
+          "params": [],
+          "calls": [
+            "useEffect"
+          ]
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "__default__",
+        "kind": "variable",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/components/TermsAndConditions.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "react",
+        "kind": "external",
+        "symbols": [
+          "useEffect",
+          "useRef",
+          "useState"
+        ]
+      },
+      {
+        "source": "gsap",
+        "kind": "external",
+        "symbols": [
+          "gsap"
+        ]
+      },
+      {
+        "source": "gsap/dist/ScrollTrigger",
+        "kind": "external",
+        "symbols": [
+          "ScrollTrigger"
+        ]
+      },
+      {
+        "source": "lucide-react",
+        "kind": "external",
+        "symbols": [
+          "ScrollText",
+          "Settings",
+          "Users",
+          "CreditCard",
+          "ShieldCheck",
+          "Paintbrush",
+          "XCircle",
+          "ShieldHalf",
+          "Lock"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "TermsContent",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/components/TermsAndConditions.tsx::TermsContent",
+          "name": "TermsContent",
+          "scope": "global",
+          "params": [],
+          "calls": [
+            "useEffect",
+            "unknown.forEach",
+            "gsap.fromTo"
+          ]
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "__default__",
+        "kind": "variable",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/components/Testimonials.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "react",
+        "kind": "external",
+        "symbols": [
+          "useEffect",
+          "useRef"
+        ]
+      },
+      {
+        "source": "framer-motion",
+        "kind": "external",
+        "symbols": [
+          "motion"
+        ]
+      },
+      {
+        "source": "gsap",
+        "kind": "external",
+        "symbols": [
+          "gsap"
+        ]
+      },
+      {
+        "source": "gsap/ScrollTrigger",
+        "kind": "external",
+        "symbols": [
+          "ScrollTrigger"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "testimonials",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "StarRating",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "GoogleReviewBadge",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "Testimonials",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/components/Testimonials.tsx::StarRating",
+          "name": "StarRating",
+          "scope": "global",
+          "params": [
+            "pattern"
+          ],
+          "calls": []
+        },
+        {
+          "id": "src/components/Testimonials.tsx::GoogleReviewBadge",
+          "name": "GoogleReviewBadge",
+          "scope": "global",
+          "params": [
+            "pattern"
+          ],
+          "calls": []
+        },
+        {
+          "id": "src/components/Testimonials.tsx::Testimonials",
+          "name": "Testimonials",
+          "scope": "global",
+          "params": [],
+          "calls": [
+            "useEffect"
+          ]
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "__default__",
+        "kind": "variable",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/components/TrustedBy.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "react",
+        "kind": "external",
+        "symbols": [
+          "useEffect",
+          "useRef"
+        ]
+      },
+      {
+        "source": "framer-motion",
+        "kind": "external",
+        "symbols": [
+          "motion"
+        ]
+      },
+      {
+        "source": "gsap",
+        "kind": "external",
+        "symbols": [
+          "gsap"
+        ]
+      },
+      {
+        "source": "gsap/ScrollTrigger",
+        "kind": "external",
+        "symbols": [
+          "ScrollTrigger"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "brands",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "TrustedBy",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/components/TrustedBy.tsx::TrustedBy",
+          "name": "TrustedBy",
+          "scope": "global",
+          "params": [],
+          "calls": [
+            "useEffect"
+          ]
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "__default__",
+        "kind": "variable",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/components/UploadGalleryModal.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "react",
+        "kind": "external",
+        "symbols": [
+          "React",
+          "useState"
+        ]
+      },
+      {
+        "source": "framer-motion",
+        "kind": "external",
+        "symbols": [
+          "motion"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "UploadGalleryModal",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/components/UploadGalleryModal.tsx::UploadGalleryModal",
+          "name": "UploadGalleryModal",
+          "scope": "global",
+          "params": [
+            "pattern"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "__default__",
+        "kind": "variable",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/components/WhatsAppButton.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "react",
+        "kind": "external",
+        "symbols": [
+          "React"
+        ]
+      },
+      {
+        "source": "react-icons/fa",
+        "kind": "external",
+        "symbols": [
+          "FaWhatsapp"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "WhatsAppButton",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/components/WhatsAppButton.tsx::WhatsAppButton",
+          "name": "WhatsAppButton",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "__default__",
+        "kind": "variable",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/components/certification.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "react",
+        "kind": "external",
+        "symbols": [
+          "React",
+          "useEffect",
+          "useMemo",
+          "useRef",
+          "useState"
+        ]
+      },
+      {
+        "source": "html2canvas",
+        "kind": "external",
+        "symbols": [
+          "html2canvas"
+        ]
+      },
+      {
+        "source": "jspdf",
+        "kind": "external",
+        "symbols": [
+          "jsPDF"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "ARRIVAL_BASE",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "WORK_BASE",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "CARE_BASE",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "METRICS",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "STORAGE_KEY",
+          "kind": "const",
+          "valueType": "string"
+        },
+        {
+          "name": "clamp10",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "toNum",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "fmtDate",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "genID",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "flattenImage",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "TagCheckboxGrid",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "MiniBar",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "log",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "certificateRef",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "data",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "bVals",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "aVals",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "transformationScore",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "topGains",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "overallDelta",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "applyLogo",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "embedFromUrl",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "onLogoUpload",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "onImageFiles",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "ensureCertID",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "printFullPage",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "exportPNG",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "exportFlatPDF",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "articleNameResolved",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "genTime",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "toggleSel",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "addCustomTag",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/components/certification.tsx::clamp10",
+          "name": "clamp10",
+          "scope": "global",
+          "params": [
+            "v"
+          ],
+          "calls": []
+        },
+        {
+          "id": "src/components/certification.tsx::toNum",
+          "name": "toNum",
+          "scope": "global",
+          "params": [
+            "v"
+          ],
+          "calls": []
+        },
+        {
+          "id": "src/components/certification.tsx::fmtDate",
+          "name": "fmtDate",
+          "scope": "global",
+          "params": [
+            "v"
+          ],
+          "calls": []
+        },
+        {
+          "id": "src/components/certification.tsx::genID",
+          "name": "genID",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        },
+        {
+          "id": "src/components/certification.tsx::flattenImage",
+          "name": "flattenImage",
+          "scope": "global",
+          "params": [
+            "src"
+          ],
+          "calls": []
+        },
+        {
+          "id": "src/components/certification.tsx::TagCheckboxGrid",
+          "name": "TagCheckboxGrid",
+          "scope": "global",
+          "params": [
+            "pattern"
+          ],
+          "calls": []
+        },
+        {
+          "id": "src/components/certification.tsx::MiniBar",
+          "name": "MiniBar",
+          "scope": "global",
+          "params": [
+            "pattern"
+          ],
+          "calls": []
+        },
+        {
+          "id": "src/components/certification.tsx::RestorationCertificateReact",
+          "name": "RestorationCertificateReact",
+          "scope": "global",
+          "params": [],
+          "calls": [
+            "useEffect"
+          ]
+        },
+        {
+          "id": "src/components/certification.tsx::log",
+          "name": "log",
+          "scope": "RestorationCertificateReact",
+          "params": [
+            "m"
+          ],
+          "calls": [
+            "setLogLines",
+            "unknown.slice"
+          ]
+        },
+        {
+          "id": "src/components/certification.tsx::applyLogo",
+          "name": "applyLogo",
+          "scope": "RestorationCertificateReact",
+          "params": [
+            "src"
+          ],
+          "calls": [
+            "setEmbeddedLogo"
+          ]
+        },
+        {
+          "id": "src/components/certification.tsx::embedFromUrl",
+          "name": "embedFromUrl",
+          "scope": "RestorationCertificateReact",
+          "params": [],
+          "calls": [
+            "setLogoStatus"
+          ]
+        },
+        {
+          "id": "src/components/certification.tsx::onLogoUpload",
+          "name": "onLogoUpload",
+          "scope": "RestorationCertificateReact",
+          "params": [
+            "file"
+          ],
+          "calls": [
+            "fr.readAsDataURL"
+          ]
+        },
+        {
+          "id": "src/components/certification.tsx::onImageFiles",
+          "name": "onImageFiles",
+          "scope": "RestorationCertificateReact",
+          "params": [
+            "files",
+            "type"
+          ],
+          "calls": [
+            "unknown.then"
+          ]
+        },
+        {
+          "id": "src/components/certification.tsx::ensureCertID",
+          "name": "ensureCertID",
+          "scope": "RestorationCertificateReact",
+          "params": [],
+          "calls": []
+        },
+        {
+          "id": "src/components/certification.tsx::printFullPage",
+          "name": "printFullPage",
+          "scope": "RestorationCertificateReact",
+          "params": [],
+          "calls": [
+            "ensureCertID",
+            "window.print"
+          ]
+        },
+        {
+          "id": "src/components/certification.tsx::exportPNG",
+          "name": "exportPNG",
+          "scope": "RestorationCertificateReact",
+          "params": [],
+          "calls": [
+            "ensureCertID",
+            "a.click"
+          ]
+        },
+        {
+          "id": "src/components/certification.tsx::exportFlatPDF",
+          "name": "exportFlatPDF",
+          "scope": "RestorationCertificateReact",
+          "params": [],
+          "calls": [
+            "ensureCertID",
+            "pdf.addImage",
+            "canvas.toDataURL",
+            "pdf.save"
+          ]
+        },
+        {
+          "id": "src/components/certification.tsx::toggleSel",
+          "name": "toggleSel",
+          "scope": "RestorationCertificateReact",
+          "params": [
+            "value",
+            "listSetter",
+            "list"
+          ],
+          "calls": []
+        },
+        {
+          "id": "src/components/certification.tsx::addCustomTag",
+          "name": "addCustomTag",
+          "scope": "RestorationCertificateReact",
+          "params": [
+            "addState",
+            "selState",
+            "addSetter",
+            "selSetter"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "RestorationCertificateReact",
+        "kind": "function",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/components/theme-provider.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "react",
+        "kind": "external",
+        "symbols": [
+          "React"
+        ]
+      },
+      {
+        "source": "next-themes",
+        "kind": "external",
+        "symbols": [
+          "ThemeProvider"
+        ]
+      },
+      {
+        "source": "next-themes",
+        "kind": "external",
+        "symbols": [
+          "ThemeProviderProps"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/components/theme-provider.tsx::ThemeProvider",
+          "name": "ThemeProvider",
+          "scope": "global",
+          "params": [
+            "pattern"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "ThemeProvider",
+        "kind": "function"
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/lib/Cloudinary_Uploader.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "cloudinary",
+        "kind": "external",
+        "symbols": [
+          "v2"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "dataUri",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/lib/Cloudinary_Uploader.js::uploadMedia",
+          "name": "uploadMedia",
+          "scope": "global",
+          "params": [
+            "buffer",
+            "fileName",
+            "_folderId",
+            "mimeType"
+          ],
+          "calls": [
+            "console.log"
+          ]
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "uploadMedia",
+        "kind": "function"
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/lib/db.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "mongoose",
+        "kind": "external",
+        "symbols": [
+          "mongoose"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "MONGODB_URI",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "cached",
+          "kind": "let",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/lib/db.js::connectToDb",
+          "name": "connectToDb",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "connectToDb",
+        "kind": "function"
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/lib/utils.ts",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "clsx",
+        "kind": "external",
+        "symbols": [
+          "ClassValue",
+          "clsx"
+        ]
+      },
+      {
+        "source": "tailwind-merge",
+        "kind": "external",
+        "symbols": [
+          "twMerge"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "d",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "element",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "timeout",
+          "kind": "let",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/lib/utils.ts::cn",
+          "name": "cn",
+          "scope": "global",
+          "params": [
+            "pattern"
+          ],
+          "calls": []
+        },
+        {
+          "id": "src/lib/utils.ts::formatDate",
+          "name": "formatDate",
+          "scope": "global",
+          "params": [
+            "date"
+          ],
+          "calls": []
+        },
+        {
+          "id": "src/lib/utils.ts::formatTime",
+          "name": "formatTime",
+          "scope": "global",
+          "params": [
+            "time"
+          ],
+          "calls": []
+        },
+        {
+          "id": "src/lib/utils.ts::generateId",
+          "name": "generateId",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        },
+        {
+          "id": "src/lib/utils.ts::scrollToElement",
+          "name": "scrollToElement",
+          "scope": "global",
+          "params": [
+            "elementId"
+          ],
+          "calls": []
+        },
+        {
+          "id": "src/lib/utils.ts::debounce",
+          "name": "debounce",
+          "scope": "global",
+          "params": [
+            "func",
+            "wait"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "cn",
+        "kind": "function"
+      },
+      {
+        "name": "formatDate",
+        "kind": "function"
+      },
+      {
+        "name": "formatTime",
+        "kind": "function"
+      },
+      {
+        "name": "generateId",
+        "kind": "function"
+      },
+      {
+        "name": "scrollToElement",
+        "kind": "function"
+      },
+      {
+        "name": "debounce",
+        "kind": "function"
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/models/blog.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "mongoose",
+        "kind": "external",
+        "symbols": [
+          "mongoose"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "blogSchema",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "Blog",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "__default__",
+        "kind": "variable",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/models/booking.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "mongoose",
+        "kind": "external",
+        "symbols": [
+          "mongoose"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "BookingSchema",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "__default__",
+        "kind": "variable",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/models/service.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "mongoose",
+        "kind": "external",
+        "symbols": [
+          "mongoose"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "ServiceSchema",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "Service",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "__default__",
+        "kind": "variable",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/models/user.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "mongoose",
+        "kind": "external",
+        "symbols": [
+          "mongoose"
+        ]
+      },
+      {
+        "source": "bcryptjs",
+        "kind": "external",
+        "symbols": [
+          "bcrypt"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "UserSchema",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "User",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "__default__",
+        "kind": "variable",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/types/index.ts",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [],
+    "entities": {
+      "variables": [],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": []
+  }
+]

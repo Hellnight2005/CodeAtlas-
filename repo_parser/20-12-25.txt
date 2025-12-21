@@ -1,0 +1,74 @@
+Date: December 20, 2025 Project: CodeAtlas - AST Parsing & Concurrency Control
+
+1. Executive Summary
+Today's session focused on building a robust, production-ready Abstract Syntax Tree (AST) generation pipeline. We successfully moved from a basic prototype to a fully sequential, rate-limit-aware system handling multiple languages (JS, TS, JSX). We also resolved critical stability issues related to process restarts.
+
+2. Objectives & Achievements
+Objective	Status	Details
+AST Pipeline	✅ Complete	Implemented Repo Parser to fetch, decode, and normalize code files.
+Language Support	✅ Complete	Switched from Acorn to @babel/parser to support TypeScript & JSX.
+Strict Schema	✅ Complete	Enforced a "Graph-Ready" JSON schema (Imports, Exports, Functions, Calls).
+Concurrency	✅ Complete	Implemented 
+TaskQueue
+ to enforce sequential execution (Concurrency=1).
+Stability	✅ Complete	Fixed nodemon restart loops and added graceful rate-limit handling.
+3. Technical Implementation Details
+A. The AST Pipeline (
+repo_parser
+)
+We architected a pipeline that processes files without blocking the event loop:
+
+Input: Fetches file metadata and Base64 content from MySQL.
+Decoding: Safely decodes Base64 to UTF-8 strings.
+Parsing: Uses @babel/parser to generate a raw AST.
+Normalization: A custom 
+astNormalizer.js
+ traverses the raw AST to extract:
+Imports: Source module, specifiers, default imports.
+Functions: Name, parameters, async status, and function calls made within.
+Exports: Named and default exports.
+Output: The normalized JSON is Base64 encoded and saved to the sorted_content column.
+B. Global Concurrency Control (
+TaskQueue
+)
+To satisfy the requirement of "run everything in single change" and handle API limits:
+
+Created a 
+TaskQueue
+ class in both 
+repo_parser
+ and git_auth.
+Sequential Processing: concurrency set to 1. Tasks run one after another, never in parallel.
+Rate Limit Detection: Intercepts 429 (Too Many Requests) and 403 (Forbidden) errors.
+Backoff Strategy: Automatically pauses the queue for the duration specified by retry-after headers (or 1 minute default) and logs a RATE_LIMIT event.
+C. Logging & Monitoring
+Integrated winston for structured JSON logging.
+Configured a Log Watcher service to monitor logs and flush them to MySQL.
+Alert Generation: The 
+TaskQueue
+ logs specific error shapes that the Watcher detects effectively.
+4. Challenges & Solutions
+Challenge 1: Infinite Restart Loop
+Symptom: The terminal showed endless [nodemon] restarting due to changes.... Root Cause: The Log Watcher was writing to public/log/info.log. Nodemon (watching the current directory) saw this file change and restarted the server, which triggered more logging, creating a loop. Solution: Created 
+nodemon.json
+ to explicitly ignore log directories:
+
+{ "ignore": ["public/log/*", "*.log"] }
+Challenge 2: Parsing TypeScript/JSX
+Symptom: The initial parser (acorn) failed on <Component /> or type X = ... syntax. Solution: Migrated to @babel/parser with plugins (typescript, jsx, estree).
+
+Challenge 3: Event Loop Blocking
+Symptom: Processing large batches of files simultaneously risked crashing the Node.js event loop. Solution: Refactored 
+astController.js
+ to use the 
+TaskQueue
+. Instead of Promise.all(batch), we now push tasks to the queue, which executes them strictly one-by-one.
+
+Challenge 4: GitHub Rate Limits (403/429)
+Symptom: Logs showed Request failed with status code 403. Solution: Wrapped all GitHub API calls in git_auth with the 
+TaskQueue
+. This ensures that even if we queue 1000 requests, they are sent individually, and if a limit is hit, the system pauses automatically.
+
+5. Next Steps
+Monitor Production Logs: Ensure the "Pause & Resume" logic works as expected under real load.
+Kafka Integration: Verify that processed file events are correctly emitted to the repo-files-processing topic.
