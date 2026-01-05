@@ -58,6 +58,10 @@ app.use("/", githubRoutes); // GitHub Service routes
 /* -------------------------------------------------------
  * Error handling (optional)
  * ----------------------------------------------------- */
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', service: 'git_auth' });
+});
+
 app.use((err, req, res, next) => {
   if (req.log) {
     req.log("error", `Unhandled application error: ${err.message}`);

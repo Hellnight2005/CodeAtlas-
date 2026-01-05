@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+// Trigger restart
 const app = express();
 const PORT = 5001;
 const { connectConsumer, subscribeToTopic, connectProducer } = require('./config/kafka');

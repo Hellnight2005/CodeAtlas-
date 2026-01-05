@@ -1,0 +1,3834 @@
+[
+  {
+    "file": {
+      "path": "Daily-Journal/index copy.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "express",
+        "kind": "external",
+        "symbols": [
+          "express"
+        ]
+      },
+      {
+        "source": "morgan",
+        "kind": "external",
+        "symbols": [
+          "morgan"
+        ]
+      },
+      {
+        "source": "./routes/daily-jornal",
+        "kind": "local",
+        "symbols": [
+          "dailyroute"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "express",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "morgan",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "dailyroute",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "app",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "PORT",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "Daily-Journal/index.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "express",
+        "kind": "external",
+        "symbols": [
+          "express"
+        ]
+      },
+      {
+        "source": "morgan",
+        "kind": "external",
+        "symbols": [
+          "morgan"
+        ]
+      },
+      {
+        "source": "./routes/daily-jornal",
+        "kind": "local",
+        "symbols": [
+          "dailyroute"
+        ]
+      },
+      {
+        "source": "./config/db",
+        "kind": "local",
+        "symbols": [
+          "connectDB"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "express",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "morgan",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "dailyroute",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "connectDB",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "app",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "PORT",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "error": "Unsupported language or parse error"
+  },
+  {
+    "file": {
+      "path": "Idea-valut-service/ask.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "readline",
+        "kind": "external",
+        "symbols": [
+          "readline"
+        ]
+      },
+      {
+        "source": "axios",
+        "kind": "external",
+        "symbols": [
+          "axios"
+        ]
+      },
+      {
+        "source": "./utils/generateTextEmbedding",
+        "kind": "local",
+        "symbols": [
+          "generateTextEmbedding"
+        ]
+      },
+      {
+        "source": "./utils/formatPrompt",
+        "kind": "local",
+        "symbols": [
+          "formatPrompt"
+        ]
+      },
+      {
+        "source": "./utils/formatSummaryPrompt",
+        "kind": "local",
+        "symbols": [
+          "formatSummaryPrompt"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "readline",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "axios",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "generateTextEmbedding",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "formatPrompt",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "formatSummaryPrompt",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "lowered",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "rl",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "Idea-valut-service/ask.js::isSummaryRequest",
+          "name": "isSummaryRequest",
+          "scope": "global",
+          "params": [
+            "question"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "Idea-valut-service/index.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "express",
+        "kind": "external",
+        "symbols": [
+          "express"
+        ]
+      },
+      {
+        "source": "morgan",
+        "kind": "external",
+        "symbols": [
+          "morgan"
+        ]
+      },
+      {
+        "source": "./config/db",
+        "kind": "local",
+        "symbols": [
+          "connectDB"
+        ]
+      },
+      {
+        "source": "./routes/ideaRoutes",
+        "kind": "local",
+        "symbols": [
+          "ideaRoutes"
+        ]
+      },
+      {
+        "source": "./routes/chat",
+        "kind": "local",
+        "symbols": [
+          "chatRoutes"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "express",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "morgan",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "connectDB",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "ideaRoutes",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "chatRoutes",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "app",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "PORT",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "error": "Unsupported language or parse error"
+  },
+  {
+    "file": {
+      "path": "Idea-valut-service/test.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "fs",
+        "kind": "external",
+        "symbols": [
+          "fs"
+        ]
+      },
+      {
+        "source": "path",
+        "kind": "external",
+        "symbols": [
+          "path"
+        ]
+      },
+      {
+        "source": "./utils/embedding",
+        "kind": "local",
+        "symbols": [
+          "embedTextFileAndSave"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "fs",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "path",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "embedTextFileAndSave",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "Idea-valut-service/text1.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "path",
+        "kind": "external",
+        "symbols": [
+          "path"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "path",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "input",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "User-services/index.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "express",
+        "kind": "external",
+        "symbols": [
+          "express"
+        ]
+      },
+      {
+        "source": "./config/db",
+        "kind": "local",
+        "symbols": [
+          "connectDB"
+        ]
+      },
+      {
+        "source": "morgan",
+        "kind": "external",
+        "symbols": [
+          "morgan"
+        ]
+      },
+      {
+        "source": "./routes/userRoutes",
+        "kind": "local",
+        "symbols": [
+          "userRoutes"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "express",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "connectDB",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "morgan",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "userRoutes",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "app",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "PORT",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "error": "Unsupported language or parse error"
+  },
+  {
+    "file": {
+      "path": "active-projects-service/index.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "morgan",
+        "kind": "external",
+        "symbols": [
+          "morgan"
+        ]
+      },
+      {
+        "source": "express",
+        "kind": "external",
+        "symbols": [
+          "express"
+        ]
+      },
+      {
+        "source": "./config/db",
+        "kind": "local",
+        "symbols": [
+          "connectDB"
+        ]
+      },
+      {
+        "source": "./routes/active-project",
+        "kind": "local",
+        "symbols": [
+          "activeProjectRoutes"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "morgan",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "express",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "connectDB",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "activeProjectRoutes",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "app",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "error": "Unsupported language or parse error"
+  },
+  {
+    "file": {
+      "path": "auth/index.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "express",
+        "kind": "external",
+        "symbols": [
+          "express"
+        ]
+      },
+      {
+        "source": "express-session",
+        "kind": "external",
+        "symbols": [
+          "session"
+        ]
+      },
+      {
+        "source": "passport",
+        "kind": "external",
+        "symbols": [
+          "passport"
+        ]
+      },
+      {
+        "source": "cookie-parser",
+        "kind": "external",
+        "symbols": [
+          "cookieParser"
+        ]
+      },
+      {
+        "source": "morgan",
+        "kind": "external",
+        "symbols": [
+          "morgan"
+        ]
+      },
+      {
+        "source": "./config/db",
+        "kind": "local",
+        "symbols": [
+          "connectDB"
+        ]
+      },
+      {
+        "source": "./routes/auth",
+        "kind": "local",
+        "symbols": [
+          "authRoutes"
+        ]
+      },
+      {
+        "source": "cors",
+        "kind": "external",
+        "symbols": [
+          "cors"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "express",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "session",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "passport",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "cookieParser",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "morgan",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "connectDB",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "authRoutes",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "app",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "cors",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "PORT",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "error": "Unsupported language or parse error"
+  },
+  {
+    "file": {
+      "path": "shared-models/index.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [],
+    "entities": {
+      "variables": [],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "error": "Unsupported language or parse error"
+  },
+  {
+    "file": {
+      "path": "Daily-Journal/config/db.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "mongoose",
+        "kind": "external",
+        "symbols": [
+          "mongoose"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "mongoose",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "connectDB",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "Daily-Journal/config/db.js::connectDB",
+          "name": "connectDB",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "Daily-Journal/controllers/controllers.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "axios",
+        "kind": "external",
+        "symbols": [
+          "axios"
+        ]
+      },
+      {
+        "source": "dayjs",
+        "kind": "external",
+        "symbols": [
+          "dayjs"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "axios",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "dayjs",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "user",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "token",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "githubUsername",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "repoName",
+          "kind": "const",
+          "valueType": "string"
+        },
+        {
+          "name": "dateFile",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "headers",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "repoExists",
+          "kind": "let",
+          "valueType": "boolean"
+        },
+        {
+          "name": "fileUrl",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "existingContent",
+          "kind": "let",
+          "valueType": "string"
+        },
+        {
+          "name": "sha",
+          "kind": "let",
+          "valueType": "unknown"
+        },
+        {
+          "name": "timestamp",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "newEntry",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "updatedContent",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "encoded",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "entries",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "current",
+          "kind": "let",
+          "valueType": "unknown"
+        },
+        {
+          "name": "user",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "token",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "githubUsername",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "repoName",
+          "kind": "const",
+          "valueType": "string"
+        },
+        {
+          "name": "headers",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "todayFile",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "fileUrl",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "user",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "token",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "githubUsername",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "repoName",
+          "kind": "const",
+          "valueType": "string"
+        },
+        {
+          "name": "headers",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "files",
+          "kind": "let",
+          "valueType": "unknown"
+        },
+        {
+          "name": "journalFiles",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "grouped",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "user",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "token",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "githubUsername",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "repoName",
+          "kind": "const",
+          "valueType": "string"
+        },
+        {
+          "name": "headers",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "files",
+          "kind": "let",
+          "valueType": "unknown"
+        },
+        {
+          "name": "datedFiles",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "allEntries",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "validEntries",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "currentMonth",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "currentYear",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "monthlyEntries",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "totalEntries",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "monthlyCount",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "averageWords",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "user",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "token",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "githubUsername",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "repoName",
+          "kind": "const",
+          "valueType": "string"
+        },
+        {
+          "name": "headers",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "fileName",
+          "kind": "let",
+          "valueType": "unknown"
+        },
+        {
+          "name": "fileUrl",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "Daily-Journal/controllers/controllers.js::saveDailyJournal",
+          "name": "saveDailyJournal",
+          "scope": "global",
+          "params": [
+            "userId",
+            "content"
+          ],
+          "calls": []
+        },
+        {
+          "id": "Daily-Journal/controllers/controllers.js::parseJournalContent",
+          "name": "parseJournalContent",
+          "scope": "global",
+          "params": [
+            "content"
+          ],
+          "calls": [
+            "unknown.forEach"
+          ]
+        },
+        {
+          "id": "Daily-Journal/controllers/controllers.js::getTodayJournalEntries",
+          "name": "getTodayJournalEntries",
+          "scope": "global",
+          "params": [
+            "userId"
+          ],
+          "calls": []
+        },
+        {
+          "id": "Daily-Journal/controllers/controllers.js::getMonthlyJournal",
+          "name": "getMonthlyJournal",
+          "scope": "global",
+          "params": [
+            "userId"
+          ],
+          "calls": [
+            "journalFiles.forEach"
+          ]
+        },
+        {
+          "id": "Daily-Journal/controllers/controllers.js::analyzeMonthlyJournal",
+          "name": "analyzeMonthlyJournal",
+          "scope": "global",
+          "params": [
+            "userId"
+          ],
+          "calls": []
+        },
+        {
+          "id": "Daily-Journal/controllers/controllers.js::getJournalByDate",
+          "name": "getJournalByDate",
+          "scope": "global",
+          "params": [
+            "userId",
+            "date"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "Daily-Journal/routes/daily-jornal.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "express",
+        "kind": "external",
+        "symbols": [
+          "express"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "express",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "router",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "Daily-Journal/services/user-services.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "mongoose",
+        "kind": "external",
+        "symbols": [
+          "mongoose"
+        ]
+      },
+      {
+        "source": "../../shared-models",
+        "kind": "local",
+        "symbols": [
+          "sharedModels"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "mongoose",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "sharedModels",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "User",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "Daily-Journal/services/user-services.js::getUserById",
+          "name": "getUserById",
+          "scope": "global",
+          "params": [
+            "userId"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "Idea-valut-service/Kafka/consumer-embedding.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "fs",
+        "kind": "external",
+        "symbols": [
+          "fs"
+        ]
+      },
+      {
+        "source": "path",
+        "kind": "external",
+        "symbols": [
+          "path"
+        ]
+      },
+      {
+        "source": "mongoose",
+        "kind": "external",
+        "symbols": [
+          "mongoose"
+        ]
+      },
+      {
+        "source": "../../shared-models",
+        "kind": "local",
+        "symbols": [
+          "sharedModels"
+        ]
+      },
+      {
+        "source": "../utils/embedding",
+        "kind": "local",
+        "symbols": [
+          "embedTextFileAndSave"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "fs",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "path",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "mongoose",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "sharedModels",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "embedTextFileAndSave",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "Idea",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "kafka",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "consumer",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "EMBEDDING_DIR",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "CONVERTED_DIR",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "processFile",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "processExternalReferences",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "startEmbeddingConsumer",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "Idea-valut-service/Kafka/consumer-embedding.js::normalizeFileName",
+          "name": "normalizeFileName",
+          "scope": "global",
+          "params": [
+            "fileName"
+          ],
+          "calls": []
+        },
+        {
+          "id": "Idea-valut-service/Kafka/consumer-embedding.js::processFile",
+          "name": "processFile",
+          "scope": "global",
+          "params": [
+            "file",
+            "idea_id",
+            "user_id",
+            "pattern"
+          ],
+          "calls": []
+        },
+        {
+          "id": "Idea-valut-service/Kafka/consumer-embedding.js::processExternalReferences",
+          "name": "processExternalReferences",
+          "scope": "global",
+          "params": [
+            "idea_id",
+            "user_id",
+            "pattern"
+          ],
+          "calls": []
+        },
+        {
+          "id": "Idea-valut-service/Kafka/consumer-embedding.js::startEmbeddingConsumer",
+          "name": "startEmbeddingConsumer",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "Idea-valut-service/Kafka/consumer-upload.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "fs",
+        "kind": "external",
+        "symbols": [
+          "fs"
+        ]
+      },
+      {
+        "source": "path",
+        "kind": "external",
+        "symbols": [
+          "path"
+        ]
+      },
+      {
+        "source": "mongoose",
+        "kind": "external",
+        "symbols": [
+          "mongoose"
+        ]
+      },
+      {
+        "source": "axios",
+        "kind": "external",
+        "symbols": [
+          "axios"
+        ]
+      },
+      {
+        "source": "../../shared-models",
+        "kind": "local",
+        "symbols": [
+          "sharedModels"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "fs",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "path",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "mongoose",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "axios",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "sharedModels",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "USER_SERVICE_URL",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "Idea",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "kafka",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "consumer",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "Idea-valut-service/Kafka/consumer-upload.js::detectFileCategory",
+          "name": "detectFileCategory",
+          "scope": "global",
+          "params": [
+            "mimetype"
+          ],
+          "calls": []
+        },
+        {
+          "id": "Idea-valut-service/Kafka/consumer-upload.js::sanitizeTitle",
+          "name": "sanitizeTitle",
+          "scope": "global",
+          "params": [
+            "pattern"
+          ],
+          "calls": []
+        },
+        {
+          "id": "Idea-valut-service/Kafka/consumer-upload.js::getGoogleAccessToken",
+          "name": "getGoogleAccessToken",
+          "scope": "global",
+          "params": [
+            "userId"
+          ],
+          "calls": []
+        },
+        {
+          "id": "Idea-valut-service/Kafka/consumer-upload.js::startDriveConsumer",
+          "name": "startDriveConsumer",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "Idea-valut-service/Kafka/producer.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [],
+    "entities": {
+      "variables": [
+        {
+          "name": "kafka",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "producer",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "sendToKafka",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "Idea-valut-service/Kafka/producer.js::sendToKafka",
+          "name": "sendToKafka",
+          "scope": "global",
+          "params": [
+            "topic",
+            "message"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "Idea-valut-service/config/db.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "mongoose",
+        "kind": "external",
+        "symbols": [
+          "mongoose"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "mongoose",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "connectDB",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "Idea-valut-service/config/db.js::connectDB",
+          "name": "connectDB",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "Idea-valut-service/controllers/ideaController.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "fs",
+        "kind": "external",
+        "symbols": [
+          "fs"
+        ]
+      },
+      {
+        "source": "path",
+        "kind": "external",
+        "symbols": [
+          "path"
+        ]
+      },
+      {
+        "source": "axios",
+        "kind": "external",
+        "symbols": [
+          "axios"
+        ]
+      },
+      {
+        "source": "mongoose",
+        "kind": "external",
+        "symbols": [
+          "mongoose"
+        ]
+      },
+      {
+        "source": "../../shared-models",
+        "kind": "local",
+        "symbols": [
+          "sharedModels"
+        ]
+      },
+      {
+        "source": "../Kafka/producer",
+        "kind": "local",
+        "symbols": [
+          "sendToKafka"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "fs",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "path",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "axios",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "mongoose",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "sharedModels",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "sendToKafka",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "Idea",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "uploadDir",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "Idea-valut-service/middlewares/uploadToDrive.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "mongoose",
+        "kind": "external",
+        "symbols": [
+          "mongoose"
+        ]
+      },
+      {
+        "source": "../../shared-models",
+        "kind": "local",
+        "symbols": [
+          "sharedModels"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "mongoose",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "sharedModels",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "User",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "uploadToDrive",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "Idea-valut-service/middlewares/uploadToDrive.js::uploadToDrive",
+          "name": "uploadToDrive",
+          "scope": "global",
+          "params": [
+            "req",
+            "res",
+            "next"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "Idea-valut-service/routes/chat.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "express",
+        "kind": "external",
+        "symbols": [
+          "express"
+        ]
+      },
+      {
+        "source": "axios",
+        "kind": "external",
+        "symbols": [
+          "axios"
+        ]
+      },
+      {
+        "source": "../utils/generateTextEmbedding",
+        "kind": "local",
+        "symbols": [
+          "generateTextEmbedding"
+        ]
+      },
+      {
+        "source": "../utils/formatPrompt",
+        "kind": "local",
+        "symbols": [
+          "formatPrompt"
+        ]
+      },
+      {
+        "source": "../utils/formatSummaryPrompt",
+        "kind": "local",
+        "symbols": [
+          "formatSummaryPrompt"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "express",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "router",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "axios",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "generateTextEmbedding",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "formatPrompt",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "formatSummaryPrompt",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "lowered",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "userQuestion",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "Idea-valut-service/routes/chat.js::isSummaryRequest",
+          "name": "isSummaryRequest",
+          "scope": "global",
+          "params": [
+            "question"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "Idea-valut-service/routes/ideaRoutes.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "express",
+        "kind": "external",
+        "symbols": [
+          "express"
+        ]
+      },
+      {
+        "source": "multer",
+        "kind": "external",
+        "symbols": [
+          "multer"
+        ]
+      },
+      {
+        "source": "../controllers/ideaController",
+        "kind": "local",
+        "symbols": [
+          "ideaController"
+        ]
+      },
+      {
+        "source": "../middlewares/uploadToDrive",
+        "kind": "local",
+        "symbols": [
+          "uploadToDrive"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "express",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "router",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "multer",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "ideaController",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "uploadToDrive",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "upload",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "Idea-valut-service/services/ideaService.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "mongoose",
+        "kind": "external",
+        "symbols": [
+          "mongoose"
+        ]
+      },
+      {
+        "source": "../../shared-models",
+        "kind": "local",
+        "symbols": [
+          "sharedModels"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "mongoose",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "sharedModels",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "Idea",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "Idea-valut-service/utils/driveHelper.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [],
+    "entities": {
+      "variables": [
+        {
+          "name": "drive",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "createFolder",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "findFolder",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "getOrCreateRootFolder",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "auth",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "drive",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "folderIdSet",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "match",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "match",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "Idea-valut-service/utils/driveHelper.js::drive",
+          "name": "drive",
+          "scope": "global",
+          "params": [],
+          "calls": [
+            "google.drive"
+          ]
+        },
+        {
+          "id": "Idea-valut-service/utils/driveHelper.js::createFolder",
+          "name": "createFolder",
+          "scope": "global",
+          "params": [
+            "name",
+            "accessToken",
+            "pattern"
+          ],
+          "calls": [
+            "auth.setCredentials"
+          ]
+        },
+        {
+          "id": "Idea-valut-service/utils/driveHelper.js::findFolder",
+          "name": "findFolder",
+          "scope": "global",
+          "params": [
+            "name",
+            "accessToken"
+          ],
+          "calls": [
+            "auth.setCredentials"
+          ]
+        },
+        {
+          "id": "Idea-valut-service/utils/driveHelper.js::getOrCreateRootFolder",
+          "name": "getOrCreateRootFolder",
+          "scope": "global",
+          "params": [
+            "accessToken"
+          ],
+          "calls": []
+        },
+        {
+          "id": "Idea-valut-service/utils/driveHelper.js::deleteDriveFilesAndFolder",
+          "name": "deleteDriveFilesAndFolder",
+          "scope": "global",
+          "params": [
+            "attachedFiles",
+            "accessToken"
+          ],
+          "calls": [
+            "auth.setCredentials"
+          ]
+        },
+        {
+          "id": "Idea-valut-service/utils/driveHelper.js::extractFileId",
+          "name": "extractFileId",
+          "scope": "global",
+          "params": [
+            "driveFileLink"
+          ],
+          "calls": []
+        },
+        {
+          "id": "Idea-valut-service/utils/driveHelper.js::extractFolderId",
+          "name": "extractFolderId",
+          "scope": "global",
+          "params": [
+            "folderLink"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "Idea-valut-service/utils/embedding.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "fs",
+        "kind": "external",
+        "symbols": [
+          "fs"
+        ]
+      },
+      {
+        "source": "path",
+        "kind": "external",
+        "symbols": [
+          "path"
+        ]
+      },
+      {
+        "source": "axios",
+        "kind": "external",
+        "symbols": [
+          "axios"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "fs",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "path",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "axios",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "CONVERTED_DIR",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "EMBEDDING_DIR",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "QDRANT_URL",
+          "kind": "const",
+          "valueType": "string"
+        },
+        {
+          "name": "sentences",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "chunks",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "chunk",
+          "kind": "let",
+          "valueType": "string"
+        },
+        {
+          "name": "arxivMatch",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "yearMatch",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "authorMatch",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "arxiv_id",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "year",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "fileName",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "targetPath",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "rawText",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "cleanedText",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "chunks",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "metadata",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "successCount",
+          "kind": "let",
+          "valueType": "number"
+        },
+        {
+          "name": "vector",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "Idea-valut-service/utils/embedding.js::cleanText",
+          "name": "cleanText",
+          "scope": "global",
+          "params": [
+            "rawText"
+          ],
+          "calls": []
+        },
+        {
+          "id": "Idea-valut-service/utils/embedding.js::chunkText",
+          "name": "chunkText",
+          "scope": "global",
+          "params": [
+            "text",
+            "pattern"
+          ],
+          "calls": []
+        },
+        {
+          "id": "Idea-valut-service/utils/embedding.js::extractMetadata",
+          "name": "extractMetadata",
+          "scope": "global",
+          "params": [
+            "text"
+          ],
+          "calls": []
+        },
+        {
+          "id": "Idea-valut-service/utils/embedding.js::generateEmbedding",
+          "name": "generateEmbedding",
+          "scope": "global",
+          "params": [
+            "text",
+            "pattern"
+          ],
+          "calls": []
+        },
+        {
+          "id": "Idea-valut-service/utils/embedding.js::embedTextFileAndSave",
+          "name": "embedTextFileAndSave",
+          "scope": "global",
+          "params": [
+            "fullFilePath",
+            "user_id",
+            "idea_id"
+          ],
+          "calls": [
+            "console.log"
+          ]
+        }
+      ],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "Idea-valut-service/utils/extractPDF.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "fs",
+        "kind": "external",
+        "symbols": [
+          "fs"
+        ]
+      },
+      {
+        "source": "path",
+        "kind": "external",
+        "symbols": [
+          "path"
+        ]
+      },
+      {
+        "source": "pdf-parse",
+        "kind": "external",
+        "symbols": [
+          "pdfParse"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "fs",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "path",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "pdfParse",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "dataBuffer",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "data",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "text",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "Idea-valut-service/utils/extractPDF.js::extractTextWithPdfParse",
+          "name": "extractTextWithPdfParse",
+          "scope": "global",
+          "params": [
+            "pdfPath"
+          ],
+          "calls": [
+            "console.log"
+          ]
+        }
+      ],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "error": "Unsupported language or parse error"
+  },
+  {
+    "file": {
+      "path": "Idea-valut-service/utils/formatPrompt.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [],
+    "entities": {
+      "variables": [],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "Idea-valut-service/utils/formatSummaryPrompt.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [],
+    "entities": {
+      "variables": [],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "Idea-valut-service/utils/generateTextEmbedding.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "axios",
+        "kind": "external",
+        "symbols": [
+          "axios"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "axios",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "Idea-valut-service/utils/generateTextEmbedding.js::generateTextEmbedding",
+          "name": "generateTextEmbedding",
+          "scope": "global",
+          "params": [
+            "text",
+            "pattern"
+          ],
+          "calls": [
+            "console.error"
+          ]
+        }
+      ],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "Idea-valut-service/utils/googleDriveUploader.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "path",
+        "kind": "external",
+        "symbols": [
+          "path"
+        ]
+      },
+      {
+        "source": "streamifier",
+        "kind": "external",
+        "symbols": [
+          "streamifier"
+        ]
+      },
+      {
+        "source": "axios",
+        "kind": "external",
+        "symbols": [
+          "axios"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "path",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "streamifier",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "axios",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "Idea-valut-service/utils/logger.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [],
+    "entities": {
+      "variables": [
+        {
+          "name": "log",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "Idea-valut-service/utils/vectorDb.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "axios",
+        "kind": "external",
+        "symbols": [
+          "axios"
+        ]
+      },
+      {
+        "source": "../utils/logger",
+        "kind": "local",
+        "symbols": [
+          "log"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "axios",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "log",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "COLLECTION_NAME",
+          "kind": "const",
+          "valueType": "string"
+        },
+        {
+          "name": "VECTOR_DIMENSION",
+          "kind": "const",
+          "valueType": "number"
+        },
+        {
+          "name": "QDRANT_URL",
+          "kind": "const",
+          "valueType": "string"
+        },
+        {
+          "name": "client",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "id",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "payload",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "Idea-valut-service/utils/vectorDb.js::ensureCollection",
+          "name": "ensureCollection",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        },
+        {
+          "id": "Idea-valut-service/utils/vectorDb.js::saveToQdrant",
+          "name": "saveToQdrant",
+          "scope": "global",
+          "params": [
+            "pattern"
+          ],
+          "calls": []
+        },
+        {
+          "id": "Idea-valut-service/utils/vectorDb.js::searchFromQdrant",
+          "name": "searchFromQdrant",
+          "scope": "global",
+          "params": [
+            "vector",
+            "pattern"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "Idea-valut-service/utils/webScraper.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "puppeteer",
+        "kind": "external",
+        "symbols": [
+          "puppeteer"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "puppeteer",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "Idea-valut-service/utils/webScraper.js::scrapeWebsite",
+          "name": "scrapeWebsite",
+          "scope": "global",
+          "params": [
+            "url"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "Idea-valut-service/utils/youtubeUtils.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "axios",
+        "kind": "external",
+        "symbols": [
+          "axios"
+        ]
+      },
+      {
+        "source": "fs",
+        "kind": "external",
+        "symbols": [
+          "fs"
+        ]
+      },
+      {
+        "source": "path",
+        "kind": "external",
+        "symbols": [
+          "path"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "axios",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "fs",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "path",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "videoId",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "Idea-valut-service/utils/youtubeUtils.js::getTranscriptFromRapidAPI",
+          "name": "getTranscriptFromRapidAPI",
+          "scope": "global",
+          "params": [
+            "youtubeUrl"
+          ],
+          "calls": [
+            "console.log"
+          ]
+        }
+      ],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "User-services/config/db.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "mongoose",
+        "kind": "external",
+        "symbols": [
+          "mongoose"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "mongoose",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "connectDB",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "User-services/config/db.js::connectDB",
+          "name": "connectDB",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "User-services/controllers/userController.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "../services/userService",
+        "kind": "local",
+        "symbols": [
+          "userService"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "userService",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "User-services/routes/userRoutes.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "express",
+        "kind": "external",
+        "symbols": [
+          "express"
+        ]
+      },
+      {
+        "source": "../controllers/userController",
+        "kind": "local",
+        "symbols": [
+          "userController"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "express",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "router",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "userController",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "User-services/services/userService.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "mongoose",
+        "kind": "external",
+        "symbols": [
+          "mongoose"
+        ]
+      },
+      {
+        "source": "../../shared-models",
+        "kind": "local",
+        "symbols": [
+          "sharedModels"
+        ]
+      },
+      {
+        "source": "axios",
+        "kind": "external",
+        "symbols": [
+          "axios"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "mongoose",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "sharedModels",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "User",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "axios",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "active-projects-service/config/db.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "mongoose",
+        "kind": "external",
+        "symbols": [
+          "mongoose"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "mongoose",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "connectDB",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "active-projects-service/config/db.js::connectDB",
+          "name": "connectDB",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "active-projects-service/controllers/activeProject.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "mongoose",
+        "kind": "external",
+        "symbols": [
+          "mongoose"
+        ]
+      },
+      {
+        "source": "axios",
+        "kind": "external",
+        "symbols": [
+          "axios"
+        ]
+      },
+      {
+        "source": "../../shared-models",
+        "kind": "local",
+        "symbols": [
+          "sharedModels"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "mongoose",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "axios",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "sharedModels",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "ActiveProject",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "userId",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "search",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "user",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "token",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "octokit",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "validStatuses",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "deleteProject",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "addRepoToProject",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "active-projects-service/controllers/activeProject.js::getAllProjects",
+          "name": "getAllProjects",
+          "scope": "global",
+          "params": [
+            "req",
+            "res"
+          ],
+          "calls": []
+        },
+        {
+          "id": "active-projects-service/controllers/activeProject.js::createGithubRepo",
+          "name": "createGithubRepo",
+          "scope": "global",
+          "params": [
+            "req",
+            "res"
+          ],
+          "calls": []
+        },
+        {
+          "id": "active-projects-service/controllers/activeProject.js::createProjectEntry",
+          "name": "createProjectEntry",
+          "scope": "global",
+          "params": [
+            "req",
+            "res"
+          ],
+          "calls": []
+        },
+        {
+          "id": "active-projects-service/controllers/activeProject.js::getProjectById",
+          "name": "getProjectById",
+          "scope": "global",
+          "params": [
+            "req",
+            "res"
+          ],
+          "calls": []
+        },
+        {
+          "id": "active-projects-service/controllers/activeProject.js::fetchRepos",
+          "name": "fetchRepos",
+          "scope": "global",
+          "params": [
+            "req",
+            "res"
+          ],
+          "calls": []
+        },
+        {
+          "id": "active-projects-service/controllers/activeProject.js::changeRepoVisibility",
+          "name": "changeRepoVisibility",
+          "scope": "global",
+          "params": [
+            "req",
+            "res"
+          ],
+          "calls": []
+        },
+        {
+          "id": "active-projects-service/controllers/activeProject.js::getSpecificRepoAnalysis",
+          "name": "getSpecificRepoAnalysis",
+          "scope": "global",
+          "params": [
+            "req",
+            "res"
+          ],
+          "calls": []
+        },
+        {
+          "id": "active-projects-service/controllers/activeProject.js::getAllRepoAnalysis",
+          "name": "getAllRepoAnalysis",
+          "scope": "global",
+          "params": [
+            "req",
+            "res"
+          ],
+          "calls": []
+        },
+        {
+          "id": "active-projects-service/controllers/activeProject.js::updateProject",
+          "name": "updateProject",
+          "scope": "global",
+          "params": [
+            "req",
+            "res"
+          ],
+          "calls": []
+        },
+        {
+          "id": "active-projects-service/controllers/activeProject.js::syncGithubRepoToDB",
+          "name": "syncGithubRepoToDB",
+          "scope": "global",
+          "params": [
+            "req",
+            "res"
+          ],
+          "calls": []
+        },
+        {
+          "id": "active-projects-service/controllers/activeProject.js::retireProject",
+          "name": "retireProject",
+          "scope": "global",
+          "params": [
+            "req",
+            "res"
+          ],
+          "calls": []
+        },
+        {
+          "id": "active-projects-service/controllers/activeProject.js::deleteProject",
+          "name": "deleteProject",
+          "scope": "global",
+          "params": [
+            "req",
+            "res"
+          ],
+          "calls": []
+        },
+        {
+          "id": "active-projects-service/controllers/activeProject.js::addRepoToProject",
+          "name": "addRepoToProject",
+          "scope": "global",
+          "params": [
+            "req",
+            "res"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "active-projects-service/routes/active-project.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "express",
+        "kind": "external",
+        "symbols": [
+          "express"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "express",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "router",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "active-projects-service/services/user-services.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "mongoose",
+        "kind": "external",
+        "symbols": [
+          "mongoose"
+        ]
+      },
+      {
+        "source": "../../shared-models",
+        "kind": "local",
+        "symbols": [
+          "sharedModels"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "mongoose",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "sharedModels",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "User",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "active-projects-service/services/user-services.js::getUserById",
+          "name": "getUserById",
+          "scope": "global",
+          "params": [
+            "userId"
+          ],
+          "calls": []
+        },
+        {
+          "id": "active-projects-service/services/user-services.js::addActiveProjectToUser",
+          "name": "addActiveProjectToUser",
+          "scope": "global",
+          "params": [
+            "pattern"
+          ],
+          "calls": []
+        },
+        {
+          "id": "active-projects-service/services/user-services.js::removeActiveProjectFromUser",
+          "name": "removeActiveProjectFromUser",
+          "scope": "global",
+          "params": [
+            "pattern"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "active-projects-service/utils/repoStats.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [],
+    "entities": {
+      "variables": [
+        {
+          "name": "totalStats",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "stats",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "count",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "average_stats",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "active-projects-service/utils/repoStats.js::calculateRepoStats",
+          "name": "calculateRepoStats",
+          "scope": "global",
+          "params": [
+            "repositories"
+          ],
+          "calls": [
+            "repositories.forEach"
+          ]
+        }
+      ],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "auth/config/db.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "mongoose",
+        "kind": "external",
+        "symbols": [
+          "mongoose"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "mongoose",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "connectDB",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "auth/config/db.js::connectDB",
+          "name": "connectDB",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "auth/config/passport.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "passport",
+        "kind": "external",
+        "symbols": [
+          "passport"
+        ]
+      },
+      {
+        "source": "../models/User",
+        "kind": "local",
+        "symbols": [
+          "User"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "passport",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "GoogleStrategy",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "GitHubStrategy",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "User",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "auth/config/passport.js::defaultGoogleProvider",
+          "name": "defaultGoogleProvider",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        },
+        {
+          "id": "auth/config/passport.js::defaultGitHubProvider",
+          "name": "defaultGitHubProvider",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "auth/middleware/attachDeviceInfo.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "moment",
+        "kind": "external",
+        "symbols": [
+          "moment"
+        ]
+      },
+      {
+        "source": "geoip-lite",
+        "kind": "external",
+        "symbols": [
+          "geoip"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "moment",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "geoip",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "attachDeviceInfo",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "auth/middleware/attachDeviceInfo.js::attachDeviceInfo",
+          "name": "attachDeviceInfo",
+          "scope": "global",
+          "params": [
+            "req",
+            "res",
+            "next"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "auth/models/User.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "mongoose",
+        "kind": "external",
+        "symbols": [
+          "mongoose"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "mongoose",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "auth/routes/auth.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "express",
+        "kind": "external",
+        "symbols": [
+          "express"
+        ]
+      },
+      {
+        "source": "passport",
+        "kind": "external",
+        "symbols": [
+          "passport"
+        ]
+      },
+      {
+        "source": "../middleware/attachDeviceInfo",
+        "kind": "local",
+        "symbols": [
+          "attachDeviceInfo"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "express",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "passport",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "attachDeviceInfo",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "router",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "sessionUser",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "auth/utils/fingerprint.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "crypto",
+        "kind": "external",
+        "symbols": [
+          "crypto"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "crypto",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "ip",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "userAgent",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "platform",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "raw",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "hash",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "auth/utils/fingerprint.js::generateFingerprint",
+          "name": "generateFingerprint",
+          "scope": "global",
+          "params": [
+            "req"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "shared-models/models/ActiveProject.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "mongoose",
+        "kind": "external",
+        "symbols": [
+          "mongoose"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "mongoose",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "LastCommitSchema",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "GitHubStatsSchema",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "CodeRepoSchema",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "AverageGitHubStatsSchema",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "ActiveProjectSchema",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "shared-models/models/Idea.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "mongoose",
+        "kind": "external",
+        "symbols": [
+          "mongoose"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "mongoose",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "normalizeEnum",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "FileSchema",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "ReferenceSchema",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "NoteSchema",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "IdeaSchema",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "shared-models/models/Idea.js::normalizeEnum",
+          "name": "normalizeEnum",
+          "scope": "global",
+          "params": [
+            "val",
+            "allowed"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": []
+  }
+]
