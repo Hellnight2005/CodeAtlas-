@@ -13,5 +13,5 @@ app.listen(PORT, () => {
     metadata: { path: "/", ip: "server" },
   });
 
-  console.log(`GitHub Auth Service running on port ${PORT}`);
+  logger.info(`GitHub Auth Service running on port ${PORT}`);
 });

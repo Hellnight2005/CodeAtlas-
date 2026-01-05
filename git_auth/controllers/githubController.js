@@ -2,6 +2,7 @@ const axios = require('axios');
 const User = require('../models/User');
 const { getMainDBConnection } = require('../config/mysqlClient');
 const { produceMessage } = require('../config/kafkaClient');
+const logger = require('../config/logger'); // Structured Logger
 
 // GitHub API Base URL
 const GITHUB_API_URL = 'https://api.github.com';
@@ -178,7 +179,7 @@ const axiosRetry = async (client, url, config = {}, retries = 3) => {
             const retryAfter = error.response.headers['retry-after'];
             const waitTime = retryAfter ? parseInt(retryAfter) * 1000 : 2000 * (4 - retries); // Fallback exponential backoff
 
-            console.log(`Rate limit hit. Waiting ${waitTime}ms before retry. (${retries} retries left)`);
+            logger.info(`Rate limit hit. Waiting ${waitTime}ms before retry. (${retries} retries left)`);
             await sleep(waitTime);
             return axiosRetry(client, url, config, retries - 1);
         }

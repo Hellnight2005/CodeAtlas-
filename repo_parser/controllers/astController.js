@@ -2,8 +2,9 @@ const dbPool = require('../config/mysqlRepo');
 const parser = require('../utils/treeSitterParser');
 const normalizer = require('../utils/astNormalizer');
 const { exportRepoGraphData } = require('../utils/exportGraphData');
-const { importRepoGraphToNeo4j } = require('../utils/importGraphData');
+const { importCodebaseGraph, deleteRepoGraphFromNeo4j } = require('../utils/importGraphData'); // Correct Import
 const path = require('path');
+const logger = require('../config/logger');
 
 const generateASTForRepo = async (req, res) => {
     const { repoName, force } = req.body;
@@ -13,7 +14,7 @@ const generateASTForRepo = async (req, res) => {
     }
 
     const tableName = repoName.replace(/[^a-zA-Z0-9_]/g, '_');
-    console.log(`[AST] Starting AST generation for ${repoName} (Table: ${tableName})`);
+    logger.info(`[AST] Starting AST generation for ${repoName} (Table: ${tableName})`);
 
     try {
         // Build Query: default to incremental (NULL sorted_content), unless force=true
@@ -30,18 +31,18 @@ const generateASTForRepo = async (req, res) => {
 
         const [files] = await dbPool.query(query);
 
-        console.log(`[AST] Found ${files.length} files to process (Force: ${!!force}).`);
+        logger.info(`[AST] Found ${files.length} files to process (Force: ${!!force}).`);
 
         if (files.length === 0) {
             return res.json({ message: 'No new files to process.', status: 'up-to-date' });
         }
 
-        processRepoFiles(tableName, files, repoName).catch(err => console.error(`[AST] Background processing failed: ${err.message}`));
+        processRepoFiles(tableName, files, repoName).catch(err => logger.error(`[AST] Background processing failed: ${err.message}`));
 
         res.json({ message: `Started processing ${files.length} files for AST generation.`, status: 'processing' });
 
     } catch (error) {
-        console.error(`[AST] Error fetching files: ${error.message}`);
+        logger.error(`[AST] Error fetching files: ${error.message}`);
         res.status(500).json({ error: error.message });
     }
 };
@@ -91,16 +92,18 @@ const processRepoFiles = async (tableName, files, repoName) => {
                 await dbPool.query(`UPDATE \`${tableName}\` SET sorted_content = ?, retries = retries + 1 WHERE path = ? AND raw_content IS NOT NULL`, [sortContent, filePath]);
                 processedCount++;
             } catch (fileErr) {
-                console.error(`[AST] Error processing file ${file.path}: ${fileErr.message}`);
+                logger.error(`[AST] Error processing file ${file.path}: ${fileErr.message}`);
             }
         }));
-        console.log(`[AST] Processed batch ${Math.floor(i / BATCH_SIZE) + 1} (${Math.min(i + BATCH_SIZE, files.length)}/${files.length} files).`);
+
+        logger.info(`[AST] Processed batch ${Math.floor(i / BATCH_SIZE) + 1} (${Math.min(i + BATCH_SIZE, files.length)}/${files.length} files).`);
     }
-    console.log(`[AST] Completed processing ${files.length} files for ${tableName}.`);
+
+    logger.info(`[AST] Completed processing ${files.length} files for ${tableName}.`);
 
     // Incremental Neo4j Import
     if (deltaGraph.length > 0) {
-        console.log(`[AST] Syncing ${deltaGraph.length} new nodes to Neo4j (Incremental)...`);
+        logger.info(`[AST] Syncing ${deltaGraph.length} new nodes to Neo4j (Incremental)...`);
         await importCodebaseGraph(deltaGraph, 'neo4j', repoName);
     }
 
@@ -126,11 +129,11 @@ const deleteRepoGraph = async (req, res) => {
         // 2. Reset MySQL Status to ensure re-generation picks it up
         await dbPool.query(`UPDATE \`${tableName}\` SET sorted_content = NULL, status = 'pending'`);
 
-        console.log(`[DELETE] Reset MySQL status for ${repoName} to 'pending'.`);
+        logger.info(`[DELETE] Reset MySQL status for ${repoName} to 'pending'.`);
 
         res.json({ message: `Graph for ${repoName} deleted from Neo4j and MySQL status reset.` });
     } catch (error) {
-        console.error(`[DELETE] Error: ${error.message}`);
+        logger.error(`[DELETE] Error: ${error.message}`);
         res.status(500).json({ error: 'Failed to delete graph or reset DB status' });
     }
 };

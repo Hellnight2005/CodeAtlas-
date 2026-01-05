@@ -1,19 +1,15 @@
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
+const logger = require('../config/logger'); // Structured Logger
 
 const NEO4J_BASE_URL = 'http://localhost:7474/db';
 const NEO4J_AUTH = 'Basic ' + Buffer.from('neo4j:password').toString('base64');
+const IMPORT_DB_TARGET = 'neo4j'; // Always use default neo4j DB to avoid Community Edition limits
 
-// Resolve import path
-const resolveImportPath = (filePath, moduleName) => {
-    if (moduleName.startsWith('./') || moduleName.startsWith('../')) {
-        return path.normalize(path.join(path.dirname(filePath), moduleName)).replace(/\\/g, '/');
-    }
-    return moduleName; // external module
-};
+// ... (resolveImportPath remains same)
 
-// Create database if it doesn't exist
+// Create database if it doesn't exist (Deprecated for now/unused but keeping safe)
 const createDatabase = async (dbName) => {
     try {
         await axios.post(
@@ -21,10 +17,10 @@ const createDatabase = async (dbName) => {
             { statements: [{ statement: `CREATE DATABASE ${dbName} IF NOT EXISTS` }] },
             { headers: { Authorization: NEO4J_AUTH, 'Content-Type': 'application/json' } }
         );
-        console.log(`[IMPORT] Database '${dbName}' ensured.`);
+        logger.info(`[IMPORT] Database '${dbName}' ensured.`);
     } catch (error) {
         const msg = error.response?.data?.errors?.[0]?.message || error.message;
-        console.warn(`[IMPORT] Warning creating database '${dbName}': ${msg}`);
+        logger.warn(`[IMPORT] Warning creating database '${dbName}': ${msg}`);
     }
 };
 
@@ -38,7 +34,117 @@ const postToNeo4j = async (dbName, statements) => {
             { headers: { Authorization: NEO4J_AUTH, 'Content-Type': 'application/json' } }
         );
     } catch (error) {
-        console.error(`[NEO4J ERROR on ${dbName}]`, error.response?.data?.errors || error.message);
+        logger.error(`[NEO4J ERROR on ${dbName}]`, { error: error.response?.data?.errors || error.message });
+    }
+};
+
+// ... (importCodebaseGraph remains same, just ensure it uses postToNeo4j implicitly)
+
+// Entry point
+const importRepoGraphToNeo4j = async (repoName) => {
+    if (!repoName) {
+        logger.error('[IMPORT] Repo name required.');
+        return;
+    }
+
+    const dbName = IMPORT_DB_TARGET;
+    logger.info(`[IMPORT] Starting import for repo: ${repoName} into DB: ${dbName}`);
+
+    const dataPath = path.join(__dirname, `../public/${repoName}.json`);
+    if (!fs.existsSync(dataPath)) {
+        logger.error(`[IMPORT] No data file found at ${dataPath}`);
+        return;
+    }
+
+    try {
+        const codebase = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+        await importCodebaseGraph(codebase, dbName, repoName);
+        logger.info(`[IMPORT] Successfully imported ${repoName} to Neo4j.`);
+    } catch (err) {
+        logger.error(`[IMPORT] Failed to parse or import data for ${repoName}: ${err.message}`);
+    }
+};
+
+// ... CLI block ...
+
+// Delete repository graph from Neo4j
+const deleteRepoGraphFromNeo4j = async (repoName) => {
+    if (!repoName) return;
+    const dbName = IMPORT_DB_TARGET;
+    logger.info(`[DELETE] Deleting graph for ${repoName} from Neo4j...`);
+
+    // DEBUG: Check what Repositories exist
+    try {
+        const checkResp = await axios.post(
+            `${NEO4J_BASE_URL}/${dbName}/tx/commit`,
+            { statements: [{ statement: 'MATCH (r:Repository) RETURN r.name as name' }] },
+            { headers: { Authorization: NEO4J_AUTH, 'Content-Type': 'application/json' } }
+        );
+        const existingRepos = checkResp.data.results[0].data.map(row => row.row[0]);
+        // logger.debug(`[DELETE] Existing Repositories: ${JSON.stringify(existingRepos)}`); // Optional
+
+        if (!existingRepos.includes(repoName)) {
+            logger.warn(`[DELETE] WARNING: "${repoName}" not found in existing repositories! (Case sensitivity?)`);
+        }
+    } catch (e) {
+        logger.warn(`[DELETE] Failed to list existing repos: ${e.message}`);
+    }
+
+    const queries = [
+        // 1. Delete Dependencies (Methods, Exports, Variables declared by Files of this Repo)
+        {
+            statement: `
+                MATCH (r:Repository {name: $repoName})-[:CONTAINS]->(f:File)
+                OPTIONAL MATCH (f)-[:DECLARES]->(d)
+                OPTIONAL MATCH (d)-[:HAS_METHOD]->(m)
+                OPTIONAL MATCH (f)-[:EXPORTS]->(e)
+                DETACH DELETE d, m, e
+            `,
+            parameters: { repoName }
+        },
+        // 2. Delete Files
+        {
+            statement: `
+                MATCH (r:Repository {name: $repoName})-[:CONTAINS]->(f:File)
+                DETACH DELETE f
+            `,
+            parameters: { repoName }
+        },
+        // 3. Delete Repository
+        {
+            statement: `
+                MATCH (r:Repository {name: $repoName})
+                DETACH DELETE r
+            `,
+            parameters: { repoName }
+        }
+    ];
+
+    try {
+        const response = await axios.post(
+            `${NEO4J_BASE_URL}/${dbName}/tx/commit`,
+            {
+                statements: queries.map(q => ({ ...q, resultDataContents: ["row", "graph", "stats"] }))
+            },
+            { headers: { Authorization: NEO4J_AUTH, 'Content-Type': 'application/json' } }
+        );
+
+        const results = response.data.results || [];
+        results.forEach((res, idx) => {
+            const deleted = res.stats?.nodes_deleted || 0;
+            const relsDeleted = res.stats?.relationships_deleted || 0;
+            if (deleted > 0 || relsDeleted > 0) {
+                logger.info(`[DELETE] Step ${idx + 1}: Deleted ${deleted} nodes, ${relsDeleted} relationships.`);
+            }
+        });
+
+        logger.info(`[DELETE] Finished deletion sequence for ${repoName}.`);
+
+    } catch (error) {
+        logger.error(`[DELETE] Error: ${error.message}`);
+        if (error.response) {
+            logger.error('[DELETE] Neo4j Response:', { details: error.response.data });
+        }
     }
 };
 
@@ -257,90 +363,5 @@ const importCodebaseGraph = async (codebase, dbName, repoName) => {
 };
 
 // Entry point
-const importRepoGraphToNeo4j = async (repoName) => {
-    if (!repoName) {
-        console.error('[IMPORT] Repo name required.');
-        return;
-    }
-
-    // Force use of default database 'neo4j' to avoid Community Edition limits
-    const dbName = 'neo4j';
-    // await createDatabase(dbName); // No need to create default DB
-
-    const dataPath = path.join(__dirname, `../public/${repoName}.json`);
-    if (!fs.existsSync(dataPath)) {
-        console.error(`[IMPORT] No data file found at ${dataPath}`);
-        return;
-    }
-
-    const codebase = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
-    await importCodebaseGraph(codebase, dbName, repoName);
-};
-
-if (require.main === module) {
-    const repoName = process.argv[2];
-    if (!repoName) {
-        console.error('Usage: node importGraphData.js <repo_name>');
-        process.exit(1);
-    }
-    importRepoGraphToNeo4j(repoName).then(() => process.exit(0));
-}
-
-
-// Delete repository graph from Neo4j
-const deleteRepoGraphFromNeo4j = async (repoName) => {
-    if (!repoName) return;
-    const dbName = 'neo4j'; // Always use default DB
-    console.log(`[DELETE] Deleting graph for ${repoName} from Neo4j...`);
-
-    // DEBUG: Check what Repositories exist
-    try {
-        const checkResp = await axios.post(
-            `${NEO4J_BASE_URL}/${dbName}/tx/commit`,
-            { statements: [{ statement: 'MATCH (r:Repository) RETURN r.name as name' }] },
-            { headers: { Authorization: NEO4J_AUTH, 'Content-Type': 'application/json' } }
-        );
-        const existingRepos = checkResp.data.results[0].data.map(row => row.row[0]);
-        console.log(`[DELETE] Existing Repositories in DB: ${JSON.stringify(existingRepos)}`);
-
-        if (!existingRepos.includes(repoName)) {
-            console.warn(`[DELETE] WARNING: "${repoName}" not found in existing repositories! (Case sensitivity?)`);
-        }
-    } catch (e) {
-        console.warn(`[DELETE] Failed to list existing repos: ${e.message}`);
-    }
-
-    const statements = [
-        {
-            statement: `
-                MATCH (r:Repository {name: $repoName})
-                OPTIONAL MATCH (r)-[:CONTAINS]->(f:File)
-                OPTIONAL MATCH (f)-[:DECLARES]->(d)
-                OPTIONAL MATCH (d)-[:HAS_METHOD]->(m)
-                OPTIONAL MATCH (f)-[:EXPORTS]->(e)
-                DETACH DELETE r, f, d, m, e
-            `,
-            parameters: { repoName },
-            resultDataContents: ["row", "graph", "stats"]
-        }
-    ];
-
-    try {
-        const response = await axios.post(
-            `${NEO4J_BASE_URL}/${dbName}/tx/commit`,
-            { statements },
-            { headers: { Authorization: NEO4J_AUTH, 'Content-Type': 'application/json' } }
-        );
-
-        const stats = response.data.results?.[0]?.stats || {};
-        console.log(`[DELETE] Deleted graph for ${repoName}. Stats:`, stats);
-    } catch (error) {
-        console.error(`[DELETE] info: ${error.message}`);
-        // Log full error details for debugging
-        if (error.response) {
-            console.error('[DELETE] Neo4j Response:', JSON.stringify(error.response.data));
-        }
-    }
-};
-
+// End of file
 module.exports = { importRepoGraphToNeo4j, deleteRepoGraphFromNeo4j, importCodebaseGraph };

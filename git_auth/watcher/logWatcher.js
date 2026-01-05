@@ -94,9 +94,13 @@ async function processFile(filename, level, connection) {
 
             const lines = data.split('\n').filter(line => line.trim());
 
-            // Check Threshold
-            if (lines.length >= THRESHOLD) {
-                console.log(`[${filename}] Reached threshold (${lines.length} >= ${THRESHOLD}). Processing...`);
+            // Dynamic Threshold:
+            // INFO logs: wait for batch (efficiency)
+            // ERROR/WARN logs: flush immediately (criticality)
+            const effectiveThreshold = (level === 'INFO') ? THRESHOLD : 1;
+
+            if (lines.length >= effectiveThreshold) {
+                console.log(`[${filename}] Reached threshold (${lines.length} >= ${effectiveThreshold}). Processing...`);
                 await processLines(lines, level, connection, filename);
             } else {
                 // Update pointer only if we are tracking continuous position without truncate
