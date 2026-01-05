@@ -160,15 +160,44 @@ exports.searchRepositories = async (req, res) => {
     }
 };
 
+
+/**
+ * Helper: Sleep function for throttling
+ */
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+/**
+ * Helper: Fetch URL with Retry Logic for 403 (Rate Limit) / 429
+ */
+const axiosRetry = async (client, url, config = {}, retries = 3) => {
+    try {
+        return await client.get(url, config);
+    } catch (error) {
+        if (retries > 0 && (error.response?.status === 429 || error.response?.status === 403)) {
+            // Check for Rate Limit headers
+            const retryAfter = error.response.headers['retry-after'];
+            const waitTime = retryAfter ? parseInt(retryAfter) * 1000 : 2000 * (4 - retries); // Fallback exponential backoff
+
+            console.log(`Rate limit hit. Waiting ${waitTime}ms before retry. (${retries} retries left)`);
+            await sleep(waitTime);
+            return axiosRetry(client, url, config, retries - 1);
+        }
+        throw error;
+    }
+};
+
 exports.getRepositoryFiles = async (req, res) => {
     try {
         const { owner, repo } = req.query;
         let token = req.headers['x-github-token'] || process.env.GITHUB_TOKEN;
 
-        if (!token && req.user && req.user.id) {
+        // PRIORITIZE USER TOKEN to avoid shared rate limits
+        if (req.user && req.user.id) {
             const userId = req.user.id;
             const user = await User.findOne({ githubId: userId });
-            if (user) token = user.githubAccessToken;
+            if (user && user.githubAccessToken) {
+                token = user.githubAccessToken;
+            }
         }
 
         req.log('info', `Fetching file tree for repo: ${owner}/${repo}`);
@@ -180,98 +209,230 @@ exports.getRepositoryFiles = async (req, res) => {
 
         const client = getClient(token);
 
-        // QUEUE EXECUTION (Multiple sequential calls inside one task wrapper, or separate? 
-        // Better to treat the whole "Fetch Tree" operation as one task to avoid interleaving partial states, 
-        // OR fine-grained? User said "run every thin in single change... wait till it end".
-        // A single "Get Repo Files" request does 2 API calls (repo info + tree).
-        // I will wrap them together as one "Task".
-
-        const files = await taskQueue.add(async () => {
-            // 1. Get default branch
+        // 1. Get Repo Info (Default Branch & Latest Commit SHA)
+        // Wrappped in taskQueue for concurrency control on the initial fetch
+        const repoInitData = await taskQueue.add(async () => {
             const repoInfo = await client.get(`/repos/${owner}/${repo}`);
             const defaultBranch = repoInfo.data.default_branch;
 
-            // 2. Get tree
-            const treeResponse = await client.get(`/repos/${owner}/${repo}/git/trees/${defaultBranch}?recursive=1`);
+            // Get latest commit SHA of default branch
+            const branchInfo = await client.get(`/repos/${owner}/${repo}/branches/${defaultBranch}`);
+            const latestSha = branchInfo.data.commit.sha;
+            // Get last commit date
+            const lastCommitDate = branchInfo.data.commit.commit.author.date;
 
-            if (treeResponse.data.truncated) {
-                req.log('warn', `Repository tree truncated for ${owner}/${repo}`);
-            }
-
-            return treeResponse.data.tree.map(item => ({
-                path: item.path,
-                type: item.type === 'blob' ? 'file' : 'dir',
-                size: item.size,
-                sha: item.sha
-            }));
+            return {
+                defaultBranch,
+                latestSha,
+                repoDetails: repoInfo.data,
+                lastCommitDate
+            };
         });
 
-        req.log('info', `Retrieved ${files.length} items for ${owner}/${repo}. Starting processing...`);
+        const { defaultBranch, latestSha, repoDetails, lastCommitDate } = repoInitData;
+        req.log('info', `Repo ${owner}/${repo} default branch: ${defaultBranch}, SHA: ${latestSha}`);
+
+        // --- UPDATE USER MODEL IN MONGODB ---
+        if (req.user && req.user.id) {
+            try {
+                const user = await User.findOne({ githubId: req.user.id });
+                if (user) {
+                    const repoIndex = user.repos.findIndex(r => r.repo_id === repoDetails.id);
+
+                    const newRepoData = {
+                        repo_id: repoDetails.id,
+                        repo_name: repoDetails.name,
+                        repo_url: repoDetails.html_url,
+                        isPrivate: repoDetails.private,
+                        description: repoDetails.description,
+                        language: repoDetails.language,
+                        forks_count: repoDetails.forks_count,
+                        stargazers_count: repoDetails.stargazers_count,
+                        isUpdated: true,
+                        lastCommit: new Date(lastCommitDate),
+                    };
+
+                    if (repoIndex > -1) {
+                        const existing = user.repos[repoIndex];
+                        user.repos[repoIndex] = { ...existing.toObject(), ...newRepoData };
+                    } else {
+                        user.repos.push({
+                            ...newRepoData,
+                            isAst: false,
+                            astGeneratedAt: null,
+                            isexport_graph: false,
+                            isexport_graph_created_at: null
+                        });
+                    }
+
+                    await user.save();
+                    req.log('info', `Updated MongoDB User for repo: ${repoDetails.name}`);
+                }
+            } catch (mongoErr) {
+                req.log('error', `Failed to update Mongo User: ${mongoErr.message}`);
+            }
+        }
+
+        // 2. Database Connection & Caching Check
+        const dbPool = await getMainDBConnection();
+        const tableName = repo.replace(/[^a-zA-Z0-9_]/g, '_');
+
+        // Ensure Cache Table Exists
+        await dbPool.query(`
+            CREATE TABLE IF NOT EXISTS repository_sync_status (
+                id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                repo_full_name VARCHAR(255) NOT NULL UNIQUE,
+                owner VARCHAR(255) NOT NULL,
+                latest_commit_sha VARCHAR(255) NOT NULL,
+                last_synced_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                status ENUM('pending', 'processing', 'completed', 'failed') DEFAULT 'pending',
+                INDEX idx_repo_name (repo_full_name)
+            )
+        `);
+
+        // Check verification for Cache
+        const [rows] = await dbPool.query(
+            `SELECT latest_commit_sha, status FROM repository_sync_status WHERE repo_full_name = ?`,
+            [`${owner}/${repo}`]
+        );
+
+        if (rows.length > 0) {
+            const cache = rows[0];
+            if (cache.latest_commit_sha === latestSha && (cache.status === 'completed' || cache.status === 'processing')) {
+                req.log('info', `Repo ${owner}/${repo} is already up to date (SHA: ${latestSha}). Status: ${cache.status}`);
+                dbPool.release(); // Important: release if using pool directly, or if using wrapper ensure it handles it. 
+                // Note: getMainDBConnection returns a pool, not a connection usually, so explicit release might not be needed unless using getConnection().
+                // Assuming dbPool is a pool:
+
+                return res.status(200).json({
+                    message: 'Repository already up to date',
+                    repo: repo,
+                    sha: latestSha,
+                    status: cache.status
+                });
+            }
+        }
+
+        // 3. Start Processing
+        // Update Status to Processing
+        await dbPool.query(
+            `INSERT INTO repository_sync_status (repo_full_name, owner, latest_commit_sha, status, last_synced_at)
+             VALUES (?, ?, ?, 'processing', NOW())
+             ON DUPLICATE KEY UPDATE latest_commit_sha = VALUES(latest_commit_sha), status = 'processing', last_synced_at = NOW()`,
+            [`${owner}/${repo}`, owner, latestSha]
+        );
 
         res.status(202).json({
             message: 'Repository processing started',
             repo: repo,
-            file_count: files.length,
+            sha: latestSha,
             status: 'Processing in background'
         });
 
-        // BACKGROUND PROCESSING
+        // 4. Background Lazy Traversal
         (async () => {
+            // Create main repo table if not exists
+            const createTableSQL = `
+                CREATE TABLE IF NOT EXISTS \`${tableName}\` (
+                    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                    path TEXT NOT NULL,
+                    sha VARCHAR(100) NOT NULL,
+                    type VARCHAR(20),
+                    owner VARCHAR(255),
+                    userId VARCHAR(255),
+                    raw_content LONGTEXT,
+                    sorted_content LONGTEXT,
+                    status ENUM('pending', 'processing', 'done', 'failed') DEFAULT 'pending',
+                    retries INT DEFAULT 0,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    UNIQUE KEY unique_file (path(255), sha)
+                )
+            `;
+            await dbPool.query(createTableSQL);
+
+            // Queue for directories to traverse: starts with root path ''
+            const dirQueue = [''];
+            let processedCount = 0;
+
             try {
-                const dbPool = await getMainDBConnection();
-                const tableName = repo.replace(/[^a-zA-Z0-9_]/g, '_');
-                req.log('info', `Connected to 'repo' DB. Using table: ${tableName}`);
+                req.log('info', `Starting lazy traversal for ${owner}/${repo}`);
 
-                const createTableSQL = `
-                    CREATE TABLE IF NOT EXISTS \`${tableName}\` (
-                        id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                        path TEXT NOT NULL,
-                        sha VARCHAR(100) NOT NULL,
-                        type VARCHAR(20),
-                        owner VARCHAR(255),
-                        userId VARCHAR(255),
-                        raw_content LONGTEXT,
-                        sorted_content LONGTEXT,
-                        status ENUM('pending', 'processing', 'done', 'failed') DEFAULT 'pending',
-                        retries INT DEFAULT 0,
-                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                        UNIQUE KEY unique_file (path(255), sha)
-                    )
-                `;
-                await dbPool.query(createTableSQL);
+                while (dirQueue.length > 0) {
+                    const currentPath = dirQueue.shift(); // BFS
 
-                const interestingFiles = files.filter(f => isInterestingFile(f.path));
-                const ignoredCount = files.length - interestingFiles.length;
-                if (ignoredCount > 0) req.log('info', `Filtered out ${ignoredCount} irrelevant files.`);
+                    req.log('debug', `Fetching contents of: ${currentPath || 'ROOT'}`);
 
-                for (const file of interestingFiles) {
-                    if (file.type !== 'file') continue;
+                    // Throttle: 300-600ms Delay
+                    await sleep(350);
+
+                    // Fetch Contents (Retries handles 403/429)
+                    // Note: We intentionally DO NOT use taskQueue here to avoid blocking the single execution slot for too long if the repo is huge.
+                    // However, we MUST be careful not to spam. The sleep() above is our rate limiter.
+                    // We call axios directly (via wrapper).
+
                     try {
-                        await dbPool.query(
-                            `INSERT IGNORE INTO \`${tableName}\` (path, sha, type, owner, userId, status) VALUES (?, ?, ?, ?, ?, 'pending')`,
-                            [file.path, file.sha, file.type, owner, req.user?.id]
-                        );
-                        await produceMessage('repo-files-processing', {
-                            path: file.path,
-                            sha: file.sha,
-                            size: file.size,
-                            type: file.type,
-                            repo: repo,
-                            owner: owner,
-                            userId: req.user?.id
-                        });
-                    } catch (err) {
-                        req.log('error', `Failed to process file ${file.path}: ${err.message}`);
+                        let contentsUrl = `/repos/${owner}/${repo}/contents/${currentPath}`;
+                        // If path is empty, it needs to be NO leading slash after contents? actually contents/ works for root? 
+                        // GitHub API: GET /repos/{owner}/{repo}/contents/{path}
+                        // For root: GET /repos/{owner}/{repo}/contents/ or just /repos/{owner}/{repo}/contents
+                        if (!currentPath) contentsUrl = `/repos/${owner}/${repo}/contents`;
+
+                        const contentRes = await axiosRetry(client, contentsUrl);
+                        const items = Array.isArray(contentRes.data) ? contentRes.data : [contentRes.data];
+
+                        // Process Items
+                        for (const item of items) {
+                            if (item.type === 'dir') {
+                                dirQueue.push(item.path);
+                            } else if (item.type === 'file') {
+                                if (isInterestingFile(item.path)) {
+                                    // Insert into DB
+                                    await dbPool.query(
+                                        `INSERT IGNORE INTO \`${tableName}\` (path, sha, type, owner, userId, status) VALUES (?, ?, ?, ?, ?, 'pending')`,
+                                        [item.path, item.sha, item.type, owner, req.user?.id]
+                                    );
+
+                                    // Kafka Produce
+                                    await produceMessage('repo-files-processing', {
+                                        path: item.path,
+                                        sha: item.sha,
+                                        size: item.size,
+                                        type: item.type,
+                                        repo: repo,
+                                        owner: owner,
+                                        userId: req.user?.id
+                                    });
+                                    processedCount++;
+                                }
+                            }
+                        }
+
+                    } catch (dirError) {
+                        // If a directory fails, log it but continue? 
+                        // If 403 blocks us completely, axiosRetry should have handled it or thrown after retries.
+                        req.log('error', `Failed to fetch/process directory ${currentPath}: ${dirError.message}`);
                     }
                 }
-                req.log('info', `Backend processing for ${repo} completed. Files queued.`);
-                await dbPool.end();
 
-            } catch (bgError) {
-                req.log('error', `Background processing failed for ${repo}: ${bgError.message}`);
+                // Success
+                await dbPool.query(
+                    `UPDATE repository_sync_status SET status = 'completed' WHERE repo_full_name = ?`,
+                    [`${owner}/${repo}`]
+                );
+                req.log('info', `Traversal complete for ${owner}/${repo}. processed ${processedCount} files.`);
+
+            } catch (fatalError) {
+                req.log('error', `Fatal error processing ${owner}/${repo}: ${fatalError.message}`);
+                await dbPool.query(
+                    `UPDATE repository_sync_status SET status = 'failed' WHERE repo_full_name = ?`,
+                    [`${owner}/${repo}`]
+                );
+            } finally {
+                if (dbPool) await dbPool.end();
             }
-        })();
+
+        })(); // End Background
 
     } catch (error) {
         req.log('error', `GitHub Repo Error: ${error.message}`);
@@ -295,8 +456,9 @@ exports.getFileContent = async (req, res) => {
         }
 
         const responseData = await taskQueue.add(async () => {
+            await sleep(350); // Throttle content fetching
             const client = getClient(token);
-            const response = await client.get(`/repos/${owner}/${repo}/contents/${path}`);
+            const response = await axiosRetry(client, `/repos/${owner}/${repo}/contents/${path}`); // Use retry logic
             return response.data;
         });
 

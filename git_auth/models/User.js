@@ -13,6 +13,10 @@ const RepoSchema = new mongoose.Schema({
   contributions: { type: Number, default: 0 },
   isUpdated: { type: Boolean, default: true }, // whether repo data is up-to-date
   lastCommit: { type: Date }, // last commit date
+  isAst: { type: Boolean, default: false }, // whether AST is generated
+  astGeneratedAt: { type: Date }, // AST generation date
+  isexport_graph: { type: Boolean, default: false },
+  isexport_graph_created_at: { type: Date }
 });
 
 const UserSchema = new mongoose.Schema(

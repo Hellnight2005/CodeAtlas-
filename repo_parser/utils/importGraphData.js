@@ -263,10 +263,9 @@ const importRepoGraphToNeo4j = async (repoName) => {
         return;
     }
 
-    let dbName = repoName.toLowerCase().replace(/[^a-z0-9]/g, '');
-    if (!/^[a-z]/.test(dbName)) dbName = 'db' + dbName;
-
-    await createDatabase(dbName);
+    // Force use of default database 'neo4j' to avoid Community Edition limits
+    const dbName = 'neo4j';
+    // await createDatabase(dbName); // No need to create default DB
 
     const dataPath = path.join(__dirname, `../public/${repoName}.json`);
     if (!fs.existsSync(dataPath)) {
@@ -287,4 +286,61 @@ if (require.main === module) {
     importRepoGraphToNeo4j(repoName).then(() => process.exit(0));
 }
 
-module.exports = { importRepoGraphToNeo4j };
+
+// Delete repository graph from Neo4j
+const deleteRepoGraphFromNeo4j = async (repoName) => {
+    if (!repoName) return;
+    const dbName = 'neo4j'; // Always use default DB
+    console.log(`[DELETE] Deleting graph for ${repoName} from Neo4j...`);
+
+    // DEBUG: Check what Repositories exist
+    try {
+        const checkResp = await axios.post(
+            `${NEO4J_BASE_URL}/${dbName}/tx/commit`,
+            { statements: [{ statement: 'MATCH (r:Repository) RETURN r.name as name' }] },
+            { headers: { Authorization: NEO4J_AUTH, 'Content-Type': 'application/json' } }
+        );
+        const existingRepos = checkResp.data.results[0].data.map(row => row.row[0]);
+        console.log(`[DELETE] Existing Repositories in DB: ${JSON.stringify(existingRepos)}`);
+
+        if (!existingRepos.includes(repoName)) {
+            console.warn(`[DELETE] WARNING: "${repoName}" not found in existing repositories! (Case sensitivity?)`);
+        }
+    } catch (e) {
+        console.warn(`[DELETE] Failed to list existing repos: ${e.message}`);
+    }
+
+    const statements = [
+        {
+            statement: `
+                MATCH (r:Repository {name: $repoName})
+                OPTIONAL MATCH (r)-[:CONTAINS]->(f:File)
+                OPTIONAL MATCH (f)-[:DECLARES]->(d)
+                OPTIONAL MATCH (d)-[:HAS_METHOD]->(m)
+                OPTIONAL MATCH (f)-[:EXPORTS]->(e)
+                DETACH DELETE r, f, d, m, e
+            `,
+            parameters: { repoName },
+            resultDataContents: ["row", "graph", "stats"]
+        }
+    ];
+
+    try {
+        const response = await axios.post(
+            `${NEO4J_BASE_URL}/${dbName}/tx/commit`,
+            { statements },
+            { headers: { Authorization: NEO4J_AUTH, 'Content-Type': 'application/json' } }
+        );
+
+        const stats = response.data.results?.[0]?.stats || {};
+        console.log(`[DELETE] Deleted graph for ${repoName}. Stats:`, stats);
+    } catch (error) {
+        console.error(`[DELETE] info: ${error.message}`);
+        // Log full error details for debugging
+        if (error.response) {
+            console.error('[DELETE] Neo4j Response:', JSON.stringify(error.response.data));
+        }
+    }
+};
+
+module.exports = { importRepoGraphToNeo4j, deleteRepoGraphFromNeo4j, importCodebaseGraph };
