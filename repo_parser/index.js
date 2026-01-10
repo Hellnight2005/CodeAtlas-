@@ -2,6 +2,8 @@ require('dotenv').config();
 const express = require('express');
 // Trigger restart
 const app = express();
+const cors = require('cors');
+app.use(cors());
 const PORT = 5001;
 const { connectConsumer, subscribeToTopic, connectProducer } = require('./config/kafka');
 const { processFile } = require('./controllers/processingController');
