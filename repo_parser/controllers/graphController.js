@@ -107,19 +107,34 @@ const normalizeResponse = (neo4jResult) => {
 };
 
 // 1. Initial Graph
+// 1. Initial Graph (Single Repo Node + Count)
 exports.getInitialGraph = async (req, res) => {
     try {
-        const { repo, limit = 30 } = req.query;
+        const { repo } = req.query;
         if (!repo) return res.status(400).json({ error: 'Repo name required' });
 
+        // Query: Get Repo node and count of outgoing connected nodes
         const query = `
-            MATCH (r:Repository {name: $repo})-[:CONTAINS]->(f:File)
-            RETURN r, f
-            LIMIT toInteger($limit)
+            MATCH (r:Repository {name: $repo})
+            OPTIONAL MATCH (r)-[:CONTAINS]->(f)
+            RETURN r, count(f) as fileCount
         `;
 
-        const result = await executeQuery(query, { repo, limit: parseInt(limit) });
-        res.json(normalizeResponse(result));
+        const result = await executeQuery(query, { repo });
+
+        // Normalize to get the node object
+        const normalized = normalizeResponse(result);
+
+        // Inject fileCount from the 'row' data into the node properties
+        if (normalized.nodes.length > 0 && result.data.length > 0) {
+            const row = result.data[0].row;
+            // row[0] is the node, row[1] is the count
+            const count = row[1];
+            normalized.nodes[0].data.fileCount = count;
+            normalized.nodes[0].data.expanded = false; // Initial state
+        }
+
+        res.json(normalized);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
