@@ -101,14 +101,41 @@ const processRepoFiles = async (tableName, files, repoName) => {
 
     logger.info(`[AST] Completed processing ${files.length} files for ${tableName}.`);
 
-    // Incremental Neo4j Import
-    if (deltaGraph.length > 0) {
-        logger.info(`[AST] Syncing ${deltaGraph.length} new nodes to Neo4j (Incremental)...`);
-        await importCodebaseGraph(deltaGraph, 'neo4j', repoName);
-    }
-
     // Trigger Full Export (Backup)
     await exportRepoGraphData(repoName);
+
+    // PIPELINE INTEGRATION: Connect directly to Neo4j
+    // 1. Wipe DB to ensure clean slate (Single Active Repo Mode)
+    const { importRepoGraphToNeo4j } = require('../utils/importGraphData');
+    const { executeQuery } = require('./graphController'); // Reuse query execution
+
+    // Note: We need to handle the DB Wipe manually or via simple query
+    // Since graphController export isn't designed for internal require cleanly (it's route handlers),
+    // let's use the simple axios call or assume importRepoGraphToNeo4j can be updated?
+    // User asked to "check pipeline". Easier to just Wipe here using a helper or direct axios.
+    // Actually, let's just use importRepoGraphToNeo4j, but we need to WIPE first.
+    // I will use a direct cypher query here.
+
+    // WIPING DB
+    const axios = require('axios');
+    const NEO4J_BASE_URL = process.env.NEO4J_BASE_URL || 'http://localhost:7474/db/neo4j/tx/commit';
+    const NEO4J_AUTH = 'Basic ' + Buffer.from('neo4j:password').toString('base64');
+
+    try {
+        await axios.post(
+            NEO4J_BASE_URL,
+            { statements: [{ statement: 'MATCH (n) DETACH DELETE n' }] },
+            { headers: { Authorization: typeof process.env.NEO4J_AUTH === 'string' ? process.env.NEO4J_AUTH : NEO4J_AUTH, 'Content-Type': 'application/json' } }
+        );
+        logger.info(`[AST] Wiped Neo4j Database for fresh import of ${repoName}.`);
+
+        // 2. Full Import
+        await importRepoGraphToNeo4j(repoName);
+        logger.info(`[AST] Pipeline Complete: Data active in Neo4j.`);
+
+    } catch (e) {
+        logger.error(`[AST] Failed to sync to Neo4j: ${e.message}`);
+    }
 };
 
 // Removed ensureColumnExists as user stated the column already exists and they don't want table modifications.

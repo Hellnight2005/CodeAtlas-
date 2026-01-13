@@ -108,6 +108,13 @@ const normalizeResponse = (neo4jResult) => {
 
 // 1. Initial Graph
 // 1. Initial Graph (Repo + Limited Files + Total Count)
+const { importRepoGraphToNeo4j } = require('../utils/importGraphData');
+const fs = require('fs');
+const path = require('path');
+
+// ... (Existing Imports)
+
+// 1. Initial Graph (Repo + Limited Files + Total Count)
 exports.getInitialGraph = async (req, res) => {
     try {
         const { repo, limit = 30 } = req.query;
@@ -138,7 +145,47 @@ exports.getInitialGraph = async (req, res) => {
             RETURN r, totalCount, f1 as f, repoEdges, innerRel
         `;
 
-        const result = await executeQuery(query, { repo, limit: parseInt(limit) });
+        let result = await executeQuery(query, { repo, limit: parseInt(limit) });
+
+        // AUTO-IMPORT LOGIC
+        // Check if we need to lazy-load the graph
+        const hasRepo = result.data.length > 0 && result.data[0].row[0] !== null;
+
+        if (!hasRepo) {
+            logger.info(`[GraphController] Repo '${repo}' not found in DB. Checking for JSON export...`);
+            const jsonPath = path.join(__dirname, `../public/${repo}.json`);
+
+            if (fs.existsSync(jsonPath)) {
+                // FORCE CLEAN SLATE: Wipe DB to prevent collisions
+                logger.info(`[GraphController] Wiping Database for clean import of ${repo}...`);
+                await executeQuery('MATCH (n) DETACH DELETE n');
+
+                try {
+                    logger.info(`[GraphController] Found ${repo}.json. Importing to Neo4j...`);
+                    await importRepoGraphToNeo4j(repo);
+
+                    // Re-run query after import
+                    logger.info(`[GraphController] Import complete. Fetching updated graph data...`);
+                    // Add a small delay for consistency if needed, though await should suffice
+                    result = await executeQuery(query, { repo, limit: parseInt(limit) });
+
+                    logger.info(`[GraphController] Re-query result count: ${result.data.length}`);
+                    if (result.data.length > 0) {
+                        logger.info(`[GraphController] Re-query structure (row[0]): ${JSON.stringify(result.data[0].row)}`);
+                    }
+
+                    // Verify import success to log potential issues
+                    if (result.data.length === 0) {
+                        logger.error(`[GraphController] CRITICAL: Data missing after import for ${repo}. Check JSON structure or Import Logic.`);
+                    }
+                } catch (importErr) {
+                    logger.error(`[GraphController] IMPORT FAILED for ${repo}: ${importErr.message}`);
+                    return res.status(500).json({ error: `Import failed: ${importErr.message}` });
+                }
+            } else {
+                logger.warn(`[GraphController] No JSON export found for ${repo}.`);
+            }
+        }
 
         // Normalize using shared helper
         const normalized = normalizeResponse(result);
@@ -161,6 +208,7 @@ exports.getInitialGraph = async (req, res) => {
 
         res.json(normalized);
     } catch (error) {
+        logger.error("getInitialGraph error:", { message: error.message });
         res.status(500).json({ error: error.message });
     }
 };

@@ -22,12 +22,13 @@ const NEO_BLUE = '#57C7E3';
 const NEO_ORANGE = '#F79767';
 // Color Palette by Node Type
 const TYPE_COLORS: Record<string, string> = {
-    'Repository': '#57C7E3', // Blue
-    'File': '#F79767',       // Orange
-    'Module': '#F2C94C',     // Yellow/Gold
-    'Function': '#2FB344',   // Green
-    'Class': '#D2575C',      // Red
-    'Variable': '#9D50D5',   // Purple
+    'Repository': '#004de6', // Vibrant Blue
+    'File': '#F2A2B3',       // Pink
+    'Module': '#F4BC42',     // Yellow/Orange
+    'Function': '#5BB0B5',   // Teal
+    'Class': '#DA717A',      // Red/Salmon (Est.)
+    'Variable': '#A0B06B',   // Olive
+    'Export': '#97B373',     // Sage Green
     'Interface': '#26A69A',  // Teal
 };
 const DEFAULT_COLOR = '#A5ABB6'; // Grey
@@ -73,8 +74,9 @@ export default function GraphCanvas({ onNodeClick, initialData }: { onNodeClick:
             if (!label) label = n.id;
 
             // Truncate for circle fitting
+            // Truncate for circle fitting
             if (!isRepo && label.length > 12) label = label.substring(0, 10) + '...';
-            if (isRepo && n.data.fileCount) label = `${label} \n(${n.data.fileCount})`;
+            // if (isRepo && n.data.fileCount) label = `${label} \n(${n.data.fileCount})`; // User wants simple name match
 
             // Layout: Radial / Concentric
             let position = n.position || { x: center.x, y: center.y };
