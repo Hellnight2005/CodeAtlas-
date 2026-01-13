@@ -17,5 +17,6 @@ router.get('/api/graph/start', graphController.getInitialGraph);
 router.get('/api/graph/expand', graphController.expandNode);
 router.get('/api/graph/node', graphController.getNodeDetails);
 router.get('/api/graph/filter', graphController.filterGraph);
+router.get('/api/graph/search', graphController.searchFiles);
 
 module.exports = router;

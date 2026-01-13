@@ -107,35 +107,108 @@ const normalizeResponse = (neo4jResult) => {
 };
 
 // 1. Initial Graph
-// 1. Initial Graph (Single Repo Node + Count)
+// 1. Initial Graph (Repo + Limited Files + Total Count)
+const { importRepoGraphToNeo4j } = require('../utils/importGraphData');
+const fs = require('fs');
+const path = require('path');
+
+// ... (Existing Imports)
+
+// 1. Initial Graph (Repo + Limited Files + Total Count)
 exports.getInitialGraph = async (req, res) => {
     try {
-        const { repo } = req.query;
+        const { repo, limit = 30 } = req.query;
         if (!repo) return res.status(400).json({ error: 'Repo name required' });
 
-        // Query: Get Repo node and count of outgoing connected nodes
+        // Query: Get Repo -> Files (limited) AND relationships between those files
         const query = `
             MATCH (r:Repository {name: $repo})
-            OPTIONAL MATCH (r)-[:CONTAINS]->(f)
-            RETURN r, count(f) as fileCount
+            
+            // 1. Calculate Total Count
+            OPTIONAL MATCH (r)-[:CONTAINS]->(all_f:File)
+            WITH r, count(all_f) as totalCount
+            
+            // 2. Get Limited subset of Files
+            OPTIONAL MATCH (r)-[rel:CONTAINS]->(f:File)
+            WITH r, totalCount, f, rel
+            ORDER BY f.path ASC
+            LIMIT toInteger($limit)
+            
+            // 3. Collect files to find internal edges
+            WITH r, totalCount, collect(f) as files, collect(rel) as repoEdges
+            
+            // 4. Unwind to return structure, and find internal edges independent of repoEdges
+            UNWIND files as f1
+            OPTIONAL MATCH (f1)-[innerRel]->(f2:File)
+            WHERE f2 IN files
+            
+            RETURN r, totalCount, f1 as f, repoEdges, innerRel
         `;
 
-        const result = await executeQuery(query, { repo });
+        let result = await executeQuery(query, { repo, limit: parseInt(limit) });
 
-        // Normalize to get the node object
+        // AUTO-IMPORT LOGIC
+        // Check if we need to lazy-load the graph
+        const hasRepo = result.data.length > 0 && result.data[0].row[0] !== null;
+
+        if (!hasRepo) {
+            logger.info(`[GraphController] Repo '${repo}' not found in DB. Checking for JSON export...`);
+            const jsonPath = path.join(__dirname, `../public/${repo}.json`);
+
+            if (fs.existsSync(jsonPath)) {
+                // FORCE CLEAN SLATE: Wipe DB to prevent collisions
+                logger.info(`[GraphController] Wiping Database for clean import of ${repo}...`);
+                await executeQuery('MATCH (n) DETACH DELETE n');
+
+                try {
+                    logger.info(`[GraphController] Found ${repo}.json. Importing to Neo4j...`);
+                    await importRepoGraphToNeo4j(repo);
+
+                    // Re-run query after import
+                    logger.info(`[GraphController] Import complete. Fetching updated graph data...`);
+                    // Add a small delay for consistency if needed, though await should suffice
+                    result = await executeQuery(query, { repo, limit: parseInt(limit) });
+
+                    logger.info(`[GraphController] Re-query result count: ${result.data.length}`);
+                    if (result.data.length > 0) {
+                        logger.info(`[GraphController] Re-query structure (row[0]): ${JSON.stringify(result.data[0].row)}`);
+                    }
+
+                    // Verify import success to log potential issues
+                    if (result.data.length === 0) {
+                        logger.error(`[GraphController] CRITICAL: Data missing after import for ${repo}. Check JSON structure or Import Logic.`);
+                    }
+                } catch (importErr) {
+                    logger.error(`[GraphController] IMPORT FAILED for ${repo}: ${importErr.message}`);
+                    return res.status(500).json({ error: `Import failed: ${importErr.message}` });
+                }
+            } else {
+                logger.warn(`[GraphController] No JSON export found for ${repo}.`);
+            }
+        }
+
+        // Normalize using shared helper
         const normalized = normalizeResponse(result);
 
-        // Inject fileCount from the 'row' data into the node properties
-        if (normalized.nodes.length > 0 && result.data.length > 0) {
-            const row = result.data[0].row;
-            // row[0] is the node, row[1] is the count
-            const count = row[1];
-            normalized.nodes[0].data.fileCount = count;
-            normalized.nodes[0].data.expanded = false; // Initial state
+        // Inject fileCount from the 'row' data into the Repository node
+        if (result.data && result.data.length > 0) {
+            // row structure: [r_props, totalCount, f_props]
+            const totalCount = result.data[0].row[1];
+
+            // Find the Repository node in the normalized result
+            const repoNode = normalized.nodes.find(n => n.label === 'Repository');
+            if (repoNode) {
+                repoNode.data.fileCount = totalCount;
+                // Identify if fully expanded or partially
+                // If totalCount > limit, it is partially expanded
+                // But for now, we just want to show the count.
+                repoNode.data.isPartial = totalCount > parseInt(limit);
+            }
         }
 
         res.json(normalized);
     } catch (error) {
+        logger.error("getInitialGraph error:", { message: error.message });
         res.status(500).json({ error: error.message });
     }
 };
@@ -206,7 +279,8 @@ exports.filterGraph = async (req, res) => {
         const params = {};
 
         if (repo) {
-            query = 'MATCH (r:Repository {name: $repo})-[:CONTAINS*]->(n) WHERE 1=1 ';
+            // Expand relationship types to include DECLARES (for vars/funcs) and EXPORTS
+            query = 'MATCH (r:Repository {name: $repo})-[:CONTAINS|DECLARES|EXPORTS*]->(n) WHERE 1=1 ';
             params.repo = repo;
         }
 
@@ -219,7 +293,8 @@ exports.filterGraph = async (req, res) => {
         }
 
         if (path) {
-            query += ' AND n.path CONTAINS $path ';
+            // "path" param is treated as a general search query here
+            query += ' AND (toLower(n.name) CONTAINS toLower($path) OR toLower(n.path) CONTAINS toLower($path) OR toLower(n.id) CONTAINS toLower($path)) ';
             params.path = path;
         }
 
@@ -227,6 +302,50 @@ exports.filterGraph = async (req, res) => {
 
         const result = await executeQuery(query, params);
         res.json(normalizeResponse(result));
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// 5. Search Files (Autocomplete/List)
+exports.searchFiles = async (req, res) => {
+    try {
+        const { repo, q } = req.query;
+        if (!q) return res.json([]); // Return empty if no query
+
+        let query = `
+            MATCH (r:Repository {name: $repo})-[:CONTAINS*]->(n:File)
+            WHERE toLower(n.path) CONTAINS toLower($q) OR toLower(n.name) CONTAINS toLower($q)
+            RETURN n.id as id, n.name as name, n.path as path, labels(n) as labels
+            LIMIT 10
+        `;
+
+        // If repo not provided (global search? unsafe but handled)
+        if (!repo) {
+            query = `
+                MATCH (n:File)
+                WHERE toLower(n.path) CONTAINS toLower($q)
+                RETURN n.id as id, n.name as name, n.path as path, labels(n) as labels
+                LIMIT 10
+            `;
+        }
+
+        const result = await executeQuery(query, { repo, q });
+
+        // Format simple list
+        const files = result.data.map(row => {
+            // Row format depends on return. REST API usually:
+            // "row": [ 123, "index.js", "src/index.js", ["File"] ]
+            const r = row.row;
+            return {
+                id: r[0], // Internal ID
+                name: r[1],
+                path: r[2],
+                labels: r[3]
+            };
+        });
+
+        res.json(files);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

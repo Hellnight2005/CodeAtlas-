@@ -49,7 +49,8 @@ export default function DashboardPage() {
                 // For now, we assume data exists or will exist shortly.
                 // NOTE: graphController.js expects ?repo=..., not ?repoId=... 
                 // I checked graphController.js earlier: "const { repo, limit = 30 } = req.query;"
-                const response = await fetch(`http://localhost:5001/api/graph/start?repo=${repoId}`);
+                // I checked graphController.js earlier: "const { repo, limit = 30 } = req.query;"
+                const response = await fetch(`http://localhost:5001/api/graph/start?repo=${repoId}&limit=30`);
 
                 if (!response.ok) {
                     // If 404, maybe it's still processing. 

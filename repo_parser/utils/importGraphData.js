@@ -7,7 +7,12 @@ const NEO4J_BASE_URL = 'http://localhost:7474/db';
 const NEO4J_AUTH = 'Basic ' + Buffer.from('neo4j:password').toString('base64');
 const IMPORT_DB_TARGET = 'neo4j'; // Always use default neo4j DB to avoid Community Edition limits
 
-// ... (resolveImportPath remains same)
+const resolveImportPath = (filePath, importSource) => {
+    if (importSource.startsWith('.')) {
+        return path.join(path.dirname(filePath), importSource).replace(/\\/g, '/');
+    }
+    return importSource;
+};
 
 // Create database if it doesn't exist (Deprecated for now/unused but keeping safe)
 const createDatabase = async (dbName) => {
@@ -35,10 +40,9 @@ const postToNeo4j = async (dbName, statements) => {
         );
     } catch (error) {
         logger.error(`[NEO4J ERROR on ${dbName}]`, { error: error.response?.data?.errors || error.message });
+        throw error; // Critical: Throw error to ensure caller knows of failure
     }
 };
-
-// ... (importCodebaseGraph remains same, just ensure it uses postToNeo4j implicitly)
 
 // Entry point
 const importRepoGraphToNeo4j = async (repoName) => {
@@ -62,10 +66,10 @@ const importRepoGraphToNeo4j = async (repoName) => {
         logger.info(`[IMPORT] Successfully imported ${repoName} to Neo4j.`);
     } catch (err) {
         logger.error(`[IMPORT] Failed to parse or import data for ${repoName}: ${err.message}`);
+        // Ensure upstream controller knows it failed
+        throw err;
     }
 };
-
-// ... CLI block ...
 
 // Delete repository graph from Neo4j
 const deleteRepoGraphFromNeo4j = async (repoName) => {
@@ -80,18 +84,17 @@ const deleteRepoGraphFromNeo4j = async (repoName) => {
             { statements: [{ statement: 'MATCH (r:Repository) RETURN r.name as name' }] },
             { headers: { Authorization: NEO4J_AUTH, 'Content-Type': 'application/json' } }
         );
-        const existingRepos = checkResp.data.results[0].data.map(row => row.row[0]);
-        // logger.debug(`[DELETE] Existing Repositories: ${JSON.stringify(existingRepos)}`); // Optional
+        const existingRepos = checkResp.data?.results?.[0]?.data?.map(row => row.row[0]) || [];
 
         if (!existingRepos.includes(repoName)) {
-            logger.warn(`[DELETE] WARNING: "${repoName}" not found in existing repositories! (Case sensitivity?)`);
+            logger.warn(`[DELETE] WARNING: "${repoName}" not found in existing repositories!`);
         }
     } catch (e) {
         logger.warn(`[DELETE] Failed to list existing repos: ${e.message}`);
     }
 
     const queries = [
-        // 1. Delete Dependencies (Methods, Exports, Variables declared by Files of this Repo)
+        // 1. Delete Dependencies
         {
             statement: `
                 MATCH (r:Repository {name: $repoName})-[:CONTAINS]->(f:File)
@@ -359,9 +362,8 @@ const importCodebaseGraph = async (codebase, dbName, repoName) => {
         await postToNeo4j(dbName, statements);
     }
 
-    console.log('✅ All files and relationships imported to Neo4j knowledge graph!');
+    // Explicitly Log Success for Debugging
+    logger.info(`✅ [IMPORT] Completed ${codebase.length} files imported to Neo4j.`);
 };
 
-// Entry point
-// End of file
 module.exports = { importRepoGraphToNeo4j, deleteRepoGraphFromNeo4j, importCodebaseGraph };
