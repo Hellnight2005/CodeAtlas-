@@ -1,0 +1,48 @@
+@startuml
+actor User
+participant "Frontend" as UI
+participant "Git Auth Service" as Auth
+participant "GitHub API" as GitHub
+queue "Kafka" as Kafka
+participant "Repo Parser Service" as Parser
+database "MySQL" as DB
+database "Neo4j" as Graph
+
+== Repository Analysis Flow ==
+
+User -> UI: Request Analysis (Repo X)
+UI -> Auth: GET /api/repo/files?repo=X
+
+Auth -> DB: Check Sync Status
+alt Cache Hit
+    DB --> Auth: Status: Completed
+    Auth --> UI: 200 OK (Data Ready)
+else Cache Miss
+    Auth -> GitHub: Get Latest SHA
+    Auth -> DB: Update Status (Processing)
+    Auth --> UI: 202 Accepted (Processing Started)
+    
+    loop Lazy Traversal
+        Auth -> GitHub: Fetch Dir Contents
+        Auth -> DB: Insert File Records
+        Auth -> Kafka: Produce "repo-files-processing"
+    end
+end
+
+== Background Processing ==
+
+Kafka -> Parser: Consume File Event
+Parser -> Parser: Generate AST
+Parser -> Graph: Store Nodes & Relationships
+Parser -> Parser: Generate AI Summary
+Parser -> DB: Update File Status (Done)
+
+== View Results ==
+
+User -> UI: View File Tree / Graph
+UI -> Parser: GET /api/graph/node
+Parser -> Graph: Fetch Graph Data
+Graph --> Parser: Nodes/Edges
+Parser --> UI: Graph JSON
+UI -> User: Display Visualization
+@enduml

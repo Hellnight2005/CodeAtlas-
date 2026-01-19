@@ -1,0 +1,60 @@
+@startuml
+class App {
+    +startServer()
+    +configureMiddleware()
+}
+
+class AuthRoutes {
+    +GET /auth/github
+    +GET /auth/github/callback
+    +GET /logout
+}
+
+class GithubRoutes {
+    +GET /repos
+    +GET /files
+    +GET /search
+}
+
+class AuthController {
+    +handleLogin()
+    +handleCallback()
+    +handleLogout()
+}
+
+class GithubController {
+    +getUserRepos()
+    +getRepositoryFiles()
+    +searchRepositories()
+    -axiosRetry()
+    -isInterestingFile()
+}
+
+class MySQLClient {
+    +getMainDBConnection()
+    +query()
+}
+
+class KafkaClient {
+    +produceMessage()
+    +connectProducer()
+}
+
+class User {
+    +githubId
+    +username
+    +accessToken
+    +repos[]
+}
+
+App --> AuthRoutes
+App --> GithubRoutes
+
+AuthRoutes --> AuthController
+GithubRoutes --> GithubController
+
+AuthController --> MySQLClient : Save User
+GithubController --> MySQLClient : Save Repo Meta
+GithubController --> KafkaClient : Produce File Events
+GithubController --> User : Update Model
+@enduml

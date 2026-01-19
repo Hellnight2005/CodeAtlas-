@@ -1,0 +1,43 @@
+@startuml
+object "currentUser: User" as user {
+    githubId = "12345678"
+    username = "Abhijeet"
+    accessToken = "gho_xxxx..."
+}
+
+object "targetRepo: Repository" as repo {
+    id = 101
+    name = "CodeAtlas-"
+    owner = "Hellnight2005"
+    status = "completed"
+    latest_commit_sha = "bdc2eb1"
+}
+
+object "file1: File" as f1 {
+    path = "server.js"
+    type = "file"
+    size = 1204
+    status = "done"
+}
+
+object "file2: File" as f2 {
+    path = "utils/geminiService.js"
+    type = "file"
+    size = 2908
+    status = "done"
+}
+
+object ": RepoController" as controller {
+    activeRequests = 1
+}
+
+object ": AuthController" as auth {
+    sessionActive = true
+}
+
+user --> repo : owns
+repo --> f1 : contains
+repo --> f2 : contains
+controller ..> repo : manages read
+auth ..> user : authenticates
+@enduml

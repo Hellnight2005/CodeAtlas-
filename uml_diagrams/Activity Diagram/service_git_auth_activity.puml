@@ -1,0 +1,41 @@
+@startuml
+start
+:User clicks Login;
+:Redirect to GitHub OAuth;
+if (User Authorizes?) then (yes)
+  :GitHub redirects to Callback;
+  :Exchange Code for Token;
+  :Fetch/Update User Profile in MySQL;
+  :Create Session;
+  :Redirect to Dashboard;
+else (no)
+  :Show Login Error;
+  stop
+endif
+
+:User views Dashboard;
+:Fetch User Repositories from GitHub;
+
+if (User selects Repo?) then (yes)
+  :Check Sync Status in MySQL;
+  if (Already Synced?) then (yes)
+    :Return Cached Data;
+  else (no)
+    :Get Latest Commit SHA;
+    :Mark Status as Processing;
+    fork
+      :Return 202 Accepted;
+    fork again
+      :Start Background Traversal;
+      while (More Directories?) is (yes)
+        :Fetch Directory Content;
+        :Identify Interesting Files;
+        :Insert File Records (Pending);
+        :Produce "repo-files-processing" Kafka Event;
+      endwhile (no)
+      :Mark Status as Completed;
+    end fork
+  endif
+endif
+stop
+@enduml

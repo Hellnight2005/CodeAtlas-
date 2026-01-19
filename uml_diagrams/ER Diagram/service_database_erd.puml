@@ -1,0 +1,52 @@
+@startuml
+entity Users {
+    *githubId : string <<PK>>
+    --
+    username : string
+    githubAccessToken : string
+    repos : json
+}
+
+entity RepositorySyncStatus {
+    *id : int <<PK>>
+    --
+    repo_full_name : string
+    owner : string
+    latest_commit_sha : string
+    status : enum
+    last_synced_at : timestamp
+}
+
+entity RepoTable_Dynamic {
+    *id : int <<PK>>
+    --
+    path : string
+    sha : string
+    type : string
+    owner : string
+    userId : string
+    raw_content : longtext
+    ai_summary : json
+    status : enum
+}
+
+Users ||..|{ RepositorySyncStatus : syncs
+RepositorySyncStatus ||..|{ RepoTable_Dynamic : manages
+
+package "Neo4j Graph Model" {
+    entity User
+    entity Repository
+    entity File
+    entity Class
+    entity Function
+    entity Variable
+
+    User -- Repository : OWNS
+    Repository -- File : CONTAINS
+    File -- Class : DEFINES
+    File -- Function : DEFINES
+    Class -- Function : HAS_METHOD
+    Function -- Function : CALLS
+    Function -- Variable : USES
+}
+@enduml

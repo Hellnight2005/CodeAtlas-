@@ -1,0 +1,27 @@
+@startuml
+start
+:Consume Kafka Message;
+:Extract File Data (Path, SHA, User);
+
+if (File is Processable?) then (yes)
+  :Update MySQL File Status = "processing";
+  
+  :Generate AST (Parsing);
+  if (Parse Successful?) then (yes)
+    :Extract Nodes (Classes, Functions) & Edges;
+    :Store Nodes in Neo4j;
+    :Create Relationships in Neo4j;
+    
+    :Generate AI Summary (Gemini);
+    :Store Summary in MySQL;
+    
+    :Update MySQL File Status = "done";
+  else (no)
+    :Log Parse Error;
+    :Update MySQL File Status = "failed";
+  endif
+else (no)
+  :Ignore File;
+endif
+stop
+@enduml
