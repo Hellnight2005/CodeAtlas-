@@ -11,7 +11,19 @@
   --color-slate-700: #334155;
   --color-slate-800: #1e293b;
   --color-slate-900: #0f172a;
+  --color-slate-900: #0f172a;
   --color-slate-950: #020617;
+
+  --animate-spin-slow: spin 3s linear infinite;
+  --animate-spin-reverse-slow: spin-reverse 3s linear infinite;
+  --animate-spin-reverse-slower: spin-reverse 6s linear infinite;
+  --animate-ping-slow: ping 3s cubic-bezier(0, 0, 0.2, 1) infinite;
+
+  @keyframes spin-reverse {
+    to {
+      transform: rotate(-360deg);
+    }
+  }
 }
 
 /* Base Eraser.io-like aesthetic */

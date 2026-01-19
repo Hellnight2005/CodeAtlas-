@@ -53,7 +53,7 @@ const getNodeColor = (label?: string) => {
     return TYPE_COLORS[label] || DEFAULT_COLOR;
 };
 
-export default function GraphCanvas({ onNodeClick, initialData }: { onNodeClick: (node: any) => void, initialData?: any }) {
+export default function GraphCanvas({ onNodeClick, initialData, onReset }: { onNodeClick: (node: any) => void, initialData?: any, onReset?: () => void }) {
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
@@ -127,7 +127,11 @@ export default function GraphCanvas({ onNodeClick, initialData }: { onNodeClick:
 
     // Handle Reset
     const handleReset = () => {
-        generateGraph();
+        if (onReset) {
+            onReset();
+        } else {
+            generateGraph();
+        }
     }
 
     const [selectedNodeId, setSelectedNodeId] = React.useState<string | null>(null);

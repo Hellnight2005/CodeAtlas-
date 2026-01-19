@@ -3,7 +3,10 @@ const express = require('express');
 // Trigger restart
 const app = express();
 const cors = require('cors');
-app.use(cors());
+app.use(cors({
+    origin: "http://localhost:3001",
+    credentials: true
+}));
 const PORT = 5001;
 const { connectConsumer, subscribeToTopic, connectProducer } = require('./config/kafka');
 const { processFile } = require('./controllers/processingController');

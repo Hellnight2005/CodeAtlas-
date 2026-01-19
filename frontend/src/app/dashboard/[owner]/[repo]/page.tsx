@@ -5,7 +5,8 @@ import { useState, useEffect } from "react";
 import Sidebar from "@/components/dashboard/Sidebar";
 import GraphCanvas from "@/components/dashboard/GraphCanvas";
 import DetailPanel from "@/components/dashboard/DetailPanel";
-import { Loader2, AlertCircle } from "lucide-react";
+import { AlertCircle } from "lucide-react";
+import GraphLoadingState from "@/components/dashboard/GraphLoadingState";
 
 export default function DashboardPage() {
     const params = useParams();
@@ -71,15 +72,36 @@ export default function DashboardPage() {
         fetchGraphData();
     }, [owner, repo]);
 
+    const handleFileSelect = async (path: string) => {
+        try {
+            setIsLoading(true);
+            const repoId = owner === "undefined" ? repo : `${owner}/${repo}`;
+
+            // Filter graph by path, restricting to "File" type only to avoid showing internal functions/vars
+            const res = await fetch(`http://localhost:5001/api/graph/filter?repo=${repoId}&path=${encodeURIComponent(path)}&type=File`);
+            if (!res.ok) throw new Error("Failed to filter graph");
+
+            const data = await res.json();
+            setGraphData(data);
+
+            // Also set selected node details if a single node is returned, or try to find the matching node
+            // For now, just updating the graph is key.
+            // Highlight the node if it exists in the new data
+            const matchingNode = data.nodes.find((n: any) => n.data?.path === path || n.id === path);
+            if (matchingNode) {
+                setSelectedNode(matchingNode);
+            }
+
+            setIsLoading(false);
+        } catch (err) {
+            console.error(err);
+            setError("Failed to filter graph");
+            setIsLoading(false);
+        }
+    };
+
     if (isLoading) {
-        return (
-            <div className="h-screen w-full flex items-center justify-center bg-white dark:bg-black">
-                <div className="flex flex-col items-center">
-                    <Loader2 className="w-8 h-8 animate-spin text-slate-400 mb-4" />
-                    <p className="text-slate-500 font-mono text-sm">Loading graph data...</p>
-                </div>
-            </div>
-        )
+        return <GraphLoadingState />;
     }
 
     if (error) {
@@ -100,11 +122,20 @@ export default function DashboardPage() {
         )
     }
 
+    {/* Extract path from selectedNode for Sidebar highlighting */ }
+    // selectedNode structure depends on backend. Usually { id, label, data: { path: "..." } }
+    const selectedPath = selectedNode?.data?.path || null;
+
     return (
         <div className="flex h-screen w-full bg-white dark:bg-black overflow-hidden font-sans">
             {/* Sidebar */}
             <div className="w-80 border-r border-sharp bg-slate-50 dark:bg-black flex-shrink-0 z-10">
-                <Sidebar owner={owner} repo={repo} />
+                <Sidebar
+                    owner={owner}
+                    repo={repo}
+                    selectedFile={selectedPath}
+                    onFileSelect={handleFileSelect}
+                />
             </div>
 
             {/* Main Canvas */}
@@ -112,13 +143,40 @@ export default function DashboardPage() {
                 <GraphCanvas
                     initialData={graphData}
                     onNodeClick={setSelectedNode}
+                    onReset={() => {
+                        // Reset logic: Clear selection and re-fetch initial data
+                        setSelectedNode(null);
+                        const repoId = owner === "undefined" ? repo : `${owner}/${repo}`;
+
+                        // Re-fetch initial logic (duplicated from useEffect, could be extracted)
+                        const fetchGraphData = async () => {
+                            try {
+                                setIsLoading(true);
+                                const response = await fetch(`http://localhost:5001/api/graph/start?repo=${repoId}&limit=30`);
+                                if (!response.ok) throw new Error("Failed to reset graph");
+                                const data = await response.json();
+                                setGraphData(data);
+                                setIsLoading(false);
+                            } catch (err) {
+                                console.error(err);
+                                setIsLoading(false);
+                            }
+                        };
+                        fetchGraphData();
+                    }}
                 />
             </div>
 
             {/* Right Detail Panel */}
             {selectedNode && (
                 <div className="w-96 border-l border-sharp bg-white dark:bg-black flex-shrink-0 shadow-2xl z-20 absolute right-0 top-0 bottom-0">
-                    <DetailPanel node={selectedNode} details={nodeDetails} onClose={() => setSelectedNode(null)} />
+                    <DetailPanel
+                        node={selectedNode}
+                        details={nodeDetails}
+                        onClose={() => setSelectedNode(null)}
+                        owner={owner}
+                        repo={repo}
+                    />
                 </div>
             )}
         </div>
