@@ -1,0 +1,43 @@
+@startuml
+skinparam componentStyle uml2
+left to right direction
+
+package "Client Layer" {
+    component "Web Frontend" as UI
+}
+
+package "Backend Services" {
+    component "Git Auth Service" as Auth
+    component "Repo Parser Service" as Parser
+    
+    interface "HTTP API" as AuthAPI
+    interface "HTTP API" as ParserAPI
+}
+
+package "Data Layer" {
+    database "MySQL" as DB
+    database "Neo4j" as Graph
+    queue "Kafka" as Queue
+}
+
+cloud "External Services" {
+    [GitHub API] as Github
+    [Gemini AI] as Gemini
+}
+
+' Connections
+UI --> AuthAPI
+AuthAPI - Auth
+
+UI --> ParserAPI
+ParserAPI - Parser
+
+Auth ..> Github : HTTP
+Auth ..> DB : SQL
+Auth ..> Queue : Produce
+
+Queue ..> Parser : Consume
+Parser ..> DB : SQL
+Parser ..> Graph : Bolt
+Parser ..> Gemini : HTTP
+@enduml

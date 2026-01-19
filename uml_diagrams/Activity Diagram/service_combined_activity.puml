@@ -1,0 +1,29 @@
+@startuml
+|User|
+start
+:Login via GitHub;
+:Select Repository;
+
+|Git Auth Service|
+:Check Sync Status;
+if (Need Sync?) then (yes)
+    :Fetch File Tree;
+    :Push File Events to Kafka;
+else (no)
+    :Return Cached Data;
+endif
+
+|Kafka Queue|
+:Queue "repo-files-processing";
+
+|Repo Parser Service|
+:Consume Event;
+:Parse AST;
+:Store Graph (Neo4j);
+:Generate Summary (Gemini);
+:Update Status (MySQL);
+
+|User|
+:View Analysis Results;
+stop
+@enduml

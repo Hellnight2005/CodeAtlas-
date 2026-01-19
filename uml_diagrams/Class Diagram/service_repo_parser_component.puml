@@ -1,0 +1,50 @@
+@startuml
+class App {
+    +startServer()
+    +consumeKafka()
+}
+
+class ProcessingController {
+    +processFile(kafkaMessage)
+    +normalizeAndStore()
+}
+
+class ASTController {
+    +generateAST(code)
+    +extractNodesAndEdges()
+}
+
+class GraphController {
+    +getNodeDetails()
+    +searchFiles()
+    +filterGraph()
+}
+
+class RepoController {
+    +getRepoFileTree()
+    +getAiFileSummary()
+}
+
+class GeminiService {
+    +generateCodeSummary(code)
+    -callGeminiAPI()
+}
+
+class Neo4jClient {
+    +runQuery(cypher)
+}
+
+class MySQLClient {
+    +updateFileStatus()
+}
+
+App --> ProcessingController : Kafka Event
+App --> GraphController : HTTP API
+App --> RepoController : HTTP API
+
+ProcessingController --> ASTController : Generate AST
+ASTController --> Neo4jClient : Store Nodes/rels
+RepoController --> GeminiService : AI Summary
+RepoController --> MySQLClient : Read Meta
+GraphController --> Neo4jClient : Query Graph
+@enduml

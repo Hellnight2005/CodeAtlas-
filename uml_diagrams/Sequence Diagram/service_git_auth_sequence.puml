@@ -1,0 +1,50 @@
+@startuml
+actor User
+participant Frontend
+participant AuthController
+participant GitHubAPI
+database MySQL
+queue Kafka
+
+group Authentication Flow
+    User -> Frontend: Click Login
+    Frontend -> AuthController: GET /auth/github
+    AuthController -> GitHubAPI: Redirect to OAuth
+    User -> GitHubAPI: Authorize App
+    GitHubAPI -> AuthController: Callback with Code
+    AuthController -> GitHubAPI: Exchange Code for Token
+    GitHubAPI --> AuthController: Access Token
+    AuthController -> MySQL: Upsert User (Token, Profile)
+    AuthController --> Frontend: Redirect to Dashboard (Session)
+end
+
+group Repository Fetch Flow
+    User -> Frontend: View Dashboard
+    Frontend -> AuthController: GET /api/user/repos
+    AuthController -> GitHubAPI: Fetch User Repos (with Token)
+    GitHubAPI --> AuthController: List of Repos
+    AuthController --> Frontend: JSON Repos
+end
+
+group File Processing Flow
+    User -> Frontend: Select Repo to Analyze
+    Frontend -> AuthController: GET /api/repo/files?repo=X
+    AuthController -> MySQL: Check Sync Status (Cache)
+    
+    alt Cache Miss
+        AuthController -> GitHubAPI: Get Latest SHA
+        AuthController -> MySQL: Update Sync Status (Processing)
+        AuthController --> Frontend: 202 Accepted (Processing Started)
+        
+        loop Lazy Traversal
+            AuthController -> GitHubAPI: Fetch Directory Contents
+            AuthController -> MySQL: Insert File Records (Pending)
+            AuthController -> Kafka: Produce "repo-files-processing" Event
+        end
+        
+        AuthController -> MySQL: Update Sync Status (Completed)
+    else Cache Hit
+        AuthController --> Frontend: 200 OK (Already Synced)
+    end
+end
+@enduml

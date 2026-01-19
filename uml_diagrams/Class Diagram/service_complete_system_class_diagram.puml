@@ -1,0 +1,115 @@
+@startuml
+skinparam componentStyle uml2
+
+package "Shared Infrastructure" {
+    class MySQLClient {
+        +getMainDBConnection()
+        +query()
+    }
+
+    class KafkaClient {
+        +produceMessage()
+        +connectProducer()
+    }
+
+    class Neo4jClient {
+        +runQuery(cypher)
+    }
+}
+
+package "Git Auth Service" {
+    class "App" as AuthApp {
+        +startServer()
+        +configureMiddleware()
+    }
+
+    class AuthRoutes {
+        +GET /auth/github
+        +GET /auth/github/callback
+        +GET /logout
+    }
+
+    class GithubRoutes {
+        +GET /repos
+        +GET /files
+        +GET /search
+    }
+
+    class AuthController {
+        +handleLogin()
+        +handleCallback()
+        +handleLogout()
+    }
+
+    class GithubController {
+        +getUserRepos()
+        +getRepositoryFiles()
+        +searchRepositories()
+        -axiosRetry()
+        -isInterestingFile()
+    }
+
+    class UserModel {
+        +githubId
+        +username
+        +accessToken
+        +repos[]
+    }
+
+    AuthApp --> AuthRoutes
+    AuthApp --> GithubRoutes
+    AuthRoutes --> AuthController
+    GithubRoutes --> GithubController
+
+    AuthController --> MySQLClient : Save User
+    GithubController --> MySQLClient : Save Repo Meta
+    GithubController --> KafkaClient : Produce "repo-files-processing"
+    GithubController --> UserModel : Update
+}
+
+package "Repo Parser Service" {
+    class "App" as ParserApp {
+        +startServer()
+        +consumeKafka()
+    }
+
+    class ProcessingController {
+        +processFile(kafkaMessage)
+        +normalizeAndStore()
+    }
+
+    class ASTController {
+        +generateAST(code)
+        +extractNodesAndEdges()
+    }
+
+    class GraphController {
+        +getNodeDetails()
+        +searchFiles()
+        +filterGraph()
+    }
+
+    class RepoController {
+        +getRepoFileTree()
+        +getAiFileSummary()
+    }
+
+    class GeminiService {
+        +generateCodeSummary(code)
+        -callGeminiAPI()
+    }
+
+    ParserApp --> ProcessingController : Consumes Kafka Event
+    ParserApp --> GraphController : HTTP API
+    ParserApp --> RepoController : HTTP API
+
+    ProcessingController --> ASTController
+    ASTController --> Neo4jClient : Store Nodes/rels
+    RepoController --> GeminiService
+    RepoController --> MySQLClient : Read Meta
+    GraphController --> Neo4jClient : Query Graph
+}
+
+' Cross-Service Interaction (Conceptual)
+KafkaClient ..> ProcessingController : Async Message Flow
+@enduml

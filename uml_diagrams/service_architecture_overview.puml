@@ -1,0 +1,52 @@
+@startuml
+!theme plain
+skinparam componentStyle uml2
+
+package "Client" {
+    [User Browser / Frontend] as Browser
+}
+
+package "Git Auth Service (Port 3001)" {
+    [API Gateway / Routes] as AuthAPI
+    [Auth Controller] as AuthController
+    [GitHub Controller] as GithubController
+}
+
+package "Repo Parser Service (Port 5001)" {
+    [API / Routes] as ParserAPI
+    [Repo Controller] as RepoController
+    [Processing Controller] as ProcessingController
+    [AST Controller] as ASTController
+    [Graph Controller] as GraphController
+    [Gemini AI Service] as GeminiService
+}
+
+package "Infrastructure / Data" {
+    database "MySQL Database" as MySQL
+    database "Neo4j Graph DB" as Neo4j
+    queue "Kafka Message Queue" as Kafka
+    [GitHub API] as GitHubAPI
+    [Google Gemini API] as GeminiAPI
+}
+
+Browser --> AuthAPI : HTTP / GraphQL
+Browser --> ParserAPI : HTTP
+
+AuthAPI --> AuthController
+AuthAPI --> GithubController
+AuthController --> GitHubAPI : Oauth
+GithubController --> GitHubAPI : Fetch Repos/Files
+GithubController --> MySQL : Store User/Repo Meta
+GithubController --> Kafka : Publish File Events
+
+Kafka --> ProcessingController : Consume File Events
+ProcessingController --> ASTController
+ASTController --> ASTController : Parse Code
+ASTController --> Neo4j : Store AST/Graph
+ProcessingController --> MySQL : Store File Metadata
+
+RepoController --> MySQL : Fetch Tree/Summary
+RepoController --> GeminiService : Generate Summary
+GeminiService --> GeminiAPI : Analysis Request
+GraphController --> Neo4j : Graph Queries
+@enduml

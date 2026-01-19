@@ -1,0 +1,32 @@
+@startuml
+participant Kafka
+participant Application
+participant ProcessingController
+participant ASTController
+database Neo4j
+database MySQL
+
+group Background Processing Flow
+    Kafka -> Application: Consume Message (File Event)
+    Application -> ProcessingController: processFile(data)
+    
+    ProcessingController -> MySQL: Update File Status (Processing)
+    
+    ProcessingController -> ASTController: generateAST(code)
+    ASTController --> ProcessingController: AST JSON
+    
+    ProcessingController -> ASTController: extractGraph(AST)
+    ASTController --> ProcessingController: Nodes & Relationships
+    
+    ProcessingController -> Neo4j: Merge File Node
+    ProcessingController -> Neo4j: Create AST structure (Functions, Classes)
+    
+    alt Success
+        ProcessingController -> MySQL: Update File Status (Done)
+        ProcessingController -> Neo4j: Link to Repository Node
+    else Failure
+        ProcessingController -> MySQL: Update File Status (Failed)
+        ProcessingController -> MySQL: Increment Retry Count
+    end
+end
+@enduml
