@@ -301,9 +301,7 @@ exports.getRepositoryFiles = async (req, res) => {
             const cache = rows[0];
             if (cache.latest_commit_sha === latestSha && (cache.status === 'completed' || cache.status === 'processing')) {
                 req.log('info', `Repo ${owner}/${repo} is already up to date (SHA: ${latestSha}). Status: ${cache.status}`);
-                dbPool.release(); // Important: release if using pool directly, or if using wrapper ensure it handles it. 
-                // Note: getMainDBConnection returns a pool, not a connection usually, so explicit release might not be needed unless using getConnection().
-                // Assuming dbPool is a pool:
+                // dbPool.release(); // Removed: dbPool is a pool, not a connection
 
                 return res.status(200).json({
                     message: 'Repository already up to date',
@@ -490,14 +488,21 @@ exports.getFileContent = async (req, res) => {
 
 exports.getUserRepos = async (req, res) => {
     try {
-        const authHeader = req.headers['authorization'];
+        req.log('debug', `getUserRepos called. User: ${req.user ? req.user.username : 'None'}, Session: ${req.session ? 'Exists' : 'None'}`);
+        req.log('debug', `Headers: ${JSON.stringify(req.headers)}`);
         let token = req.headers['x-github-token'];
+        const authHeader = req.headers['authorization'];
 
         if (authHeader && authHeader.startsWith('token ')) token = authHeader.split(' ')[1];
         else if (authHeader && authHeader.startsWith('Bearer ')) token = authHeader.split(' ')[1];
 
+        // Check Session (Cookie Auth)
+        if (!token && req.user && req.user.githubAccessToken) {
+            token = req.user.githubAccessToken;
+        }
+
         if (!token) {
-            req.log('warn', 'Missing GitHub token in headers');
+            req.log('warn', 'Missing GitHub token in headers or session');
             return res.status(401).json({ error: 'GitHub token required' });
         }
 
@@ -519,6 +524,7 @@ exports.getUserRepos = async (req, res) => {
         }
 
         const repos = results.map(repo => ({
+            id: repo.id,
             name: repo.name,
             owner: repo.owner.login,
             description: repo.description,

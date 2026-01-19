@@ -58,13 +58,55 @@ exports.githubCallback = async (req, res) => {
       EX: 24 * 60 * 60
     });
 
+    const { encrypt } = require('../utils/crypto');
+    const encryptedToken = encrypt(githubUser.accessToken);
+
+    // Set cookie: gh_token (encrypted)
+    res.cookie('gh_token', encryptedToken, {
+      httpOnly: true, // Secure: Frontend can't read directly? User said "so I can use"
+      // If users wants to use it directly, maybe httpOnly: false?
+      // "so ican use directly from there but in encrypt formated"
+      // If they want to use it, they can read it. 
+      // But usually cookies are for transport.
+      // Let's assume httpOnly: false if they specifically want to "use" it (e.g. read it in JS to send elsewhere?)
+      // Or if they mean the backend uses it. 
+      // Safer default is true. If they complain, I'll switch. 
+      // Wait, "use directly from there" suggests client access.
+      httpOnly: false,
+      secure: false, // localhost
+      maxAge: 24 * 60 * 60 * 1000
+    });
+
     req.log("info", "OAuth metadata and access token stored in Redis");
 
-    return res.redirect("/");
+    return res.redirect("http://localhost:3001/dashboard");
   } catch (err) {
     req.log("error", `OAuth callback error: ${err.message}`);
     return res.status(500).send("Internal Server Error");
   }
+};
+
+/* ----------------------------------------
+ * Get Current User (Session)
+ * -------------------------------------- */
+exports.getCurrentUser = (req, res) => {
+  if (req.isAuthenticated() && req.user) {
+    // Return sanitized user object
+    return res.json({
+      authenticated: true,
+      user: {
+        githubId: req.user.githubId,
+        username: req.user.username,
+        displayName: req.user.displayName || req.user.username,
+        avatarUrl: req.user.avatarUrl,
+        repos: req.user.repos || [],
+        meta: req.user.meta,
+        githubAccessToken: req.user.githubAccessToken // Expose token for frontend API calls
+      }
+    });
+  }
+
+  return res.json({ authenticated: false, user: null });
 };
 
 /* ----------------------------------------

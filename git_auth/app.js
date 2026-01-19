@@ -1,5 +1,6 @@
 const express = require("express");
 const session = require("express-session");
+const cors = require("cors");
 require("dotenv").config();
 
 const logger = require("./config/logger");
@@ -20,6 +21,11 @@ const app = express();
  * Logging Middleware (request logger)
  * ----------------------------------------------------- */
 app.use(requestLogger);
+
+app.use(cors({
+  origin: "http://localhost:3001",
+  credentials: true
+}));
 
 /* -------------------------------------------------------
  * Session Setup
@@ -73,6 +79,7 @@ app.use((err, req, res, next) => {
       metadata: null,
       error: err,
     });
+    console.error("Global Error Handler:", err);
   }
   res.status(500).send("Internal Server Error");
 });

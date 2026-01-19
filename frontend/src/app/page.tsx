@@ -1,7 +1,6 @@
-"use client";
-
 import Link from "next/link";
-import { ArrowRight, Github, SquareTerminal } from "lucide-react";
+import { ArrowRight, SquareTerminal } from "lucide-react";
+import UserProfile from "@/components/UserProfile";
 
 export default function Home() {
   return (
@@ -14,9 +13,7 @@ export default function Home() {
             <span className="font-bold tracking-tight text-lg">CodeAtlas</span>
           </div>
           <nav className="flex items-center gap-6">
-            <Link href="https://github.com" className="hover:opacity-70 transition-opacity">
-              <Github className="w-5 h-5" />
-            </Link>
+            <UserProfile />
           </nav>
         </div>
       </header>
@@ -40,7 +37,7 @@ export default function Home() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20">
             <Link
-              href="/repo"
+              href="/auth/github"
               className="px-8 py-4 bg-black dark:bg-white text-white dark:text-black font-bold rounded-lg shadow-lg hover:translate-y-[-2px] transition-transform flex items-center gap-2"
             >
               Start Mapping <ArrowRight className="w-4 h-4" />

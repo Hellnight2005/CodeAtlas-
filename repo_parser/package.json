@@ -11,6 +11,7 @@
   "description": "",
   "dependencies": {
     "@babel/parser": "^7.28.5",
+    "@google/generative-ai": "^0.24.1",
     "acorn": "^8.15.0",
     "axios": "^1.13.2",
     "cors": "^2.8.5",

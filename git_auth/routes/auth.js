@@ -16,6 +16,9 @@ router.get(
   authController.githubCallback
 );
 
+// Get Current User
+router.get("/me", authController.getCurrentUser);
+
 // Logout
 router.get("/logout", authController.logout);
 
