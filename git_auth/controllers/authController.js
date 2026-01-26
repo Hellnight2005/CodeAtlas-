@@ -89,8 +89,72 @@ exports.githubCallback = async (req, res) => {
 /* ----------------------------------------
  * Get Current User (Session)
  * -------------------------------------- */
-exports.getCurrentUser = (req, res) => {
+const { getMainDBConnection } = require('../config/mysqlClient');
+
+/* ----------------------------------------
+ * Get Current User (Session)
+ * -------------------------------------- */
+exports.getCurrentUser = async (req, res) => {
   if (req.isAuthenticated() && req.user) {
+    let populatedRepos = req.user.repos || [];
+
+    // Fetch MySQL Status to enrich the response
+    try {
+      const dbPool = await getMainDBConnection();
+      const [rows] = await dbPool.query(`SELECT * FROM repository_sync_status WHERE owner = ?`, [req.user.username]);
+
+      const statusMap = new Map();
+      rows.forEach(row => statusMap.set(row.repo_full_name.toLowerCase(), row));
+
+      // 1. Enrich existing Mongo Repos
+      populatedRepos = populatedRepos.map(repo => {
+        const r = repo.toObject ? repo.toObject() : { ...repo };
+        const fullName = `${req.user.username}/${r.repo_name}`.toLowerCase();
+        const status = statusMap.get(fullName);
+
+        if (status) {
+          r.sync_status = status.status;
+          r.last_synced = status.last_synced_at;
+          r.latest_commit = status.latest_commit_sha;
+          // Mark as processed
+          status.matched = true;
+        } else {
+          r.sync_status = 'not_synced';
+        }
+        return r;
+      });
+
+      // 2. Add Missing Repos from MySQL (e.g. Unity)
+      rows.forEach(row => {
+        if (!row.matched) {
+          // Determine short name
+          const [owner, name] = row.repo_full_name.split('/');
+
+          // Construct a partial repo object so it shows up
+          populatedRepos.push({
+            repo_id: `mysql_${row.id}`, // Placeholder ID
+            repo_name: name,
+            repo_url: `https://github.com/${row.repo_full_name}`, // Guess URL
+            owner: { login: owner },
+            description: '(Synced in DB)',
+            isPrivate: false, // Assumption
+            language: 'Unknown',
+            updated_at: row.last_synced_at,
+
+            // Flags
+            isSync: true,
+            sync_status: row.status,
+            last_synced: row.last_synced_at,
+            latest_commit: row.latest_commit_sha
+          });
+        }
+      });
+
+    } catch (err) {
+      req.log('error', `Error fetching MySQL status in getCurrentUser: ${err.message}`);
+      // Fallback to existing repos without enriching
+    }
+
     // Return sanitized user object
     return res.json({
       authenticated: true,
@@ -99,7 +163,7 @@ exports.getCurrentUser = (req, res) => {
         username: req.user.username,
         displayName: req.user.displayName || req.user.username,
         avatarUrl: req.user.avatarUrl,
-        repos: req.user.repos || [],
+        repos: populatedRepos,
         meta: req.user.meta,
         githubAccessToken: req.user.githubAccessToken // Expose token for frontend API calls
       }

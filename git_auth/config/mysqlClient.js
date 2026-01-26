@@ -7,17 +7,22 @@ const baseConfig = {
     user: 'root',
     password: 'root',
     waitForConnections: true,
-    connectionLimit: 10,
+    connectionLimit: 40,
     queueLimit: 0
 };
 
 // Main Database Name
 const MAIN_DB_NAME = 'repo';
 
+let pool = null;
+
 /**
  * Connect to MySQL, ensure 'repo' DB exists, and return connection pool to it.
+ * Singleton: Reuses pool if already created.
  */
 const getMainDBConnection = async () => {
+    if (pool) return pool;
+
     try {
         // 1. Connect to MySQL Root (to check/create DB)
         const rootConnection = await mysql.createConnection({
@@ -31,10 +36,12 @@ const getMainDBConnection = async () => {
         await rootConnection.end();
 
         // 3. Return Pool connected to 'repo' DB
-        return mysql.createPool({
+        pool = mysql.createPool({
             ...baseConfig,
             database: MAIN_DB_NAME
         });
+
+        return pool;
     } catch (error) {
         logger.error(`MySQL Main DB Connection Error: ${error.message}`);
         throw error;

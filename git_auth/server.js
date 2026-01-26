@@ -14,4 +14,5 @@ app.listen(PORT, () => {
   });
 
   logger.info(`GitHub Auth Service running on port ${PORT}`);
+  logger.info("Service Ready for Integration");
 });

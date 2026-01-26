@@ -106,7 +106,7 @@ exports.searchRepositories = async (req, res) => {
     try {
         const { q } = req.query;
         // User ID from Session (secure)
-        const userId = req.user?.id;
+        const userId = req.user?.githubId;
 
         if (!q) {
             req.log('warn', 'Search query missing');
@@ -174,12 +174,19 @@ const axiosRetry = async (client, url, config = {}, retries = 3) => {
     try {
         return await client.get(url, config);
     } catch (error) {
-        if (retries > 0 && (error.response?.status === 429 || error.response?.status === 403)) {
-            // Check for Rate Limit headers
-            const retryAfter = error.response.headers['retry-after'];
-            const waitTime = retryAfter ? parseInt(retryAfter) * 1000 : 2000 * (4 - retries); // Fallback exponential backoff
+        // Immediate Fail on Rate Limit to prevent request timeouts
+        if (error.response?.status === 403 || error.response?.status === 429) {
+            const reset = error.response.headers['x-ratelimit-reset'];
+            const usage = error.response.headers['x-ratelimit-remaining'];
 
-            logger.info(`Rate limit hit. Waiting ${waitTime}ms before retry. (${retries} retries left)`);
+            if (usage === '0') {
+                logger.warn(`[GitHub] Rate Limit Exceeded for ${url}. Aborting immediately.`);
+                throw error; // Let the controller handle 429/500
+            }
+        }
+
+        if (retries > 0 && error.response?.status >= 500) {
+            const waitTime = 1000 * (4 - retries);
             await sleep(waitTime);
             return axiosRetry(client, url, config, retries - 1);
         }
@@ -193,8 +200,8 @@ exports.getRepositoryFiles = async (req, res) => {
         let token = req.headers['x-github-token'] || process.env.GITHUB_TOKEN;
 
         // PRIORITIZE USER TOKEN to avoid shared rate limits
-        if (req.user && req.user.id) {
-            const userId = req.user.id;
+        if (req.user && req.user.githubId) {
+            const userId = req.user.githubId;
             const user = await User.findOne({ githubId: userId });
             if (user && user.githubAccessToken) {
                 token = user.githubAccessToken;
@@ -235,10 +242,14 @@ exports.getRepositoryFiles = async (req, res) => {
 
         // --- UPDATE USER MODEL IN MONGODB ---
         if (req.user && req.user.id) {
+            req.log('info', `[Sync Debug] Attempting to update Mongo for user ${req.user.id} and repo ${repoDetails.name} (ID: ${repoDetails.id})`);
             try {
                 const user = await User.findOne({ githubId: req.user.id });
                 if (user) {
+                    req.log('info', `[Sync Debug] User found: ${user.username}. Current repos count: ${user.repos.length}`);
+
                     const repoIndex = user.repos.findIndex(r => r.repo_id === repoDetails.id);
+                    req.log('info', `[Sync Debug] Repo found at index: ${repoIndex}`);
 
                     const newRepoData = {
                         repo_id: repoDetails.id,
@@ -256,6 +267,7 @@ exports.getRepositoryFiles = async (req, res) => {
                     if (repoIndex > -1) {
                         const existing = user.repos[repoIndex];
                         user.repos[repoIndex] = { ...existing.toObject(), ...newRepoData };
+                        req.log('info', `[Sync Debug] Updated existing repo entry.`);
                     } else {
                         user.repos.push({
                             ...newRepoData,
@@ -264,14 +276,23 @@ exports.getRepositoryFiles = async (req, res) => {
                             isexport_graph: false,
                             isexport_graph_created_at: null
                         });
+                        req.log('info', `[Sync Debug] Pushed new repo entry.`);
                     }
 
-                    await user.save();
-                    req.log('info', `Updated MongoDB User for repo: ${repoDetails.name}`);
+                    // Explicitly mark modified if needed (though array push usually handles it)
+                    // user.markModified('repos'); 
+
+                    const saveResult = await user.save();
+                    req.log('info', `[Sync Debug] Updated MongoDB User. New repos count: ${saveResult.repos.length}`);
+                } else {
+                    req.log('error', `[Sync Debug] User with githubId ${req.user.id} NOT found in MongoDB.`);
                 }
             } catch (mongoErr) {
-                req.log('error', `Failed to update Mongo User: ${mongoErr.message}`);
+                req.log('error', `[Sync Debug] Failed to update Mongo User: ${mongoErr.message}`);
+                console.error(mongoErr);
             }
+        } else {
+            req.log('warn', `[Sync Debug] req.user or req.user.id missing. Req User: ${JSON.stringify(req.user)}`);
         }
 
         // 2. Database Connection & Caching Check
@@ -297,12 +318,13 @@ exports.getRepositoryFiles = async (req, res) => {
             [`${owner}/${repo}`]
         );
 
+        let previousSha = null;
         if (rows.length > 0) {
             const cache = rows[0];
+            previousSha = cache.latest_commit_sha;
+
             if (cache.latest_commit_sha === latestSha && (cache.status === 'completed' || cache.status === 'processing')) {
                 req.log('info', `Repo ${owner}/${repo} is already up to date (SHA: ${latestSha}). Status: ${cache.status}`);
-                // dbPool.release(); // Removed: dbPool is a pool, not a connection
-
                 return res.status(200).json({
                     message: 'Repository already up to date',
                     repo: repo,
@@ -312,8 +334,7 @@ exports.getRepositoryFiles = async (req, res) => {
             }
         }
 
-        // 3. Start Processing
-        // Update Status to Processing
+        // 3. Start Processing (Update DB immediately to lock status)
         await dbPool.query(
             `INSERT INTO repository_sync_status (repo_full_name, owner, latest_commit_sha, status, last_synced_at)
              VALUES (?, ?, ?, 'processing', NOW())
@@ -328,7 +349,7 @@ exports.getRepositoryFiles = async (req, res) => {
             status: 'Processing in background'
         });
 
-        // 4. Background Lazy Traversal
+        // 4. Background Processing (Incremental vs Full)
         (async () => {
             // Create main repo table if not exists
             const createTableSQL = `
@@ -350,86 +371,177 @@ exports.getRepositoryFiles = async (req, res) => {
             `;
             await dbPool.query(createTableSQL);
 
-            // Queue for directories to traverse: starts with root path ''
-            const dirQueue = [''];
             let processedCount = 0;
+            let useFullTraversal = true;
 
-            try {
-                req.log('info', `Starting lazy traversal for ${owner}/${repo}`);
+            // TRY INCREMENTAL SYNC
+            if (previousSha && previousSha !== latestSha) {
+                try {
+                    req.log('info', `[Incremental] Attempting diff from ${previousSha.substring(0, 7)} to ${latestSha.substring(0, 7)}`);
 
-                while (dirQueue.length > 0) {
-                    const currentPath = dirQueue.shift(); // BFS
+                    const diffRes = await taskQueue.add(async () => {
+                        return await client.get(`/repos/${owner}/${repo}/compare/${previousSha}...${latestSha}`);
+                    });
 
-                    req.log('debug', `Fetching contents of: ${currentPath || 'ROOT'}`);
+                    // Check if comparison is valid
+                    if (diffRes.data.status === 'ahead' || diffRes.data.status === 'diverged') {
+                        const files = diffRes.data.files || [];
+                        req.log('info', `[Incremental] Found ${files.length} changed files.`);
 
-                    // Throttle: 300-600ms Delay
-                    await sleep(350);
+                        // Limit incremental sync to reasonable size (e.g., < 500 files). If huge re-write, do full traversal.
+                        if (files.length < 500) {
+                            useFullTraversal = false; // We will use incremental
 
-                    // Fetch Contents (Retries handles 403/429)
-                    // Note: We intentionally DO NOT use taskQueue here to avoid blocking the single execution slot for too long if the repo is huge.
-                    // However, we MUST be careful not to spam. The sleep() above is our rate limiter.
-                    // We call axios directly (via wrapper).
+                            for (const file of files) {
+                                const { status, filename: path, sha } = file;
 
-                    try {
-                        let contentsUrl = `/repos/${owner}/${repo}/contents/${currentPath}`;
-                        // If path is empty, it needs to be NO leading slash after contents? actually contents/ works for root? 
-                        // GitHub API: GET /repos/{owner}/{repo}/contents/{path}
-                        // For root: GET /repos/{owner}/{repo}/contents/ or just /repos/{owner}/{repo}/contents
-                        if (!currentPath) contentsUrl = `/repos/${owner}/${repo}/contents`;
+                                // Handle Deletions
+                                if (status === 'removed') {
+                                    await dbPool.query(`DELETE FROM \`${tableName}\` WHERE path = ?`, [path]);
+                                    req.log('debug', `[Incremental] Deleted: ${path}`);
+                                }
+                                // Handle Additions/Modifications/Renames
+                                else if (status === 'added' || status === 'modified' || status === 'renamed') {
+                                    if (isInterestingFile(path)) {
+                                        // Fetch content for this specific file
+                                        // We can use the existing 'contents' API or raw URL. The file object might have raw_url.
+                                        // Let's reuse existing flow to be consistent (store content in DB).
 
-                        const contentRes = await axiosRetry(client, contentsUrl);
-                        const items = Array.isArray(contentRes.data) ? contentRes.data : [contentRes.data];
+                                        // We need to fetch content. 
+                                        // Using the existing loop logic style:
+                                        await sleep(350); // Throttle
 
-                        // Process Items
-                        for (const item of items) {
-                            if (item.type === 'dir') {
-                                dirQueue.push(item.path);
-                            } else if (item.type === 'file') {
-                                if (isInterestingFile(item.path)) {
-                                    // Insert into DB
-                                    await dbPool.query(
-                                        `INSERT IGNORE INTO \`${tableName}\` (path, sha, type, owner, userId, status) VALUES (?, ?, ?, ?, ?, 'pending')`,
-                                        [item.path, item.sha, item.type, owner, req.user?.id]
-                                    );
+                                        try {
+                                            const contentRes = await axiosRetry(client, `/repos/${owner}/${repo}/contents/${path}`);
+                                            const item = contentRes.data;
 
-                                    // Kafka Produce
-                                    await produceMessage('repo-files-processing', {
-                                        path: item.path,
-                                        sha: item.sha,
-                                        size: item.size,
-                                        type: item.type,
-                                        repo: repo,
-                                        owner: owner,
-                                        userId: req.user?.id
-                                    });
-                                    processedCount++;
+                                            // Upsert into MySQL
+                                            await dbPool.query(
+                                                `INSERT INTO \`${tableName}\` (path, sha, type, owner, userId, status, raw_content) 
+                                                 VALUES (?, ?, ?, ?, ?, 'pending', NULL)
+                                                 ON DUPLICATE KEY UPDATE sha = VALUES(sha), status = 'pending', retries = 0`,
+                                                [item.path, item.sha, item.type, owner, req.user?.id]
+                                            );
+                                            // Note: We insert NULL raw_content to indicate it needs fetching? 
+                                            // Wait, the FULL traversal sets status='pending' and DOES NOT fetch raw_content immediately?
+                                            // Looking at previous code: 
+                                            // `INSERT IGNORE INTO ... VALUES (..., 'pending')`
+                                            // And then `produceMessage('repo-files-processing')`
+                                            // Ah! The `repo_parser` (Step 229) fetches the content!
+                                            // "const rawContent = await fetchFileContent(owner, repo, path, userId);"
+                                            // So git_auth ONLY stores metadata and pushes to Kafka. CORRECT.
+
+                                            await produceMessage('repo-files-processing', {
+                                                path: item.path,
+                                                sha: item.sha,
+                                                size: item.size,
+                                                type: item.type,
+                                                repo: repo,
+                                                owner: owner,
+                                                userId: req.user?.id
+                                            });
+                                            processedCount++;
+                                            req.log('debug', `[Incremental] Enqueued: ${path}`);
+
+                                        } catch (fileErr) {
+                                            req.log('error', `[Incremental] Failed to process ${path}: ${fileErr.message}`);
+                                        }
+                                    } else {
+                                        req.log('debug', `[Incremental] Skipped ignored file: ${path}`);
+                                    }
                                 }
                             }
+                            req.log('info', `[Incremental] Sync complete. Processed ${processedCount} changes.`);
+                        } else {
+                            req.log('info', `[Incremental] Too many changes (${files.length}). Falling back to full traversal.`);
                         }
-
-                    } catch (dirError) {
-                        // If a directory fails, log it but continue? 
-                        // If 403 blocks us completely, axiosRetry should have handled it or thrown after retries.
-                        req.log('error', `Failed to fetch/process directory ${currentPath}: ${dirError.message}`);
+                    } else {
+                        req.log('warn', `[Incremental] Diff status '${diffRes.data.status}' not supported. Fallback.`);
                     }
+
+                } catch (diffErr) {
+                    req.log('error', `[Incremental] Diff failed: ${diffErr.message}. Falling back to full traversal.`);
+                    useFullTraversal = true;
                 }
-
-                // Success
-                await dbPool.query(
-                    `UPDATE repository_sync_status SET status = 'completed' WHERE repo_full_name = ?`,
-                    [`${owner}/${repo}`]
-                );
-                req.log('info', `Traversal complete for ${owner}/${repo}. processed ${processedCount} files.`);
-
-            } catch (fatalError) {
-                req.log('error', `Fatal error processing ${owner}/${repo}: ${fatalError.message}`);
-                await dbPool.query(
-                    `UPDATE repository_sync_status SET status = 'failed' WHERE repo_full_name = ?`,
-                    [`${owner}/${repo}`]
-                );
-            } finally {
-                if (dbPool) await dbPool.end();
+            } else {
+                req.log('info', `[Sync] No previous SHA or forced full sync. Starting full traversal.`);
             }
+
+            // FALLBACK / FULL TRAVERSAL
+            if (useFullTraversal) {
+                const dirQueue = [''];
+                try {
+                    req.log('info', `Starting full traversal for ${owner}/${repo}`);
+                    while (dirQueue.length > 0) {
+                        const currentPath = dirQueue.shift(); // BFS
+                        await sleep(350);
+                        try {
+                            let contentsUrl = `/repos/${owner}/${repo}/contents/${currentPath}`;
+                            if (!currentPath) contentsUrl = `/repos/${owner}/${repo}/contents`;
+
+                            const contentRes = await axiosRetry(client, contentsUrl);
+                            const items = Array.isArray(contentRes.data) ? contentRes.data : [contentRes.data];
+
+                            for (const item of items) {
+                                if (item.type === 'dir') {
+                                    dirQueue.push(item.path);
+                                } else if (item.type === 'file') {
+                                    if (isInterestingFile(item.path)) {
+                                        // Insert: On Duplicate Ignore (Metadata only)
+                                        // If file has changed SHA, we should probably update it? 
+                                        // The original code was INSERT IGNORE. This means if path exists, it acts as "up to date".
+                                        // But if SHA changed, we need to process it!
+                                        // Modified logic: ON DUPLICATE KEY UPDATE if SHA differs?
+                                        // Let's improve the full traversal too: check SHA.
+
+                                        // "INSERT INTO ... ON DUPLICATE KEY UPDATE sha = VALUES(sha)" -> check if affectedRow > 0?
+                                        // Actually checking sha match in SQL is better.
+
+                                        // For now, sticking to logic that works:
+                                        // The user wants efficient updates. INSERT IGNORE assumes file didn't change.
+                                        // If we want to catch changes in full traversal, we must compare SHAs.
+                                        // We will enable upsert.
+
+                                        await dbPool.query(
+                                            `INSERT INTO \`${tableName}\` (path, sha, type, owner, userId, status) 
+                                             VALUES (?, ?, ?, ?, ?, 'pending')
+                                             ON DUPLICATE KEY UPDATE sha = VALUES(sha), status = IF(sha <> VALUES(sha), 'pending', status)`,
+                                            [item.path, item.sha, item.type, owner, req.user?.id]
+                                        );
+                                        // Check if we need to emit event. 
+                                        // We blindly emit for now, consumer checks duplication or we can optimize?
+                                        // Ideally we only emit if 'pending'.
+                                        // Let's emit everything for full safety in "Full" mode.
+
+                                        await produceMessage('repo-files-processing', {
+                                            path: item.path,
+                                            sha: item.sha,
+                                            size: item.size,
+                                            type: item.type,
+                                            repo: repo,
+                                            owner: owner,
+                                            userId: req.user?.id
+                                        });
+                                        processedCount++;
+                                    }
+                                }
+                            }
+                        } catch (dirError) {
+                            req.log('error', `Failed to fetch/process directory ${currentPath}: ${dirError.message}`);
+                        }
+                    }
+                    req.log('info', `Full traversal complete. Processed ${processedCount} files.`);
+                } catch (fatalError) {
+                    req.log('error', `Fatal error in full traversal: ${fatalError.message}`);
+                    throw fatalError;
+                }
+            }
+
+            // Success Update
+            await dbPool.query(
+                `UPDATE repository_sync_status SET status = 'completed' WHERE repo_full_name = ?`,
+                [`${owner}/${repo}`]
+            );
 
         })(); // End Background
 
@@ -488,34 +600,68 @@ exports.getFileContent = async (req, res) => {
 
 exports.getUserRepos = async (req, res) => {
     try {
-        req.log('debug', `getUserRepos called. User: ${req.user ? req.user.username : 'None'}, Session: ${req.session ? 'Exists' : 'None'}`);
-        req.log('debug', `Headers: ${JSON.stringify(req.headers)}`);
+        req.log('debug', `getUserRepos called. User: ${req.user ? req.user.username : 'None'}`);
         let token = req.headers['x-github-token'];
         const authHeader = req.headers['authorization'];
 
         if (authHeader && authHeader.startsWith('token ')) token = authHeader.split(' ')[1];
         else if (authHeader && authHeader.startsWith('Bearer ')) token = authHeader.split(' ')[1];
 
-        // Check Session (Cookie Auth)
         if (!token && req.user && req.user.githubAccessToken) {
             token = req.user.githubAccessToken;
         }
 
         if (!token) {
-            req.log('warn', 'Missing GitHub token in headers or session');
             return res.status(401).json({ error: 'GitHub token required' });
         }
 
-        const { q } = req.query;
-        req.log('info', `Fetching user repos with token. Filter: ${q || 'None'}`);
+        const dbPool = await getMainDBConnection();
 
-        const reposData = await taskQueue.add(async () => {
-            const client = getClient(token);
+        // Fetch User DB Record for Metadata
+        let dbReposMap = new Map();
+        if (req.user && req.user.githubId) {
+            const user = await User.findOne({ githubId: req.user.githubId });
+            if (user && user.repos) {
+                user.repos.forEach(r => {
+                    dbReposMap.set(r.repo_id, r);
+                });
+            }
+        }
+
+        // Fetch MySQL Sync Status
+        const mysqlStatusMap = new Map();
+        try {
+            // Assuming owner is the user. For orgs, this might miss, but good for user repos.
+            if (req.user && req.user.username) {
+                const [rows] = await dbPool.query(`SELECT * FROM repository_sync_status WHERE owner = ?`, [req.user.username]);
+                rows.forEach(row => {
+                    // Key by repo name (without owner prefix since we are filtering by owner)
+                    // OR full name.
+                    // DB stores 'owner/repo'.
+                    mysqlStatusMap.set(row.repo_full_name, row);
+                });
+            }
+        } catch (dbErr) {
+            req.log('error', `MySQL Fetch Error: ${dbErr.message}`);
+        }
+
+        const { q } = req.query;
+        // Use generic client (with timeout fix)
+        const client = getClient(token);
+
+        let reposData = [];
+        try {
             const response = await client.get('/user/repos', {
                 params: { per_page: 100, type: 'all', sort: 'updated' }
             });
-            return response.data;
-        });
+            reposData = response.data;
+        } catch (ghErr) {
+            // Handle Rate Limit gracefully here too
+            if (ghErr.response?.status === 403 || ghErr.response?.status === 429) {
+                return res.status(429).json({ error: 'GitHub Rate Limit Exceeded. Please wait.' });
+            }
+            throw ghErr;
+        }
 
         let results = reposData;
         if (q) {
@@ -523,19 +669,33 @@ exports.getUserRepos = async (req, res) => {
             results = results.filter(repo => repo.name.toLowerCase().includes(query));
         }
 
-        const repos = results.map(repo => ({
-            id: repo.id,
-            name: repo.name,
-            owner: repo.owner.login,
-            description: repo.description,
-            visibility: repo.visibility || (repo.private ? 'private' : 'public'),
-            private: repo.private,
-            fork: repo.fork,
-            size: repo.size,
-            stars: repo.stargazers_count,
-            html_url: repo.html_url,
-            clone_url: repo.clone_url
-        }));
+        const repos = results.map(repo => {
+            const dbRepo = dbReposMap.get(repo.id);
+            const fullName = `${repo.owner.login}/${repo.name}`;
+            const mysqlStatus = mysqlStatusMap.get(fullName);
+
+            return {
+                id: repo.id,
+                name: repo.name,
+                owner: repo.owner.login,
+                description: repo.description,
+                visibility: repo.visibility || (repo.private ? 'private' : 'public'),
+                private: repo.private,
+                fork: repo.fork,
+                size: repo.size,
+                stars: repo.stargazers_count,
+                html_url: repo.html_url,
+                clone_url: repo.clone_url,
+                // mongo flags
+                isSync: dbRepo?.isUpdated || false,
+                isAst: dbRepo?.isAst || false,
+                isGraph: dbRepo?.isexport_graph || false,
+                // MySQL Details
+                sync_status: mysqlStatus ? mysqlStatus.status : 'not_synced',
+                last_synced: mysqlStatus ? mysqlStatus.last_synced_at : null,
+                latest_commit: mysqlStatus ? mysqlStatus.latest_commit_sha : null
+            };
+        });
 
         req.log('info', `Found ${repos.length} repositories.`);
         res.json({ count: repos.length, results: repos });
@@ -545,5 +705,210 @@ exports.getUserRepos = async (req, res) => {
             error: 'Failed to fetch user repositories',
             details: error.response?.data?.message || 'Request failed'
         });
+    }
+};
+
+/**
+ * Repair Sync: Manually trigger synchronization between MySQL and MongoDB
+ * GET /repair-sync
+ */
+exports.repairSync = async (req, res) => {
+    try {
+        const userId = req.user?.githubId;
+        if (!userId) {
+            return res.status(401).json({ error: 'Unauthorized: GitHub ID missing from session.' });
+        }
+
+        const user = await User.findOne({ githubId: userId });
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        if (req.log) req.log('info', `[Repair Sync] Starting sync for user: ${user.username}`);
+
+        const dbPool = await getMainDBConnection();
+
+        // Find all completed repos for this user (where user is owner)
+        // Ensure we handle potential connection errors or empty results
+        const [rows] = await dbPool.query(
+            `SELECT * FROM repository_sync_status WHERE owner = ? AND status = 'completed'`,
+            [user.username]
+        );
+
+        if (req.log) req.log('info', `[Repair Sync] Found ${rows.length} completed repos in MySQL for owner ${user.username}`);
+
+        let updatedCount = 0;
+        let addedCount = 0;
+
+        for (const row of rows) {
+            const repoName = row.repo_full_name.split('/')[1];
+            const repoIndex = user.repos.findIndex(r => r.repo_name === repoName);
+
+            if (repoIndex === -1) {
+                if (req.log) req.log('info', `[Repair Sync] Fetching details for missing repo: ${row.repo_full_name}`);
+                try {
+                    const repoDetails = await taskQueue.add(async () => {
+                        const client = getClient(user.githubAccessToken);
+                        const res = await client.get(`/repos/${row.repo_full_name}`);
+                        return res.data;
+                    });
+
+                    user.repos.push({
+                        repo_id: repoDetails.id,
+                        repo_name: repoDetails.name,
+                        repo_url: repoDetails.html_url,
+                        isPrivate: repoDetails.private,
+                        description: repoDetails.description,
+                        language: repoDetails.language,
+                        forks_count: repoDetails.forks_count,
+                        stargazers_count: repoDetails.stargazers_count,
+                        isUpdated: true,
+                        lastCommit: new Date(row.last_synced_at || new Date()),
+                        isAst: false,
+                        astGeneratedAt: null,
+                        isexport_graph: false,
+                        isexport_graph_created_at: null
+                    });
+                    addedCount++;
+                } catch (fetchErr) {
+                    if (req.log) req.log('error', `[Repair Sync] Failed to fetch details for ${row.repo_full_name}: ${fetchErr.message}`);
+                }
+            } else {
+                if (!user.repos[repoIndex].isUpdated) {
+                    user.repos[repoIndex].isUpdated = true;
+                    updatedCount++;
+                }
+            }
+        }
+
+        if (addedCount > 0 || updatedCount > 0) {
+            await user.save();
+            if (req.log) req.log('info', `[Repair Sync] Changes saved. Added: ${addedCount}, Updated: ${updatedCount}`);
+        }
+
+        res.json({
+            message: 'Sync repair complete',
+            mysql_count: rows.length,
+            added: addedCount,
+            updated: updatedCount
+        });
+
+    } catch (error) {
+        console.error(error);
+        if (req.log) req.log('error', `[Repair Sync] Error: ${error.message}`);
+        res.status(500).json({ error: error.message });
+    }
+};
+/**
+ * Delete Repository from User's Dashboard
+ * DELETE /repo?repo_id=...
+ */
+exports.deleteRepo = async (req, res) => {
+    try {
+        const userId = req.user?.githubId;
+        const { repo_id } = req.query;
+
+        console.log(`[Delete Repo] User: ${userId}, RepoID: ${repo_id}`);
+
+        if (!userId || !repo_id) {
+            return res.status(400).json({ error: 'User ID and Repo ID are required' });
+        }
+
+        const user = await User.findOne({ githubId: userId });
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        const initialCount = user.repos.length;
+        user.repos = user.repos.filter(r => r.repo_id.toString() !== repo_id.toString());
+
+        if (user.repos.length === initialCount) {
+            console.log(`[Delete Repo] Repo ${repo_id} not found in user list.`);
+            // Return 200 anyway to ensure UI is in sync
+        }
+
+        await user.save();
+        console.log(`[Delete Repo] Deleted repo ${repo_id}. New count: ${user.repos.length}`);
+
+        res.json({ message: 'Repository removed', repo_id });
+    } catch (error) {
+        console.error("Delete Repo Error:", error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
+/**
+ * Check Sync Status for All User Repos
+ * GET /syn_check
+ */
+exports.checkSyncStatus = async (req, res) => {
+    try {
+        const userId = req.user?.githubId;
+        if (!userId) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+
+        const user = await User.findOne({ githubId: userId });
+        if (!user || !user.repos || user.repos.length === 0) {
+            return res.json({ outOfSync: [] });
+        }
+
+        const dbPool = await getMainDBConnection();
+        const client = getClient(user.githubAccessToken);
+        const outOfSync = [];
+
+        // We only check repos that user is monitoring/tracking
+        const checkPromises = user.repos.map(async (userRepo) => {
+            try {
+                // 1. Get MySQL Status
+                let fullRepoName = userRepo.repo_name;
+                if (!fullRepoName.includes('/')) {
+                    const match = userRepo.repo_url.match(/github\.com\/([^\/]+\/[^\/]+)/);
+                    if (match) fullRepoName = match[1];
+                    else fullRepoName = `${user.username}/${userRepo.repo_name}`;
+                }
+
+                const [rows] = await dbPool.query(
+                    `SELECT latest_commit_sha FROM repository_sync_status WHERE repo_full_name = ?`,
+                    [fullRepoName]
+                );
+
+                const storedSha = rows.length > 0 ? rows[0].latest_commit_sha : null;
+
+                // 2. Fetch GitHub SHA (Head of default branch)
+                const githubSha = await taskQueue.add(async () => {
+                    const r = await client.get(`/repos/${fullRepoName}`);
+                    const defaultBranch = r.data.default_branch;
+                    const branchRef = await client.get(`/repos/${fullRepoName}/branches/${defaultBranch}`);
+                    return branchRef.data.commit.sha;
+                });
+
+                if (storedSha && githubSha !== storedSha) {
+                    outOfSync.push(userRepo.repo_name);
+                } else if (!storedSha) {
+                    outOfSync.push(userRepo.repo_name);
+                }
+
+            } catch (err) {
+                console.error(`Failed to check sync for ${userRepo.repo_name}:`, err.message);
+            }
+        });
+
+        await Promise.all(checkPromises);
+
+        console.log(`[Sync Check] User ${user.username}: ${outOfSync.length} repos out of sync.`);
+
+        // Set Cookie
+        res.cookie('syn_repo', JSON.stringify(outOfSync), {
+            maxAge: 24 * 60 * 60 * 1000,
+            httpOnly: false,
+            secure: process.env.NODE_ENV === 'production'
+        });
+
+        res.json({ outOfSync });
+
+    } catch (error) {
+        console.error("Sync Check Error:", error);
+        res.status(500).json({ error: error.message });
     }
 };
