@@ -1,41 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react"; // remove useEffect
 import Link from "next/link";
 import { Github, LogOut, ChevronDown, User, GitBranch } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
-interface UserProfile {
-    githubId: string;
-    username: string;
-    displayName: string;
-    avatarUrl: string;
-    repos: any[];
-}
+// ... interfaces ...
 
 export default function UserProfile() {
-    const [user, setUser] = useState<UserProfile | null>(null);
-    const [loading, setLoading] = useState(true);
+    const { user, loading } = useAuth();
     const [isOpen, setIsOpen] = useState(false);
 
-    useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const res = await fetch("/api/auth/me");
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data.authenticated) {
-                        setUser(data.user);
-                    }
-                }
-            } catch (err) {
-                console.error("Failed to fetch user:", err);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchUser();
-    }, []);
+    // ... render logic ...
 
     if (loading) {
         return <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-800 animate-pulse" />;

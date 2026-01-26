@@ -13,6 +13,7 @@ export default function DashboardPage() {
     const { owner, repo } = params as { owner: string; repo: string };
     const [selectedNode, setSelectedNode] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [loadingMessage, setLoadingMessage] = useState("");
     const [error, setError] = useState("");
     const [graphData, setGraphData] = useState<any>(null);
     const [nodeDetails, setNodeDetails] = useState<any>(null);
@@ -27,7 +28,7 @@ export default function DashboardPage() {
         const fetchNodeDetails = async () => {
             try {
                 // Use the ID from the selected node
-                const res = await fetch(`http://localhost:5001/api/graph/node?id=${selectedNode.id}`);
+                const res = await fetch(`/api/graph/node?id=${selectedNode.id}`);
                 if (res.ok) {
                     const data = await res.json();
                     setNodeDetails(data);
@@ -40,45 +41,101 @@ export default function DashboardPage() {
     }, [selectedNode]);
 
     useEffect(() => {
+        let isMounted = true;
+        let retryCount = 0;
+        const MAX_RETRIES = 60; // Increased retries for long pipelines (2 min)
+        const RETRY_DELAY = 2000;
+
         const fetchGraphData = async () => {
             try {
                 // If owner is "undefined", it means we used direct repo name input
                 // repo_parser expects "repo" query param which is the graph name
-                const repoId = owner === "undefined" ? repo : `${owner}/${repo}`;
+                const repoId = owner && owner !== "undefined" ? `${owner}/${repo}` : repo;
+                console.log(`[Dashboard] Fetching graph for: ${repoId}`);
 
-                // In a real app, we might poll or wait for SSE. 
-                // For now, we assume data exists or will exist shortly.
-                // NOTE: graphController.js expects ?repo=..., not ?repoId=... 
-                // I checked graphController.js earlier: "const { repo, limit = 30 } = req.query;"
-                // I checked graphController.js earlier: "const { repo, limit = 30 } = req.query;"
-                const response = await fetch(`http://localhost:5001/api/graph/start?repo=${repoId}&limit=30`);
+                // Fetch & Initialize Graph (Unified Route)
+                const response = await fetch(`/api/check_for_the_file?repo=${repoId}&limit=30`);
+
+                if (response.status === 202) {
+                    const data = await response.json();
+                    if (isMounted) {
+                        setLoadingMessage(data.message || "Initializing graph...");
+                        if (retryCount < MAX_RETRIES) {
+                            retryCount++;
+                            setTimeout(fetchGraphData, RETRY_DELAY);
+                        } else {
+                            setError("Processing timed out. Please try again later.");
+                            setIsLoading(false);
+                        }
+                    }
+                    return;
+                }
 
                 if (!response.ok) {
-                    // If 404, maybe it's still processing. 
-                    // For MVP, just show error.
-                    throw new Error("Failed to load graph data. Is the repository processed?");
+                    const errData = await response.json().catch(() => ({}));
+                    // Specific handling for User Requested "Github Limit" message
+                    if (response.status === 429 || errData.code === 'RATE_LIMIT') {
+                        throw new Error("Sorry we reached the github limit till now");
+                    }
+                    throw new Error(errData.error || "Failed to load graph data.");
                 }
 
                 const data = await response.json();
-                setGraphData(data); // Expecting { nodes: [], edges: [] }
-                setIsLoading(false);
+                console.log(`[Dashboard] Graph Data Length: ${data.nodes?.length || 0} Status: ${response.status}`);
+
+                if (isMounted) {
+                    // Check if data is empty or if backend signaled processing (202)
+                    // If empty, it means AST might still be generating.
+                    if ((!data.nodes || data.nodes.length === 0) || response.status === 202) {
+
+                        // Update status message if provided
+                        if (data.message) {
+                            setLoadingMessage(data.message);
+                        } else {
+                            setLoadingMessage(`Constructing Knowledge Graph... (${retryCount})`);
+                        }
+
+                        if (retryCount < MAX_RETRIES) {
+                            console.log(`[Dashboard] Pipeline Processing... Retrying (${retryCount + 1}/${MAX_RETRIES})`);
+                            retryCount++;
+                            setTimeout(fetchGraphData, RETRY_DELAY);
+                        } else {
+                            setError("Repository processing timed out. Please try syncing again from the dashboard.");
+                            setIsLoading(false);
+                        }
+                    } else if (response.status === 200 && data.status === 'rate_limited') {
+                        // Fallback transparency if body has status
+                        setError("Sorry we reached the github limit till now");
+                        setIsLoading(false);
+                    } else {
+                        // Data Loaded
+                        setGraphData(data);
+                        setIsLoading(false);
+                    }
+                }
             } catch (err: any) {
                 console.error(err);
-                setError(err.message);
-                setIsLoading(false);
+                if (isMounted) {
+                    setError(err.message);
+                    setIsLoading(false);
+                }
             }
         };
 
+        // Start Fetch
         fetchGraphData();
+
+        return () => { isMounted = false; };
     }, [owner, repo]);
 
     const handleFileSelect = async (path: string) => {
         try {
             setIsLoading(true);
-            const repoId = owner === "undefined" ? repo : `${owner}/${repo}`;
+            const repoId = owner && owner !== "undefined" ? `${owner}/${repo}` : repo;
+            console.log(`[Dashboard] Filtering graph for: ${repoId} path=${path}`);
 
             // Filter graph by path, restricting to "File" type only to avoid showing internal functions/vars
-            const res = await fetch(`http://localhost:5001/api/graph/filter?repo=${repoId}&path=${encodeURIComponent(path)}&type=File`);
+            const res = await fetch(`/api/graph/filter?repo=${repoId}&path=${encodeURIComponent(path)}&type=File`);
             if (!res.ok) throw new Error("Failed to filter graph");
 
             const data = await res.json();
@@ -101,7 +158,8 @@ export default function DashboardPage() {
     };
 
     if (isLoading) {
-        return <GraphLoadingState />;
+        // Pass dynamic message
+        return <GraphLoadingState message={loadingMessage} />;
     }
 
     if (error) {
@@ -152,7 +210,9 @@ export default function DashboardPage() {
                         const fetchGraphData = async () => {
                             try {
                                 setIsLoading(true);
-                                const response = await fetch(`http://localhost:5001/api/graph/start?repo=${repoId}&limit=30`);
+                                const repoId = owner && owner !== "undefined" ? `${owner}/${repo}` : repo;
+                                console.log(`[Dashboard] Resetting graph for: ${repoId}`);
+                                const response = await fetch(`/api/graph/start?repo=${repoId}&limit=30`);
                                 if (!response.ok) throw new Error("Failed to reset graph");
                                 const data = await response.json();
                                 setGraphData(data);
