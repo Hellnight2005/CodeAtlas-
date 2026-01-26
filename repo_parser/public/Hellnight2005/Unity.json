@@ -1,0 +1,1419 @@
+[
+  {
+    "skipped": true,
+    "reason": "Non-code extension"
+  },
+  {
+    "file": {
+      "path": "src/app/HomeClient.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "react",
+        "kind": "external",
+        "symbols": [
+          "useEffect",
+          "useState"
+        ]
+      },
+      {
+        "source": "gsap",
+        "kind": "external",
+        "symbols": [
+          "gsap"
+        ]
+      },
+      {
+        "source": "gsap/ScrollTrigger",
+        "kind": "external",
+        "symbols": [
+          "ScrollTrigger"
+        ]
+      },
+      {
+        "source": "lucide-react",
+        "kind": "external",
+        "symbols": [
+          "Zap",
+          "Cpu",
+          "Camera",
+          "Building",
+          "Target",
+          "Lightbulb",
+          "UserCheck",
+          "PackageCheck",
+          "FileCheck",
+          "Network",
+          "Headset",
+          "Wrench",
+          "Cog",
+          "Plug",
+          "Settings",
+          "Database",
+          "Cloud",
+          "Lock"
+        ]
+      },
+      {
+        "source": "next/link",
+        "kind": "external",
+        "symbols": [
+          "Link"
+        ]
+      },
+      {
+        "source": "next-themes",
+        "kind": "external",
+        "symbols": [
+          "useTheme"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "buttonPrimaryStyles",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "buttonSecondaryStyles",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "formButtonStyles",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/app/HomeClient.tsx::HomeClient",
+          "name": "HomeClient",
+          "scope": "global",
+          "params": [],
+          "calls": [
+            "useEffect",
+            "unknown.forEach",
+            "gsap.from",
+            "setSubmitting",
+            "setSubmitOk"
+          ]
+        },
+        {
+          "id": "src/app/HomeClient.tsx::handleSubmit",
+          "name": "handleSubmit",
+          "scope": "HomeClient",
+          "params": [
+            "formData"
+          ],
+          "calls": [
+            "setSubmitting",
+            "setSubmitOk"
+          ]
+        },
+        {
+          "id": "src/app/HomeClient.tsx::Feature",
+          "name": "Feature",
+          "scope": "global",
+          "params": [
+            "pattern"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "HomeClient",
+        "kind": "function",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/app/layout.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "next",
+        "kind": "external",
+        "symbols": [
+          "Metadata"
+        ]
+      },
+      {
+        "source": "next/font/google",
+        "kind": "external",
+        "symbols": [
+          "Roboto"
+        ]
+      },
+      {
+        "source": "./globals.css",
+        "kind": "local",
+        "symbols": []
+      },
+      {
+        "source": "@/components/Providers",
+        "kind": "alias",
+        "symbols": [
+          "AppProviders"
+        ]
+      },
+      {
+        "source": "@/components/Header",
+        "kind": "alias",
+        "symbols": [
+          "Header"
+        ]
+      },
+      {
+        "source": "@/components/Footer",
+        "kind": "alias",
+        "symbols": [
+          "Footer"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "roboto",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "robotoBody",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "metadata",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/app/layout.tsx::RootLayout",
+          "name": "RootLayout",
+          "scope": "global",
+          "params": [
+            "pattern"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "metadata",
+        "kind": "variable"
+      },
+      {
+        "name": "RootLayout",
+        "kind": "function",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/app/not-found.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "next/link",
+        "kind": "external",
+        "symbols": [
+          "Link"
+        ]
+      },
+      {
+        "source": "lucide-react",
+        "kind": "external",
+        "symbols": [
+          "ArrowLeft",
+          "Home"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/app/not-found.tsx::NotFound",
+          "name": "NotFound",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "NotFound",
+        "kind": "function",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/app/page.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "@/components/HeroSection",
+        "kind": "alias",
+        "symbols": [
+          "HeroSection"
+        ]
+      },
+      {
+        "source": "@/components/WhoWeAre",
+        "kind": "alias",
+        "symbols": [
+          "WhoWeAre"
+        ]
+      },
+      {
+        "source": "@/components/ServiceCards",
+        "kind": "alias",
+        "symbols": [
+          "ServiceCards"
+        ]
+      },
+      {
+        "source": "@/components/Clients",
+        "kind": "alias",
+        "symbols": [
+          "ClientsSection"
+        ]
+      },
+      {
+        "source": "@/components/WhyChooseUs",
+        "kind": "alias",
+        "symbols": [
+          "WhyChooseUs"
+        ]
+      },
+      {
+        "source": "@/components/ContactSection",
+        "kind": "alias",
+        "symbols": [
+          "ContactSection"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/app/page.tsx::Home",
+          "name": "Home",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "Home",
+        "kind": "function",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/components/Clients.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "next/image",
+        "kind": "external",
+        "symbols": [
+          "Image"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "clients",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "tickerClients",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/components/Clients.tsx::ClientsSection",
+          "name": "ClientsSection",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "ClientsSection",
+        "kind": "function",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/components/ContactSection.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "lucide-react",
+        "kind": "external",
+        "symbols": [
+          "MapPin",
+          "Phone",
+          "Mail",
+          "Send"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/components/ContactSection.tsx::ContactSection",
+          "name": "ContactSection",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "ContactSection",
+        "kind": "function",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/components/Footer.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "lucide-react",
+        "kind": "external",
+        "symbols": [
+          "Linkedin"
+        ]
+      },
+      {
+        "source": "next/link",
+        "kind": "external",
+        "symbols": [
+          "Link"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/components/Footer.tsx::Footer",
+          "name": "Footer",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "Footer",
+        "kind": "function",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/components/Header.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "react",
+        "kind": "external",
+        "symbols": [
+          "useEffect",
+          "useRef",
+          "useState"
+        ]
+      },
+      {
+        "source": "react-dom",
+        "kind": "external",
+        "symbols": [
+          "createPortal"
+        ]
+      },
+      {
+        "source": "next/link",
+        "kind": "external",
+        "symbols": [
+          "Link"
+        ]
+      },
+      {
+        "source": "next/image",
+        "kind": "external",
+        "symbols": [
+          "Image"
+        ]
+      },
+      {
+        "source": "lucide-react",
+        "kind": "external",
+        "symbols": [
+          "Menu",
+          "X",
+          "ArrowRight"
+        ]
+      },
+      {
+        "source": "gsap",
+        "kind": "external",
+        "symbols": [
+          "gsap"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "navRef",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "ctx",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "navLinks",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/components/Header.tsx::Header",
+          "name": "Header",
+          "scope": "global",
+          "params": [],
+          "calls": [
+            "useEffect",
+            "setMounted"
+          ]
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "Header",
+        "kind": "function",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/components/HeroSection.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "react",
+        "kind": "external",
+        "symbols": [
+          "useState",
+          "useEffect"
+        ]
+      },
+      {
+        "source": "lucide-react",
+        "kind": "external",
+        "symbols": [
+          "ArrowRight",
+          "ChevronLeft",
+          "ChevronRight"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "slides",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "timer",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "nextSlide",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "prevSlide",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/components/HeroSection.tsx::HeroSection",
+          "name": "HeroSection",
+          "scope": "global",
+          "params": [],
+          "calls": [
+            "useEffect"
+          ]
+        },
+        {
+          "id": "src/components/HeroSection.tsx::nextSlide",
+          "name": "nextSlide",
+          "scope": "HeroSection",
+          "params": [],
+          "calls": [
+            "setCurrentSlide"
+          ]
+        },
+        {
+          "id": "src/components/HeroSection.tsx::prevSlide",
+          "name": "prevSlide",
+          "scope": "HeroSection",
+          "params": [],
+          "calls": [
+            "setCurrentSlide"
+          ]
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "HeroSection",
+        "kind": "function",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/components/Providers.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "next-themes",
+        "kind": "external",
+        "symbols": [
+          "ThemeProvider"
+        ]
+      },
+      {
+        "source": "next-auth/react",
+        "kind": "external",
+        "symbols": [
+          "SessionProvider"
+        ]
+      },
+      {
+        "source": "react",
+        "kind": "external",
+        "symbols": [
+          "ReactNode"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/components/Providers.tsx::AppProviders",
+          "name": "AppProviders",
+          "scope": "global",
+          "params": [
+            "pattern"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "AppProviders",
+        "kind": "function",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/components/ServiceCards.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "lucide-react",
+        "kind": "external",
+        "symbols": [
+          "CheckCircle2",
+          "Zap",
+          "Cpu"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "electricalServices",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "digitalServices",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/components/ServiceCards.tsx::ServiceCards",
+          "name": "ServiceCards",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "ServiceCards",
+        "kind": "function",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/components/Testimonials.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "lucide-react",
+        "kind": "external",
+        "symbols": [
+          "Star"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "testimonials",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/components/Testimonials.tsx::Testimonials",
+          "name": "Testimonials",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "Testimonials",
+        "kind": "function",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/components/WhoWeAre.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "next/image",
+        "kind": "external",
+        "symbols": [
+          "Image"
+        ]
+      },
+      {
+        "source": "lucide-react",
+        "kind": "external",
+        "symbols": [
+          "Target",
+          "Lightbulb"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/components/WhoWeAre.tsx::WhoWeAre",
+          "name": "WhoWeAre",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "WhoWeAre",
+        "kind": "function",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/components/WhyChooseUs.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "lucide-react",
+        "kind": "external",
+        "symbols": [
+          "ShieldCheck",
+          "MonitorCheck",
+          "Layers",
+          "BarChart3",
+          "UserCheck",
+          "Settings"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "features",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/components/WhyChooseUs.tsx::WhyChooseUs",
+          "name": "WhyChooseUs",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "WhyChooseUs",
+        "kind": "function",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/lib/auth.ts",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "next-auth",
+        "kind": "external",
+        "symbols": [
+          "NextAuthOptions"
+        ]
+      },
+      {
+        "source": "next-auth/providers/google",
+        "kind": "external",
+        "symbols": [
+          "GoogleProvider"
+        ]
+      },
+      {
+        "source": "@auth/mongodb-adapter",
+        "kind": "external",
+        "symbols": [
+          "MongoDBAdapter"
+        ]
+      },
+      {
+        "source": "@/lib/mongo",
+        "kind": "alias",
+        "symbols": [
+          "clientPromise"
+        ]
+      },
+      {
+        "source": "@/lib/db",
+        "kind": "alias",
+        "symbols": [
+          "connectToDatabase"
+        ]
+      },
+      {
+        "source": "@/lib/models/User",
+        "kind": "alias",
+        "symbols": [
+          "User"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "authOptions",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "authOptions",
+        "kind": "variable"
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/lib/db.ts",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "mongoose",
+        "kind": "external",
+        "symbols": [
+          "mongoose"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "MONGODB_URI",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "isConnected",
+          "kind": "let",
+          "valueType": "unknown"
+        },
+        {
+          "name": "conn",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/lib/db.ts::connectToDatabase",
+          "name": "connectToDatabase",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "connectToDatabase",
+        "kind": "function"
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/lib/mongo.ts",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "mongodb",
+        "kind": "external",
+        "symbols": [
+          "MongoClient"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "uri",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "_mongoClientPromise",
+          "kind": "var",
+          "valueType": "unknown"
+        },
+        {
+          "name": "clientPromise",
+          "kind": "let",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "__default__",
+        "kind": "variable",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/types/next-auth.d.ts",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "next-auth",
+        "kind": "external",
+        "symbols": []
+      }
+    ],
+    "entities": {
+      "variables": [],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "src/app/about/page.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [],
+    "entities": {
+      "variables": [],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/app/about/page.tsx::AboutPage",
+          "name": "AboutPage",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "AboutPage",
+        "kind": "function",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/app/contact/page.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "@/components/ContactSection",
+        "kind": "alias",
+        "symbols": [
+          "ContactSection"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/app/contact/page.tsx::ContactPage",
+          "name": "ContactPage",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "ContactPage",
+        "kind": "function",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/app/products/page.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [],
+    "entities": {
+      "variables": [],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/app/products/page.tsx::ProductsPage",
+          "name": "ProductsPage",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "ProductsPage",
+        "kind": "function",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/app/services/page.tsx",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [],
+    "entities": {
+      "variables": [],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/app/services/page.tsx::ServicesPage",
+          "name": "ServicesPage",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "ServicesPage",
+        "kind": "function",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/lib/models/Contact.ts",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "mongoose",
+        "kind": "external",
+        "symbols": [
+          "mongoose",
+          "Schema",
+          "models",
+          "model"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "ContactSchema",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "__default__",
+        "kind": "variable",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/lib/models/User.ts",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "mongoose",
+        "kind": "external",
+        "symbols": [
+          "mongoose",
+          "Schema",
+          "models",
+          "model"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "UserSchema",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "__default__",
+        "kind": "variable",
+        "default": true
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/app/api/contact/route.ts",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "next/server",
+        "kind": "external",
+        "symbols": [
+          "NextResponse"
+        ]
+      },
+      {
+        "source": "@/lib/db",
+        "kind": "alias",
+        "symbols": [
+          "connectToDatabase"
+        ]
+      },
+      {
+        "source": "@/lib/models/Contact",
+        "kind": "alias",
+        "symbols": [
+          "Contact"
+        ]
+      },
+      {
+        "source": "nodemailer",
+        "kind": "external",
+        "symbols": [
+          "nodemailer"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [],
+      "classes": [],
+      "functions": [
+        {
+          "id": "src/app/api/contact/route.ts::POST",
+          "name": "POST",
+          "scope": "global",
+          "params": [
+            "request"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "POST",
+        "kind": "function"
+      }
+    ]
+  },
+  {
+    "file": {
+      "path": "src/app/api/auth/[...nextauth]/route.ts",
+      "language": "typescript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "next-auth",
+        "kind": "external",
+        "symbols": [
+          "NextAuth"
+        ]
+      },
+      {
+        "source": "@/lib/auth",
+        "kind": "alias",
+        "symbols": [
+          "authOptions"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "handler",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": [
+      {
+        "name": "GET",
+        "kind": "unknown"
+      },
+      {
+        "name": "POST",
+        "kind": "unknown"
+      }
+    ]
+  }
+]

@@ -1,5 +1,6 @@
 const axios = require('axios');
 const logger = require('../config/logger');
+const dbPool = require('../config/mysqlRepo');
 
 // Config (Should ideally be in .env, but matching importGraphData.js for now)
 const NEO4J_BASE_URL = process.env.NEO4J_BASE_URL || 'http://localhost:7474/db/neo4j/tx/commit';
@@ -111,107 +112,131 @@ const normalizeResponse = (neo4jResult) => {
 const { importRepoGraphToNeo4j } = require('../utils/importGraphData');
 const fs = require('fs');
 const path = require('path');
+const User = require('../models/User'); // Import User Model
 
-// ... (Existing Imports)
-
-// 1. Initial Graph (Repo + Limited Files + Total Count)
-exports.getInitialGraph = async (req, res) => {
+/**
+ * 0. Check for the file (Unified Initializer)
+ * GET /api/check_for_the_file?repo=owner/name
+ */
+exports.checkForFile = async (req, res) => {
     try {
         const { repo, limit = 30 } = req.query;
-        if (!repo) return res.status(400).json({ error: 'Repo name required' });
+        if (!repo) return res.status(400).json({ error: 'Repo parameter required' });
 
-        // Query: Get Repo -> Files (limited) AND relationships between those files
+        // Normalize Name for file check
+        let ownerPart = null;
+        let repoName = repo;
+        if (repo.includes('/')) {
+            [ownerPart, repoName] = repo.split('/');
+        }
+
+        // Check Sync Status first (Error Handling)
+        const [syncStatus] = await dbPool.query(
+            `SELECT status FROM repository_sync_status WHERE repo_full_name LIKE ? LIMIT 1`,
+            [`%${repoName}`]
+        );
+
+        if (syncStatus.length > 0) {
+            const status = syncStatus[0].status;
+            if (status === 'rate_limited') {
+                return res.status(429).json({ error: 'Sorry we reached the github limit till now', code: 'RATE_LIMIT' });
+            }
+            if (status === 'failed') {
+                // return res.status(500).json({ error: 'Repository sync failed', code: 'SYNC_FAILED' });
+            }
+        }
+
+        const simpleName = repoName.toLowerCase();
+        const jsonPathSimple = path.join(__dirname, `../public/${simpleName}.json`);
+        const jsonPathOriginal = path.join(__dirname, `../public/${repo}.json`);
+
+        let foundJsonPath = null;
+        let importName = repoName;
+
+        if (fs.existsSync(jsonPathOriginal)) {
+            foundJsonPath = jsonPathOriginal;
+            importName = repo;
+        } else if (fs.existsSync(jsonPathSimple)) {
+            foundJsonPath = jsonPathSimple;
+            importName = simpleName;
+        }
+
+        // 1. IF MISSING: TRIGGER GENERATION
+        if (!foundJsonPath) {
+            logger.info(`[Check] File MISSING for ${repo}. Triggering AST generation...`);
+
+            // Check if table exists (sanity)
+            // Use only the repo name part for table name
+            const shortName = repoName.split('/')[1] || repoName;
+            const tableName = shortName.replace(/[^a-zA-Z0-9_]/g, '_');
+            const [tables] = await dbPool.query(`SHOW TABLES LIKE ?`, [tableName]);
+
+            if (tables.length === 0) {
+                return res.status(404).json({ error: "Repository table not found. Please sync first.", stage: "SYNC" });
+            }
+
+            triggerGeneration(repo);
+            return res.status(202).json({
+                status: 'generating',
+                message: 'AST generation triggered',
+                stage: 'AST'
+            });
+        }
+
+        // 2. IF PRESENT: LOAD GRAPH
+        logger.info(`[Check] File found. Loading Graph for ${repo}...`);
+
+        // Query: Get Repo -> Files (Matches old getInitialGraph)
         const query = `
-            MATCH (r:Repository {name: $repo})
-            
-            // 1. Calculate Total Count
+            MATCH (r:Repository {name: $repoName})
             OPTIONAL MATCH (r)-[:CONTAINS]->(all_f:File)
             WITH r, count(all_f) as totalCount
-            
-            // 2. Get Limited subset of Files
             OPTIONAL MATCH (r)-[rel:CONTAINS]->(f:File)
             WITH r, totalCount, f, rel
             ORDER BY f.path ASC
             LIMIT toInteger($limit)
-            
-            // 3. Collect files to find internal edges
             WITH r, totalCount, collect(f) as files, collect(rel) as repoEdges
-            
-            // 4. Unwind to return structure, and find internal edges independent of repoEdges
             UNWIND files as f1
             OPTIONAL MATCH (f1)-[innerRel]->(f2:File)
             WHERE f2 IN files
-            
             RETURN r, totalCount, f1 as f, repoEdges, innerRel
         `;
 
-        let result = await executeQuery(query, { repo, limit: parseInt(limit) });
-
-        // AUTO-IMPORT LOGIC
-        // Check if we need to lazy-load the graph
+        let result = await executeQuery(query, { repoName: importName, limit: parseInt(limit) });
         const hasRepo = result.data.length > 0 && result.data[0].row[0] !== null;
 
         if (!hasRepo) {
-            logger.info(`[GraphController] Repo '${repo}' not found in DB. Checking for JSON export...`);
-            const jsonPath = path.join(__dirname, `../public/${repo}.json`);
-
-            if (fs.existsSync(jsonPath)) {
-                // FORCE CLEAN SLATE: Wipe DB to prevent collisions
-                logger.info(`[GraphController] Wiping Database for clean import of ${repo}...`);
-                await executeQuery('MATCH (n) DETACH DELETE n');
-
-                try {
-                    logger.info(`[GraphController] Found ${repo}.json. Importing to Neo4j...`);
-                    await importRepoGraphToNeo4j(repo);
-
-                    // Re-run query after import
-                    logger.info(`[GraphController] Import complete. Fetching updated graph data...`);
-                    // Add a small delay for consistency if needed, though await should suffice
-                    result = await executeQuery(query, { repo, limit: parseInt(limit) });
-
-                    logger.info(`[GraphController] Re-query result count: ${result.data.length}`);
-                    if (result.data.length > 0) {
-                        logger.info(`[GraphController] Re-query structure (row[0]): ${JSON.stringify(result.data[0].row)}`);
-                    }
-
-                    // Verify import success to log potential issues
-                    if (result.data.length === 0) {
-                        logger.error(`[GraphController] CRITICAL: Data missing after import for ${repo}. Check JSON structure or Import Logic.`);
-                    }
-                } catch (importErr) {
-                    logger.error(`[GraphController] IMPORT FAILED for ${repo}: ${importErr.message}`);
-                    return res.status(500).json({ error: `Import failed: ${importErr.message}` });
-                }
-            } else {
-                logger.warn(`[GraphController] No JSON export found for ${repo}.`);
+            logger.info(`[Graph] Neo4j empty. Importing from JSON...`);
+            await executeQuery('MATCH (n) DETACH DELETE n');
+            try {
+                await importRepoGraphToNeo4j(importName);
+                result = await executeQuery(query, { repoName: importName, limit: parseInt(limit) });
+            } catch (err) {
+                return res.status(500).json({ error: `Import failed: ${err.message}` });
             }
         }
 
-        // Normalize using shared helper
         const normalized = normalizeResponse(result);
-
-        // Inject fileCount from the 'row' data into the Repository node
-        if (result.data && result.data.length > 0) {
-            // row structure: [r_props, totalCount, f_props]
+        if (result.data.length > 0) {
             const totalCount = result.data[0].row[1];
-
-            // Find the Repository node in the normalized result
             const repoNode = normalized.nodes.find(n => n.label === 'Repository');
             if (repoNode) {
                 repoNode.data.fileCount = totalCount;
-                // Identify if fully expanded or partially
-                // If totalCount > limit, it is partially expanded
-                // But for now, we just want to show the count.
                 repoNode.data.isPartial = totalCount > parseInt(limit);
             }
         }
 
         res.json(normalized);
+
     } catch (error) {
-        logger.error("getInitialGraph error:", { message: error.message });
+        logger.error(`[Check] Error: ${error.message}`);
         res.status(500).json({ error: error.message });
     }
 };
+
+// Removing redundant getInitialGraph
+// exports.getInitialGraph = async ... (already removed from route)
+
 
 // 2. Expand Node
 exports.expandNode = async (req, res) => {
@@ -305,6 +330,15 @@ exports.filterGraph = async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
+};
+
+// Helper to trigger AST generation
+const triggerGeneration = (repoName) => {
+    // Fire and forget (or log error)
+    // Needs full URL since it's a network call
+    axios.post('http://localhost:5001/generate-ast', { repoName, force: false })
+        .then(() => logger.info(`[GraphController] Triggered generate-ast for ${repoName}`))
+        .catch(err => logger.error(`[GraphController] Failed to trigger generate-ast: ${err.message}`));
 };
 
 // 5. Search Files (Autocomplete/List)

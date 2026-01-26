@@ -1,9 +1,9 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Search, Plus, GitBranch, Github, ExternalLink, Loader2, LayoutGrid, List, SquareTerminal, Lock } from "lucide-react";
+import { Search, Plus, GitBranch, Github, ExternalLink, Loader2, LayoutGrid, List, SquareTerminal, Lock, Trash2, RotateCcw, Play, X } from "lucide-react";
 import UserProfile from "@/components/UserProfile";
+import RepoSearch from "@/components/RepoSearch";
 
 interface Repo {
     repo_id: number;
@@ -13,10 +13,19 @@ interface Repo {
     language?: string;
     isPrivate: boolean;
     updated_at: string;
-    owner?: { login: string };
+    owner: {
+        login: string;
+    };
+    isSync?: boolean;
+    isGraph?: boolean;
+    isAst?: boolean;
+    sync_status?: string;
+    last_synced?: string;
+    latest_commit?: string;
 }
 
 interface UserData {
+    id: string;
     username: string;
     displayName: string;
     avatarUrl: string;
@@ -31,6 +40,10 @@ export default function DashboardPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
     const [analyzingRepoId, setAnalyzingRepoId] = useState<number | null>(null);
+    const [outOfSyncRepos, setOutOfSyncRepos] = useState<string[]>([]);
+    const [showAddModal, setShowAddModal] = useState(false);
+
+    // ... (useEffect for fetchUser, active search logic, sync check remain same)
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -40,7 +53,7 @@ export default function DashboardPage() {
                     const data = await res.json();
                     if (data.authenticated) {
                         setUser(data.user);
-                        setRepos(data.user.repos || []);
+                        setRepos(deduplicateRepos(data.user.repos || []));
                     } else {
                         window.location.href = "/auth/github";
                     }
@@ -59,20 +72,10 @@ export default function DashboardPage() {
     useEffect(() => {
         const fetchSearchResults = async () => {
             if (searchQuery.length < 3) {
-                // If search cleared, revert to user's saved repos? 
-                // Or just keep showing filtered list of active repos. 
-                // For now, if query < 3, we show user's saved repos (if we saved them separately).
-                // But simpler: just filter current user.repos if query is short, 
-                // or don't trigger API. 
-                // User asked: "after every three word it run the api"
                 return;
             }
 
             try {
-                // Call /api/github/search/user-repos?q={query}
-                console.log("Fetching search results for:", searchQuery);
-                console.log("User:", user);
-                console.log("User Access Token:", user?.githubAccessToken);
                 const headers: any = { 'Content-Type': 'application/json' };
                 if (user?.githubAccessToken) {
                     headers['Authorization'] = `token ${user.githubAccessToken}`;
@@ -80,32 +83,24 @@ export default function DashboardPage() {
 
                 const res = await fetch(`/api/github/search/user-repos?q=${encodeURIComponent(searchQuery)}`, {
                     headers: headers,
-                    credentials: 'include' // Ensure cookies are sent
+                    credentials: 'include'
                 });
                 if (res.ok) {
                     const data = await res.json();
-                    // Map response to Repo interface
-                    // API returns { count, results: [...] }
-                    // results: { name, owner, description, visibility, private, ... }
-                    // We need to map this to our Repo interface (repo_id, repo_name, etc.)
-                    // Note: GitHub API "id" field? getUserRepos controller returns simplified object. 
-                    // Let's check controller output in previous step. 
-                    // Controller returns: name, owner, description, visibility, private, fork, size, stars, html_url, clone_url. 
-                    // MISSING ID in controller active search! 
-                    // We might need to use index or name as key. 
-
                     const mappedRepos: Repo[] = data.results.map((r: any, index: number) => ({
-                        repo_id: r.id || index, // Fallback if ID missing
+                        repo_id: r.id || index,
                         repo_name: `${r.owner.login}/${r.name}`,
                         repo_url: r.html_url,
                         description: r.description,
-                        language: r.language || undefined, // Controller might not return language? Checked: it does NOT. Logic update needed? 
-                        // Controller filtered fields: name, owner, description, visibility, private, fork, size, stars, html_url, clone_url
+                        language: r.language || undefined,
                         isPrivate: r.private,
-                        updated_at: new Date().toISOString(), // Placeholder
-                        owner: { login: r.owner.login }
+                        updated_at: new Date().toISOString(),
+                        owner: { login: r.owner.login },
+                        isSync: r.isSync,
+                        isGraph: r.isGraph,
+                        isAst: r.isAst
                     }));
-                    setRepos(mappedRepos);
+                    setRepos(deduplicateRepos(mappedRepos));
                 }
             } catch (err) {
                 console.error("Search failed", err);
@@ -116,21 +111,20 @@ export default function DashboardPage() {
             if (searchQuery.length >= 3) {
                 fetchSearchResults();
             } else if (searchQuery.length === 0 && user) {
-                // Restore original list
-                setRepos(user.repos);
+                setRepos(deduplicateRepos(user.repos));
             }
-        }, 500); // Debounce 500ms
+        }, 500);
 
         return () => clearTimeout(timeoutId);
     }, [searchQuery, user]);
 
+
+
     const handleAnalyzeRepo = async (owner: string, repo: string, repoId: number) => {
         setAnalyzingRepoId(repoId);
         try {
-            // Call /repo endpoint to start analysis
             const res = await fetch(`/api/github/repo?owner=${owner}&repo=${repo}`);
             if (res.ok || res.status === 202) {
-                // Navigate to dashboard view
                 window.location.href = `/dashboard/${owner}/${repo}`;
             } else {
                 alert("Failed to start analysis. Check console.");
@@ -143,11 +137,57 @@ export default function DashboardPage() {
         }
     };
 
+    const handleGraphClick = async (owner: string, repo: string) => {
+        window.location.href = `/dashboard/${owner}/${repo}`;
+    };
+
+    const handleDeleteRepo = async (repoId: number, repoName: string) => {
+        if (!confirm(`Are you sure you want to completely remove ${repoName}? This will delete the Graph, AST, and File Tree.`)) return;
+        try {
+            // Call the cleanup route
+            const res = await fetch("/api/repo/cleanup", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ repoName })
+            });
+
+            if (res.ok) {
+                // Update UI state to remove the card
+                setRepos(prev => prev.filter(r => r.repo_id !== repoId));
+            } else {
+                alert("Failed to delete repository");
+            }
+        } catch (err) {
+            console.error("Delete failed:", err);
+        }
+    };
+
+    const deduplicateRepos = (repoList: Repo[]) => {
+        const seen = new Set();
+        return repoList.filter(repo => {
+            const id = repo.repo_id;
+            if (seen.has(id)) return false;
+            seen.add(id);
+            return true;
+        });
+    };
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-white dark:bg-black">
-                <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
+            <div className="min-h-screen bg-slate-50 dark:bg-black font-sans">
+                <header className="sticky top-0 w-full z-50 bg-white/80 dark:bg-black/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+                    <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                            <div className="w-6 h-6 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
+                            <div className="h-6 w-24 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
+                        </div>
+                    </div>
+                </header>
+                <main className="max-w-7xl mx-auto px-6 py-8">
+                    <div className="w-full h-96 flex items-center justify-center">
+                        <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
+                    </div>
+                </main>
             </div>
         );
     }
@@ -207,13 +247,13 @@ export default function DashboardPage() {
                                 <List className="w-4 h-4" />
                             </button>
                         </div>
-                        <Link
-                            href="/repo"
+                        <button
+                            onClick={() => setShowAddModal(true)}
                             className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-black dark:bg-white text-white dark:text-black text-sm font-medium rounded-lg hover:translate-y-[-1px] transition-transform shadow-sm"
                         >
                             <Plus className="w-4 h-4" />
                             <span>Add New</span>
-                        </Link>
+                        </button>
                     </div>
                 </div>
 
@@ -221,23 +261,12 @@ export default function DashboardPage() {
                 {repos.length > 0 ? (
                     <div className={viewMode === 'grid' ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" : "flex flex-col gap-3"}>
                         {repos.map((repo, index) => {
-                            // Correctly handle repo name formats
-                            // API returns "owner" separately, user.repos has "repo_name"
-                            // We construct full name for consistent display
                             let repoOwner = "";
                             let repoName = "";
 
-                            if (repo.owner && typeof repo.owner === 'object' && repo.owner.login) {
-                                repoOwner = repo.owner.login;
-                                // If repo.repo_name is full "owner/name", clean it.
-                                // If it is just name, use it.
-                                repoName = repo.repo_name.includes('/') ? repo.repo_name.split('/')[1] : repo.repo_name;
-                            } else if (repo.repo_name && repo.repo_name.includes("/")) {
+                            if (repo.repo_name && repo.repo_name.includes("/")) {
                                 [repoOwner, repoName] = repo.repo_name.split("/");
                             } else {
-                                // Fallback: try to assume auth user is owner if no slash
-                                // But search results usually have owner object. 
-                                // DB results usually have "owner/name" string. 
                                 repoOwner = user.username;
                                 repoName = repo.repo_name;
                             }
@@ -259,19 +288,43 @@ export default function DashboardPage() {
                                                 <div className={`p-1.5 rounded-full ${repo.isPrivate ? 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'}`}>
                                                     {repo.isPrivate ? <Lock className="w-3 h-3" /> : <GitBranch className="w-3.5 h-3.5" />}
                                                 </div>
-                                                <h3 className="font-bold text-sm text-slate-700 dark:text-slate-200 group-hover:text-black dark:group-hover:text-white transition-colors truncate max-w-[150px]" title={fullRepoName}>
+                                                <h3 className="font-bold text-sm text-slate-700 dark:text-slate-200 group-hover:text-black dark:group-hover:text-white transition-colors truncate max-w-[220px]" title={fullRepoName}>
                                                     {fullRepoName}
                                                 </h3>
                                             </div>
-                                            {/* Action Button: Analyze / Go */}
-                                            <button
-                                                onClick={() => handleAnalyzeRepo(repoOwner, repoName, repo.repo_id || index)}
-                                                disabled={isAnalyzing}
-                                                className="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
-                                                title="Analyze and Map"
-                                            >
-                                                {isAnalyzing ? <Loader2 className="w-4 h-4 animate-spin" /> : <ExternalLink className="w-4 h-4" />}
-                                            </button>
+                                            {/* Actions Buttons */}
+                                            <div className="flex items-center gap-1">
+                                                <button
+                                                    onClick={() => handleAnalyzeRepo(repoOwner, repoName, repo.repo_id || index)}
+                                                    disabled={!outOfSyncRepos.includes(repo.repo_name) || isAnalyzing}
+                                                    className={`p-1.5 rounded-full transition-colors ${!outOfSyncRepos.includes(repo.repo_name)
+                                                        ? "text-slate-300 dark:text-slate-700 cursor-not-allowed"
+                                                        : "bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400"
+                                                        }`}
+                                                    title={!outOfSyncRepos.includes(repo.repo_name) ? "Repository is up to date" : "Sync with Origin"}
+                                                >
+                                                    <RotateCcw className={`w-4 h-4 ${isAnalyzing ? "animate-spin" : ""}`} />
+                                                </button>
+
+                                                <button
+                                                    onClick={() => handleGraphClick(repoOwner, repoName)}
+                                                    className={`p-1.5 rounded-full transition-colors ${repo.isGraph
+                                                        ? "bg-green-50 text-green-600 hover:bg-green-100 dark:bg-green-900/30 dark:text-green-400"
+                                                        : "text-slate-300 dark:text-slate-700 hover:text-slate-500"
+                                                        }`}
+                                                    title="View Graph"
+                                                >
+                                                    <Play className="w-4 h-4 fill-current" />
+                                                </button>
+
+                                                <button
+                                                    onClick={() => handleDeleteRepo(repo.repo_id || index, fullRepoName)}
+                                                    className="p-1.5 rounded-full bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-400 transition-colors"
+                                                    title="Remove Repository"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </div>
                                         </div>
                                         {viewMode === 'grid' && (
                                             <p className="text-xs text-slate-500 line-clamp-2 mt-2 h-8">
@@ -288,7 +341,16 @@ export default function DashboardPage() {
                                                     <span>{repo.language}</span>
                                                 </div>
                                             )}
-                                            <span>{viewMode === 'grid' ? 'Updated recently' : ''}</span>
+                                            {repo.sync_status && (
+                                                <span className={`text-[10px] px-1.5 py-0.5 rounded uppercase font-bold ${repo.sync_status === 'done' || repo.sync_status === 'completed' ? 'bg-green-100 text-green-700' :
+                                                        repo.sync_status === 'failed' ? 'bg-red-100 text-red-700' : 'bg-gray-100'
+                                                    }`}>
+                                                    {repo.sync_status}
+                                                </span>
+                                            )}
+                                            {repo.last_synced && (
+                                                <span>{new Date(repo.last_synced).toLocaleDateString()}</span>
+                                            )}
                                         </div>
                                         <span className="text-[10px] text-slate-400 border border-slate-200 dark:border-slate-800 px-2 py-0.5 rounded-full">
                                             {repo.isPrivate ? 'Private' : 'Public'}
@@ -300,7 +362,6 @@ export default function DashboardPage() {
                     </div>
                 ) : (
                     <div className="text-center py-20 bg-white dark:bg-slate-900 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
-                        {/* Empty State ... */}
                         <div className="w-12 h-12 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
                             <GitBranch className="w-6 h-6 text-slate-400" />
                         </div>
@@ -311,6 +372,38 @@ export default function DashboardPage() {
                     </div>
                 )}
             </main>
+
+            {/* ADD REPO MODAL */}
+            {showAddModal && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-white dark:bg-black w-full max-w-2xl rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+                        {/* Modal Header */}
+                        <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-900 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/50">
+                            <div>
+                                <h3 className="text-lg font-bold text-slate-900 dark:text-white">Add Repository</h3>
+                                <p className="text-xs text-slate-500">Search for a repository to import and visualize.</p>
+                            </div>
+                            <button
+                                onClick={() => setShowAddModal(false)}
+                                className="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors text-slate-500 hover:text-black dark:hover:text-white"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        {/* Modal Content */}
+                        <div className="p-8 min-h-[300px] flex flex-col items-center justify-start">
+                            <div className="w-full">
+                                <RepoSearch />
+                            </div>
+
+                            <div className="mt-8 text-center text-xs text-slate-400 max-w-sm">
+                                <p>Select a repository to automatically generate its AST and visualize the code structure.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

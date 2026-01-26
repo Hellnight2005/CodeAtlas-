@@ -20,4 +20,13 @@ router.get('/repo', githubController.getRepositoryFiles);
 // Get specific file content
 router.get('/file', githubController.getFileContent);
 
+// Repair Sync (Manual trigger to fix MongoDB <-> MySQL discrepancies)
+router.get('/repair-sync', githubController.repairSync);
+
+// Delete Repo from Dashboard
+router.delete('/repo', githubController.deleteRepo);
+
+// Sync Status Check
+router.get('/syn_check', githubController.checkSyncStatus);
+
 module.exports = router;

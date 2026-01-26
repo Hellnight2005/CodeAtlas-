@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useCallback, useEffect } from 'react';
+import Link from 'next/link';
 import ReactFlow, {
     MiniMap,
     Controls,
@@ -15,7 +16,7 @@ import ReactFlow, {
     BackgroundVariant,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { RotateCcw, Info } from "lucide-react"; // Add Import
+import { RotateCcw, Info, ArrowLeft } from "lucide-react"; // Add Import
 
 // Neo4j-style Constants
 const NEO_BLUE = '#57C7E3';
@@ -197,7 +198,7 @@ export default function GraphCanvas({ onNodeClick, initialData, onReset }: { onN
         }));
 
         try {
-            const response = await fetch(`http://localhost:5001/api/graph/expand?nodeId=${node.id}`);
+            const response = await fetch(`/api/graph/expand?nodeId=${node.id}`);
             const data = await response.json();
 
             if (data.nodes && data.nodes.length > 0) {
@@ -286,7 +287,7 @@ export default function GraphCanvas({ onNodeClick, initialData, onReset }: { onN
         console.log(`[Search] Query: "${query}", Type: "${type}", Repo: "${repoName}"`);
 
         try {
-            let url = `http://localhost:5001/api/graph/filter?repo=${repoName}&path=${query}`;
+            let url = `/api/graph/filter?repo=${repoName}&path=${query}`;
             if (type) url += `&type=${type}`;
 
             console.log(`[Search] Fetching: ${url}`);
@@ -381,6 +382,15 @@ export default function GraphCanvas({ onNodeClick, initialData, onReset }: { onN
 
     return (
         <div className="w-full h-full bg-white dark:bg-black relative">
+            {/* Top Left: Back to Dashboard */}
+            <Link
+                href="/dashboard"
+                className="absolute top-4 left-4 z-50 flex items-center justify-center p-2 bg-white/80 dark:bg-black/80 backdrop-blur border border-sharp rounded-full shadow-sm hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors"
+                title="Back to Dashboard"
+            >
+                <ArrowLeft className="w-5 h-5 text-slate-600 dark:text-slate-300" />
+            </Link>
+
             {/* Top Bar: Search with Filter */}
             <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 w-[500px] flex items-center space-x-2">
                 {/* Custom Filter Dropdown */}

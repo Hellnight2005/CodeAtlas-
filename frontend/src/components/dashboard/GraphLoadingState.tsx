@@ -1,7 +1,7 @@
 import React from "react";
 import { Network, Database, Cpu } from "lucide-react";
 
-export default function GraphLoadingState() {
+export default function GraphLoadingState({ message }: { message?: string }) {
     return (
         <div className="h-screen w-full flex flex-col items-center justify-center bg-white dark:bg-black overflow-hidden relative">
             <div className="relative w-64 h-64 flex items-center justify-center">
@@ -37,7 +37,7 @@ export default function GraphLoadingState() {
             {/* Text Content */}
             <div className="mt-12 text-center space-y-2 z-10">
                 <h2 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
-                    Constructing Knowledge Graph
+                    {message || "Constructing Knowledge Graph"}
                 </h2>
                 <div className="flex items-center justify-center gap-2 text-sm text-slate-500 dark:text-slate-400 font-mono">
                     <span className="flex items-center gap-1">

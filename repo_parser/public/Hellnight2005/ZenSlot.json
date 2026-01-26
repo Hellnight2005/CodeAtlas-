@@ -1,0 +1,1170 @@
+[
+  {
+    "error": "Unsupported language or parse error"
+  },
+  {
+    "file": {
+      "path": "serve.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "express",
+        "kind": "external",
+        "symbols": [
+          "express"
+        ]
+      },
+      {
+        "source": "dotenv",
+        "kind": "external",
+        "symbols": [
+          "dotenv"
+        ]
+      },
+      {
+        "source": "passport",
+        "kind": "external",
+        "symbols": [
+          "passport"
+        ]
+      },
+      {
+        "source": "express-session",
+        "kind": "external",
+        "symbols": [
+          "session"
+        ]
+      },
+      {
+        "source": "./config/db",
+        "kind": "local",
+        "symbols": [
+          "connectDB"
+        ]
+      },
+      {
+        "source": "cors",
+        "kind": "external",
+        "symbols": [
+          "cors"
+        ]
+      },
+      {
+        "source": "helmet",
+        "kind": "external",
+        "symbols": [
+          "helmet"
+        ]
+      },
+      {
+        "source": "compression",
+        "kind": "external",
+        "symbols": [
+          "compression"
+        ]
+      },
+      {
+        "source": "express-rate-limit",
+        "kind": "external",
+        "symbols": [
+          "rateLimit"
+        ]
+      },
+      {
+        "source": "morgan",
+        "kind": "external",
+        "symbols": [
+          "morgan"
+        ]
+      },
+      {
+        "source": "path",
+        "kind": "external",
+        "symbols": [
+          "path"
+        ]
+      },
+      {
+        "source": "./routes/authRoutes",
+        "kind": "local",
+        "symbols": [
+          "authRoutes"
+        ]
+      },
+      {
+        "source": "./routes/messageRoutes",
+        "kind": "local",
+        "symbols": [
+          "meetingRoutes"
+        ]
+      },
+      {
+        "source": "./routes/userRoutes",
+        "kind": "local",
+        "symbols": [
+          "userRoutes"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "express",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "dotenv",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "passport",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "session",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "connectDB",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "cors",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "helmet",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "compression",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "rateLimit",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "morgan",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "path",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "authRoutes",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "meetingRoutes",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "userRoutes",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "app",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "PORT",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "limiter",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "allowedOrigin",
+          "kind": "const",
+          "valueType": "string"
+        }
+      ],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "config/db.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "mongoose",
+        "kind": "external",
+        "symbols": [
+          "mongoose"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "mongoose",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "connectDB",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "config/db.js::connectDB",
+          "name": "connectDB",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "config/googleCalendar.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "../models/User",
+        "kind": "local",
+        "symbols": [
+          "User"
+        ]
+      },
+      {
+        "source": "../utils/logger",
+        "kind": "local",
+        "symbols": [
+          "logger"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "User",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "logger",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "createOAuthClient",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "refreshAccessToken",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "checkForExistingEvent",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "createCalendarEvent",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "deleteCalendarEvent",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "config/googleCalendar.js::createOAuthClient",
+          "name": "createOAuthClient",
+          "scope": "global",
+          "params": [],
+          "calls": []
+        },
+        {
+          "id": "config/googleCalendar.js::refreshAccessToken",
+          "name": "refreshAccessToken",
+          "scope": "global",
+          "params": [
+            "refreshToken"
+          ],
+          "calls": []
+        },
+        {
+          "id": "config/googleCalendar.js::checkForExistingEvent",
+          "name": "checkForExistingEvent",
+          "scope": "global",
+          "params": [
+            "calendar",
+            "startDateTime",
+            "endDateTime"
+          ],
+          "calls": []
+        },
+        {
+          "id": "config/googleCalendar.js::createCalendarEvent",
+          "name": "createCalendarEvent",
+          "scope": "global",
+          "params": [
+            "pattern"
+          ],
+          "calls": [
+            "logger.info",
+            "attendees.push",
+            "userAuth.setCredentials"
+          ]
+        },
+        {
+          "id": "config/googleCalendar.js::deleteCalendarEvent",
+          "name": "deleteCalendarEvent",
+          "scope": "global",
+          "params": [
+            "eventId",
+            "refreshToken"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "config/passport.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "passport",
+        "kind": "external",
+        "symbols": [
+          "passport"
+        ]
+      },
+      {
+        "source": "../models/User",
+        "kind": "local",
+        "symbols": [
+          "User"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "passport",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "GoogleStrategy",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "User",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "controllers/authController.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "../models/User",
+        "kind": "local",
+        "symbols": [
+          "User"
+        ]
+      },
+      {
+        "source": "bcryptjs",
+        "kind": "external",
+        "symbols": [
+          "bcrypt"
+        ]
+      },
+      {
+        "source": "passport",
+        "kind": "external",
+        "symbols": [
+          "passport"
+        ]
+      },
+      {
+        "source": "jsonwebtoken",
+        "kind": "external",
+        "symbols": [
+          "jwt"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "User",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "bcrypt",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "passport",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "jwt",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "googleLogin",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "googleCallback",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "handleLogin",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "handleSignup",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "controllers/authController.js::googleCallback",
+          "name": "googleCallback",
+          "scope": "global",
+          "params": [
+            "req",
+            "res"
+          ],
+          "calls": [
+            "res.redirect",
+            "passport.authenticate"
+          ]
+        },
+        {
+          "id": "controllers/authController.js::handleLogin",
+          "name": "handleLogin",
+          "scope": "global",
+          "params": [
+            "req",
+            "res"
+          ],
+          "calls": []
+        },
+        {
+          "id": "controllers/authController.js::handleSignup",
+          "name": "handleSignup",
+          "scope": "global",
+          "params": [
+            "req",
+            "res"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "controllers/meetingController.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "../models/messageModel",
+        "kind": "local",
+        "symbols": [
+          "Meeting"
+        ]
+      },
+      {
+        "source": "../models/User",
+        "kind": "local",
+        "symbols": [
+          "User"
+        ]
+      },
+      {
+        "source": "../utils/logger",
+        "kind": "local",
+        "symbols": [
+          "logger"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "Meeting",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "User",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "logger",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "validTypes",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "validRoles",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "handleErrorResponse",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "validateMeetingData",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "createMeeting",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "rescheduleMeeting",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "approveMeeting",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "deleteMeeting",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "getAllMeetings",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "meetings",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "controllers/meetingController.js::handleErrorResponse",
+          "name": "handleErrorResponse",
+          "scope": "global",
+          "params": [
+            "res",
+            "statusCode",
+            "message"
+          ],
+          "calls": [
+            "logger.error"
+          ]
+        },
+        {
+          "id": "controllers/meetingController.js::validateMeetingData",
+          "name": "validateMeetingData",
+          "scope": "global",
+          "params": [
+            "pattern"
+          ],
+          "calls": []
+        },
+        {
+          "id": "controllers/meetingController.js::createMeeting",
+          "name": "createMeeting",
+          "scope": "global",
+          "params": [
+            "req",
+            "res"
+          ],
+          "calls": []
+        },
+        {
+          "id": "controllers/meetingController.js::rescheduleMeeting",
+          "name": "rescheduleMeeting",
+          "scope": "global",
+          "params": [
+            "req",
+            "res"
+          ],
+          "calls": []
+        },
+        {
+          "id": "controllers/meetingController.js::approveMeeting",
+          "name": "approveMeeting",
+          "scope": "global",
+          "params": [
+            "req",
+            "res"
+          ],
+          "calls": []
+        },
+        {
+          "id": "controllers/meetingController.js::deleteMeeting",
+          "name": "deleteMeeting",
+          "scope": "global",
+          "params": [
+            "req",
+            "res"
+          ],
+          "calls": []
+        },
+        {
+          "id": "controllers/meetingController.js::getAllMeetings",
+          "name": "getAllMeetings",
+          "scope": "global",
+          "params": [
+            "req",
+            "res"
+          ],
+          "calls": []
+        },
+        {
+          "id": "controllers/meetingController.js::meetings",
+          "name": "meetings",
+          "scope": "global",
+          "params": [
+            "req",
+            "res"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "controllers/userController.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "../models/User",
+        "kind": "local",
+        "symbols": [
+          "User"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "User",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "getUserById",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "controllers/userController.js::getUserById",
+          "name": "getUserById",
+          "scope": "global",
+          "params": [
+            "req",
+            "res"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "middleware/convertMeetingTime.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "moment",
+        "kind": "external",
+        "symbols": [
+          "moment"
+        ]
+      },
+      {
+        "source": "../models/messageModel",
+        "kind": "local",
+        "symbols": [
+          "Meeting"
+        ]
+      },
+      {
+        "source": "../utils/logger",
+        "kind": "local",
+        "symbols": [
+          "logger"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "moment",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "Meeting",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "logger",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "convertMeetingTime",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "middleware/convertMeetingTime.js::convertMeetingTime",
+          "name": "convertMeetingTime",
+          "scope": "global",
+          "params": [
+            "req",
+            "res",
+            "next"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "middleware/vaildateUser.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "../models/User",
+        "kind": "local",
+        "symbols": [
+          "User"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "User",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "checkAuthType",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "middleware/vaildateUser.js::checkAuthType",
+          "name": "checkAuthType",
+          "scope": "global",
+          "params": [
+            "req",
+            "res",
+            "next"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "middleware/validateBookedSlotsRequest.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [],
+    "entities": {
+      "variables": [
+        {
+          "name": "validateBookedSlotsRequest",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "middleware/validateBookedSlotsRequest.js::validateBookedSlotsRequest",
+          "name": "validateBookedSlotsRequest",
+          "scope": "global",
+          "params": [
+            "req",
+            "res",
+            "next"
+          ],
+          "calls": [
+            "next"
+          ]
+        }
+      ],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "models/User.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "mongoose",
+        "kind": "external",
+        "symbols": [
+          "mongoose"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "mongoose",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "userSchema",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "models/messageModel.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "mongoose",
+        "kind": "external",
+        "symbols": [
+          "mongoose"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "mongoose",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "meetingSchema",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "routes/authRoutes.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "express",
+        "kind": "external",
+        "symbols": [
+          "express"
+        ]
+      },
+      {
+        "source": "passport",
+        "kind": "external",
+        "symbols": [
+          "passport"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "express",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "router",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "passport",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "routes/messageRoutes.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "express",
+        "kind": "external",
+        "symbols": [
+          "express"
+        ]
+      },
+      {
+        "source": "../middleware/convertMeetingTime",
+        "kind": "local",
+        "symbols": [
+          "convertMeetingTime"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "express",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "router",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "convertMeetingTime",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "routes/userRoutes.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "express",
+        "kind": "external",
+        "symbols": [
+          "express"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "express",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "router",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "utils/logger.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "winston",
+        "kind": "external",
+        "symbols": [
+          "winston"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "winston",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "logLevels",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "logFormat",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "logger",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": []
+  }
+]

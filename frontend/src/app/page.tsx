@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { ArrowRight, SquareTerminal } from "lucide-react";
+import { ArrowRight, SquareTerminal, Github } from "lucide-react";
 import UserProfile from "@/components/UserProfile";
+import RepoSearch from "@/components/RepoSearch";
 
 export default function Home() {
   return (
@@ -13,6 +14,12 @@ export default function Home() {
             <span className="font-bold tracking-tight text-lg">CodeAtlas</span>
           </div>
           <nav className="flex items-center gap-6">
+            <Link
+              href="/dashboard"
+              className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-black dark:hover:text-white transition-colors"
+            >
+              Dashboard
+            </Link>
             <UserProfile />
           </nav>
         </div>
@@ -35,19 +42,17 @@ export default function Home() {
             No manual dragging. Just pure AST-based visualization.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20">
-            <Link
-              href="/auth/github"
-              className="px-8 py-4 bg-black dark:bg-white text-white dark:text-black font-bold rounded-lg shadow-lg hover:translate-y-[-2px] transition-transform flex items-center gap-2"
-            >
-              Start Mapping <ArrowRight className="w-4 h-4" />
-            </Link>
-            <Link
-              href="/demo"
-              className="px-8 py-4 bg-slate-100 dark:bg-slate-900 text-black dark:text-white font-bold rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
-            >
-              View Demo
-            </Link>
+          <div className="w-full max-w-lg mx-auto mb-20 relative z-20">
+            <RepoSearch />
+            <div className="mt-4 flex items-center justify-center gap-4 text-xs text-slate-400">
+              <span className="flex items-center hover:text-black dark:hover:text-white transition-colors cursor-pointer">
+                <Github className="w-3 h-3 mr-1.5" /> Public & Private
+              </span>
+              <span>•</span>
+              <span className="hover:text-black dark:hover:text-white transition-colors cursor-pointer">
+                Instant Visualization
+              </span>
+            </div>
           </div>
 
           {/* Hero Visual */}

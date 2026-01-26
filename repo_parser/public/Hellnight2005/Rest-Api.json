@@ -1,0 +1,280 @@
+[
+  {
+    "file": {
+      "path": "connection.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "mongoose",
+        "kind": "external",
+        "symbols": [
+          "mongoose"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "mongoose",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "connection.js::ConnectMongoDB",
+          "name": "ConnectMongoDB",
+          "scope": "global",
+          "params": [
+            "url"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "index.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "express",
+        "kind": "external",
+        "symbols": [
+          "express"
+        ]
+      },
+      {
+        "source": "./routes/user",
+        "kind": "local",
+        "symbols": [
+          "userRouter"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "express",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "userRouter",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "app",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "PORT",
+          "kind": "const",
+          "valueType": "number"
+        }
+      ],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "error": "Unsupported language or parse error"
+  },
+  {
+    "file": {
+      "path": "controllers/user.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "../models/user",
+        "kind": "local",
+        "symbols": [
+          "User"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "User",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "Dataset",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "user",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "body",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "result",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "controllers/user.js::handleAllUser",
+          "name": "handleAllUser",
+          "scope": "global",
+          "params": [
+            "req",
+            "res"
+          ],
+          "calls": []
+        },
+        {
+          "id": "controllers/user.js::getUserById",
+          "name": "getUserById",
+          "scope": "global",
+          "params": [
+            "req",
+            "res"
+          ],
+          "calls": []
+        },
+        {
+          "id": "controllers/user.js::handleUpdateUserById",
+          "name": "handleUpdateUserById",
+          "scope": "global",
+          "params": [
+            "req",
+            "res"
+          ],
+          "calls": []
+        },
+        {
+          "id": "controllers/user.js::handleDeleteUserById",
+          "name": "handleDeleteUserById",
+          "scope": "global",
+          "params": [
+            "req",
+            "res"
+          ],
+          "calls": []
+        },
+        {
+          "id": "controllers/user.js::handleCreatedUser",
+          "name": "handleCreatedUser",
+          "scope": "global",
+          "params": [
+            "req",
+            "res"
+          ],
+          "calls": [
+            "console.log"
+          ]
+        }
+      ],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "middleware/index.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "fs",
+        "kind": "external",
+        "symbols": [
+          "fs"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "fs",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [
+        {
+          "id": "middleware/index.js::logReqRes",
+          "name": "logReqRes",
+          "scope": "global",
+          "params": [
+            "filename"
+          ],
+          "calls": []
+        }
+      ],
+      "modules": []
+    },
+    "exports": []
+  },
+  {
+    "file": {
+      "path": "models/user.js",
+      "language": "javascript",
+      "moduleType": "module",
+      "entryPoint": false
+    },
+    "imports": [
+      {
+        "source": "mongoose",
+        "kind": "external",
+        "symbols": [
+          "mongoose"
+        ]
+      }
+    ],
+    "entities": {
+      "variables": [
+        {
+          "name": "mongoose",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "userSchema",
+          "kind": "const",
+          "valueType": "unknown"
+        },
+        {
+          "name": "User",
+          "kind": "const",
+          "valueType": "unknown"
+        }
+      ],
+      "classes": [],
+      "functions": [],
+      "modules": []
+    },
+    "exports": []
+  }
+]

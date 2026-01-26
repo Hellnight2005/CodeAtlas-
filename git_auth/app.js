@@ -1,6 +1,7 @@
 const express = require("express");
 const session = require("express-session");
 const cors = require("cors");
+const MongoStore = require("connect-mongo").default;
 require("dotenv").config();
 
 const logger = require("./config/logger");
@@ -30,11 +31,24 @@ app.use(cors({
 /* -------------------------------------------------------
  * Session Setup
  * ----------------------------------------------------- */
+const mongoUri = process.env.MONGO_URI || "mongodb://localhost:27017/git_auth";
+console.log(`[Session] Initializing MongoStore with URI: ${mongoUri.split('@')[1] || 'localhost'}`); // Log safe part
+
+const sessionStore = MongoStore.create({
+  mongoUrl: mongoUri,
+  collectionName: 'sessions'
+});
+
+sessionStore.on('error', function (error) {
+  console.error('[Session] Store Error:', error);
+});
+
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "default_secret",
     resave: false,
     saveUninitialized: false,
+    store: sessionStore,
     cookie: {
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
     },

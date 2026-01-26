@@ -33,17 +33,29 @@ class TaskQueue {
 
                 const resetTime = this.getResetTime(error);
 
-                // Log specifically for the Watcher to pick up
-                // Using existing logger.error but ensuring structure triggers attention
-                logger.error({
-                    message: `Rate Limit Hit: ${error.message}. Pausing operations.`,
-                    metadata: { type: 'RATE_LIMIT', reset: resetTime }
-                });
+                if (resetTime > 60000) { // If wait is more than 60 seconds, abort
+                    logger.error({
+                        message: `Rate Limit Hit: ${error.message}. Wait time ${resetTime}ms too long. Aborting task.`,
+                        metadata: { type: 'RATE_LIMIT_ABORT', reset: resetTime }
+                    });
+                    reject(new Error(`Rate Limit Exceeded. Reset in ${Math.ceil(resetTime / 1000)}s.`));
+                } else {
+                    // Log specifically for the Watcher to pick up
+                    logger.error({
+                        message: `Rate Limit Hit: ${error.message}. Pausing operations for ${resetTime}ms.`,
+                        metadata: { type: 'RATE_LIMIT', reset: resetTime }
+                    });
 
-                this.pause(resetTime);
+                    this.pause(resetTime);
 
-                // Put task back at the front of the queue to retry
-                this.queue.unshift({ task, resolve, reject });
+                    // FAIL FAST: Reject the current task so the user gets feedback immediately.
+                    // Do NOT unshift it back to the queue (which causes hangs).
+                    reject(error);
+
+                    // this.queue.unshift({ task, resolve, reject }); // CAUSES HANG
+                }
+
+
             } else {
                 reject(error);
             }

@@ -107,6 +107,22 @@ const processFile = async (fileData) => {
 
     } catch (error) {
         console.error(`[Processing] Error for ${fileData.path}: ${error.message}`);
+
+        // Handle GitHub Rate Limit (403 or 429)
+        if (error.message.includes('403') || error.message.includes('429')) {
+            try {
+                const tableName = fileData.repo.replace(/[^a-zA-Z0-9_]/g, '_');
+                // Update sync status to notify frontend
+                await dbPool.query(
+                    `UPDATE repository_sync_status SET status = 'rate_limited' WHERE repo_full_name LIKE ?`,
+                    [`%${fileData.repo}`]
+                );
+                console.warn(`[Limit] Marked ${fileData.repo} as rate_limited due to 403/429.`);
+            } catch (updateErr) {
+                console.error(`[Limit] Failed to update status: ${updateErr.message}`);
+            }
+        }
+
         logEvent({
             level: 'error',
             message: `Error processing file: ${error.message}`,
