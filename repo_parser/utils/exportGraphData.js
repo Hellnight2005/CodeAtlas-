@@ -9,7 +9,9 @@ const exportRepoGraphData = async (repoName) => {
         return;
     }
 
-    const tableName = repoName.replace(/[^a-zA-Z0-9_]/g, '_');
+    // Use only the repo name part for table name
+    const shortName = repoName.split('/')[1] || repoName;
+    const tableName = shortName.replace(/[^a-zA-Z0-9_]/g, '_');
     console.log(`[EXPORT] Exporting graph data for ${repoName}(Table: ${tableName})...`);
 
     try {
@@ -51,6 +53,13 @@ const exportRepoGraphData = async (repoName) => {
         }
 
         const outputPath = path.join(publicDir, `${repoName}.json`);
+
+        // Ensure parent directory exists (for repoNames like "owner/repo")
+        const parentDir = path.dirname(outputPath);
+        if (!fs.existsSync(parentDir)) {
+            fs.mkdirSync(parentDir, { recursive: true });
+        }
+
         fs.writeFileSync(outputPath, JSON.stringify(astData, null, 2));
 
         console.log(`[EXPORT] Successfully exported ${astData.length} items to ${outputPath}`);

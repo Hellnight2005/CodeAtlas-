@@ -1,8 +1,10 @@
 {
     "ignore": [
-        "public/",
+        "public",
         "public/**",
-        "ast_test/",
-        "*.log"
+        "logs",
+        "logs/**",
+        "*.log",
+        "**/*.log"
     ]
 }

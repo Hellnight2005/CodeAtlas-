@@ -1,5 +1,8 @@
 const dbPool = require('../config/mysqlRepo');
 const logger = require('../config/logger');
+const fs = require('fs');
+const path = require('path');
+const User = require('../models/User');
 
 /**
  * Helper to build nested tree from paths
@@ -48,28 +51,44 @@ exports.getRepoFileTree = async (req, res) => {
         const tableName = repo.replace(/[^a-zA-Z0-9_]/g, '_');
         logger.info(`[RepoController] Fetching file tree for repo: '${repo}' from table: '${tableName}'`);
 
-        const query = `SELECT path, type FROM \`${tableName}\``;
+        const query = (tbl) => `SELECT path, type FROM \`${tbl}\``;
 
+        // Strategy: Try full name table first (Owner_Repo), then short name table (Repo)
+        let rows = [];
         try {
-            const [rows] = await dbPool.query(query);
-            logger.info(`[RepoController] Found ${rows.length} files for '${repo}'`);
+            [rows] = await dbPool.query(query(tableName));
+        } catch (err) {
+            // If table missing AND input has owner prefix, try match simple repo name
+            if (err.code === 'ER_NO_SUCH_TABLE' && repo.includes('/')) {
+                const shortName = repo.split('/')[1];
+                const shortTableName = shortName.replace(/[^a-zA-Z0-9_]/g, '_');
+                logger.info(`[RepoController] Table '${tableName}' not found. Retrying with short name: '${shortTableName}'`);
 
-            if (rows.length === 0) {
-                // Check if table exists or just empty
-                // For now, return empty object
-                return res.json({});
-            }
-
-            const tree = buildTree(rows);
-            logger.info(`[RepoController] Tree built successfully for '${repo}', sending response.`);
-            res.json(tree);
-
-        } catch (dbError) {
-            if (dbError.code === 'ER_NO_SUCH_TABLE') {
+                try {
+                    [rows] = await dbPool.query(query(shortTableName));
+                } catch (retryErr) {
+                    // If simple name also fails, return 404
+                    if (retryErr.code === 'ER_NO_SUCH_TABLE') {
+                        return res.status(404).json({ error: 'Repository not found (Table does not exist)' });
+                    }
+                    throw retryErr;
+                }
+            } else if (err.code === 'ER_NO_SUCH_TABLE') {
                 return res.status(404).json({ error: 'Repository not found (Table does not exist)' });
+            } else {
+                throw err;
             }
-            throw dbError;
         }
+
+        logger.info(`[RepoController] Found ${rows.length} files for '${repo}'`);
+
+        if (rows.length === 0) {
+            return res.json({});
+        }
+
+        const tree = buildTree(rows);
+        logger.info(`[RepoController] Tree built successfully for '${repo}', sending response.`);
+        res.json(tree);
 
     } catch (error) {
         logger.error(`[RepoController] Error fetching tree for ${req.query.repo}: ${error.message}`);
@@ -194,4 +213,119 @@ exports.getAiFileSummary = async (req, res) => {
         logger.error(`[RepoController] Error generating summary: ${error.message}`);
         res.status(500).json({ error: error.message });
     }
+};
+
+/**
+ * Full Repository Deletion (Cleanup)
+ * 1. Delete public JSON file
+ * 2. Drop MySQL Table
+ * 3. Delete from repository_sync_status
+ * 4. Remove from MongoDB User.repos
+ */
+exports.deleteFullRepository = async (req, res) => {
+    const { repoName } = req.body; // Expect "owner/repo" or just "repo"
+    if (!repoName) {
+        return res.status(400).json({ error: 'repoName is required' });
+    }
+
+    logger.info(`[Cleanup] Starting full deletion for: ${repoName}`);
+    const results = {};
+
+    let resolvedFullName = repoName;
+    const shortName = repoName.split('/').pop();
+
+    // 0. Resolve Full Name from DB if possible
+    try {
+        // Try to find the canonical full name in sync status
+        const [rows] = await dbPool.query(
+            `SELECT repo_full_name FROM repository_sync_status WHERE repo_full_name = ? OR repo_full_name LIKE ? LIMIT 1`,
+            [repoName, `%/${shortName}`]
+        );
+        if (rows.length > 0) {
+            resolvedFullName = rows[0].repo_full_name;
+            logger.info(`[Cleanup] Resolved full name: ${resolvedFullName}`);
+        }
+    } catch (err) {
+        logger.warn(`[Cleanup] Failed to resolve full name: ${err.message}`);
+    }
+
+    // 1. Delete Public JSON
+    try {
+        const jsonPath = path.join(__dirname, '../public', `${shortName}.json`);
+
+        if (fs.existsSync(jsonPath)) {
+            fs.unlinkSync(jsonPath);
+            results.json = 'Deleted';
+            logger.info(`[Cleanup] Deleted JSON: ${jsonPath}`);
+        } else {
+            // Try explicit full name format if needed (Owner_Repo.json)
+            const underscoreName = resolvedFullName.replace('/', '_');
+            const fullPath = path.join(__dirname, '../public', `${underscoreName}.json`);
+            if (fs.existsSync(fullPath)) {
+                fs.unlinkSync(fullPath);
+                results.json = 'Deleted (Full Name)';
+            } else {
+                results.json = 'Not Found';
+            }
+        }
+    } catch (err) {
+        logger.error(`[Cleanup] JSON Delete Error: ${err.message}`);
+        results.json = `Error: ${err.message}`;
+    }
+
+    // 2. Drop MySQL Table
+    try {
+        // Always use short name for table as per established pattern
+        const tableName = shortName.replace(/[^a-zA-Z0-9_]/g, '_');
+
+        await dbPool.query(`DROP TABLE IF EXISTS \`${tableName}\``);
+        results.mysqlTable = 'Dropped (if existed)';
+        logger.info(`[Cleanup] Dropped MySQL Table: ${tableName}`);
+    } catch (err) {
+        logger.error(`[Cleanup] MySQL Table Drop Error: ${err.message}`);
+        results.mysqlTable = `Error: ${err.message}`;
+    }
+
+    // 3. Delete from repository_sync_status
+    try {
+        // Use resolved full name for deletion
+        await dbPool.query(`DELETE FROM repository_sync_status WHERE repo_full_name = ?`, [resolvedFullName]);
+        // Double check deleting by short name if it was inserted merely as short name?
+        if (resolvedFullName !== repoName) {
+            await dbPool.query(`DELETE FROM repository_sync_status WHERE repo_full_name = ?`, [repoName]);
+        }
+
+        results.syncStatus = 'Deleted';
+        logger.info(`[Cleanup] Removed from repository_sync_status for: ${resolvedFullName}`);
+    } catch (err) {
+        logger.error(`[Cleanup] Sync Status Delete Error: ${err.message}`);
+        results.syncStatus = `Error: ${err.message}`;
+    }
+
+    // 4. Remove from MongoDB
+    try {
+        // Try deleting by both explicit provided name and resolved full name
+        const namesToDelete = [repoName, resolvedFullName];
+        if (repoName.includes('/')) {
+            namesToDelete.push(repoName.split('/').pop());
+        }
+
+        const updateResult = await User.updateMany(
+            { "repos.repo_name": { $in: namesToDelete } },
+            { $pull: { repos: { repo_name: { $in: namesToDelete } } } }
+        );
+
+        results.mongodb = `Removed from ${updateResult.modifiedCount} users`;
+        logger.info(`[Cleanup] Removed from MongoDB users: ${updateResult.modifiedCount} (Criteria: ${namesToDelete.join(', ')})`);
+
+    } catch (err) {
+        logger.error(`[Cleanup] MongoDB Error: ${err.message}`);
+        results.mongodb = `Error: ${err.message}`;
+    }
+
+    res.json({
+        message: 'Cleanup sequence completed',
+        details: results,
+        resolvedName: resolvedFullName
+    });
 };

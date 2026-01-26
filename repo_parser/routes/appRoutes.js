@@ -13,8 +13,7 @@ router.post('/generate-ast', generateASTForRepo);
 router.delete('/delete-graph', deleteRepoGraph);
 
 // --- Graph Explorer APIs ---
-// User requested /api/graph/..., and these routes are likely mounted at /
-router.get('/api/graph/start', graphController.getInitialGraph);
+router.get('/api/check_for_the_file', graphController.checkForFile);
 router.get('/api/graph/expand', graphController.expandNode);
 router.get('/api/graph/node', graphController.getNodeDetails);
 router.get('/api/graph/filter', graphController.filterGraph);
@@ -23,6 +22,10 @@ router.get('/api/graph/search', graphController.searchFiles);
 // --- Repo File Structure// File Tree
 router.get('/api/repo/tree', repoController.getRepoFileTree);
 // AI Summary
+// AI Summary
 router.get('/api/repo/summary', repoController.getAiFileSummary);
+
+// Cleanup Route
+router.delete('/api/repo/cleanup', repoController.deleteFullRepository);
 
 module.exports = router;

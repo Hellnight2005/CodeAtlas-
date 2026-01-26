@@ -6,7 +6,7 @@ const baseConfig = {
     user: 'root',
     password: 'root',
     waitForConnections: true,
-    connectionLimit: 10,
+    connectionLimit: 40,
     queueLimit: 0,
     database: 'repo' // Main Database Name
 };
