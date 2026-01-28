@@ -72,6 +72,7 @@ export default function GraphCanvas({ onNodeClick, initialData, onReset }: { onN
             // Label Logic
             let label = n.data.name;
             if (!label && n.data.path) label = n.data.path.split('/').pop();
+            if (label && label.includes('/')) label = label.split('/').pop(); // Remove owner prefix if present
             if (!label) label = n.id;
 
             // Truncate for circle fitting
@@ -240,22 +241,64 @@ export default function GraphCanvas({ onNodeClick, initialData, onReset }: { onN
                     animated: false
                 }));
 
+                // RE-READ: We need 'nodes' to check for duplicates. 
+                // Using 'setNodes(nds => ...)' means we access latest nodes.
+                // But we lose 'idRemap' for the edges.
+                // 
+                // FIX: use 'nodes' from component scope for the Check.
+                // Is 'nodes' from useNodesState()? Yes or passed prop?
+                // It's not passed as prop. "const [nodes, setNodes] = ... }"
+                // So I can use 'nodes' directly!
+
+                // Optimized Logic:
+                const currentNodes = nodes; // Snapshot at start of async
+                // BUT 'updatedParent' modifies 'node' (opacity).
+                // Let's assume content (IDs/Paths) doesn't race.
+
+                const existingPathMap = new Map();
+                currentNodes.forEach(n => {
+                    if (n.data?.path) existingPathMap.set(n.data.path, String(n.id));
+                });
+
+                const existingIds = new Set(currentNodes.map(n => String(n.id)));
+                const idRemap = new Map();
+
+                const uniqueNewNodes = newNodes.filter((n: any) => {
+                    const sId = String(n.id);
+                    if (existingIds.has(sId)) return false;
+                    if (n.data?.path && existingPathMap.has(n.data.path)) {
+                        idRemap.set(sId, existingPathMap.get(n.data.path));
+                        return false;
+                    }
+                    return true;
+                });
+
+                // Update Nodes
                 setNodes((nds) => {
                     const updatedParent = nds.map(n => n.id === node.id ? {
                         ...n,
                         data: { ...n.data, expanded: true },
                         style: { ...n.style, opacity: 1 }
                     } : n);
-                    // Filter out duplicates if node expansion returns existing nodes
-                    const existingIds = new Set(updatedParent.map(n => n.id));
-                    const uniqueNewNodes = newNodes.filter((n: any) => !existingIds.has(n.id));
-
                     return [...updatedParent, ...uniqueNewNodes];
                 });
+
+                // Update Edges
                 setEdges((eds) => {
-                    const existingIds = new Set(eds.map(e => e.id));
-                    const uniqueNewEdges = newEdges.filter((e: any) => !existingIds.has(e.id));
-                    return [...eds, ...uniqueNewEdges];
+                    const existingEdgeIds = new Set(eds.map(e => String(e.id)));
+
+                    const processedNewEdges = newEdges.map((e: any) => {
+                        let source = String(e.source);
+                        let target = String(e.target);
+
+                        // Remap if needed
+                        if (idRemap.has(source)) source = idRemap.get(source);
+                        if (idRemap.has(target)) target = idRemap.get(target);
+
+                        return { ...e, source, target };
+                    }).filter((e: any) => !existingEdgeIds.has(String(e.id)));
+
+                    return [...eds, ...processedNewEdges];
                 });
             } else {
                 // No new nodes found
