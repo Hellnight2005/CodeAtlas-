@@ -212,7 +212,7 @@ export default function DashboardPage() {
                                 setIsLoading(true);
                                 const repoId = owner && owner !== "undefined" ? `${owner}/${repo}` : repo;
                                 console.log(`[Dashboard] Resetting graph for: ${repoId}`);
-                                const response = await fetch(`/api/graph/start?repo=${repoId}&limit=30`);
+                                const response = await fetch(`/api/check_for_the_file?repo=${repoId}&limit=30`);
                                 if (!response.ok) throw new Error("Failed to reset graph");
                                 const data = await response.json();
                                 setGraphData(data);

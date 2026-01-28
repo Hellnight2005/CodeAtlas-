@@ -305,8 +305,12 @@ exports.filterGraph = async (req, res) => {
 
         if (repo) {
             // Expand relationship types to include DECLARES (for vars/funcs) and EXPORTS
-            query = 'MATCH (r:Repository {name: $repo})-[:CONTAINS|DECLARES|EXPORTS*]->(n) WHERE 1=1 ';
+            // Match Repository by full name OR short name to handle different import styles
+            const shortName = repo.includes('/') ? repo.split('/')[1] : repo;
+
+            query = 'MATCH (r:Repository)-[:CONTAINS|DECLARES|EXPORTS*]->(n) WHERE (toLower(r.name) = toLower($repo) OR toLower(r.name) = toLower($shortName)) ';
             params.repo = repo;
+            params.shortName = shortName;
         }
 
         if (type) {
