@@ -72,6 +72,7 @@ export default function GraphCanvas({ onNodeClick, initialData, onReset }: { onN
             // Label Logic
             let label = n.data.name;
             if (!label && n.data.path) label = n.data.path.split('/').pop();
+            if (label && label.includes('/')) label = label.split('/').pop(); // Remove owner prefix if present
             if (!label) label = n.id;
 
             // Truncate for circle fitting

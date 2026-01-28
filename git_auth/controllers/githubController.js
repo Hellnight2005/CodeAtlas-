@@ -883,10 +883,12 @@ exports.checkSyncStatus = async (req, res) => {
                     return branchRef.data.commit.sha;
                 });
 
+                // console.log(`[Sync Debug] Repo: ${fullRepoName} | DB SHA: ${storedSha} | GH SHA: ${githubSha}`);
+
                 if (storedSha && githubSha !== storedSha) {
-                    outOfSync.push(userRepo.repo_name);
+                    outOfSync.push(userRepo.repo_id);
                 } else if (!storedSha) {
-                    outOfSync.push(userRepo.repo_name);
+                    outOfSync.push(userRepo.repo_id);
                 }
 
             } catch (err) {
@@ -896,7 +898,7 @@ exports.checkSyncStatus = async (req, res) => {
 
         await Promise.all(checkPromises);
 
-        console.log(`[Sync Check] User ${user.username}: ${outOfSync.length} repos out of sync.`);
+        // console.log(`[Sync Check] User ${user.username}: ${outOfSync.length} repos out of sync. IDs: ${outOfSync.join(',')}`);
 
         // Set Cookie
         res.cookie('syn_repo', JSON.stringify(outOfSync), {

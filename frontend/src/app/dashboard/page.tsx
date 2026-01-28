@@ -40,7 +40,7 @@ export default function DashboardPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
     const [analyzingRepoId, setAnalyzingRepoId] = useState<number | null>(null);
-    const [outOfSyncRepos, setOutOfSyncRepos] = useState<string[]>([]);
+    const [outOfSyncRepos, setOutOfSyncRepos] = useState<number[]>([]);
     const [showAddModal, setShowAddModal] = useState(false);
 
     // ... (useEffect for fetchUser, active search logic, sync check remain same)
@@ -117,6 +117,37 @@ export default function DashboardPage() {
 
         return () => clearTimeout(timeoutId);
     }, [searchQuery, user]);
+
+    // Check Sync Status on Load
+    useEffect(() => {
+        if (!user) return;
+
+        const checkSync = async () => {
+            try {
+                const headers: any = { 'Content-Type': 'application/json' };
+                if (user.githubAccessToken) {
+                    headers['Authorization'] = `token ${user.githubAccessToken}`;
+                }
+
+                const res = await fetch("/api/github/syn_check", {
+                    headers,
+                    credentials: 'include'
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    // console.log("[Sync Check] API Response:", data);
+                    if (data.outOfSync && Array.isArray(data.outOfSync)) {
+                        setOutOfSyncRepos(data.outOfSync);
+                    }
+                }
+            } catch (err) {
+                console.error("Sync check failed:", err);
+            }
+        };
+
+        checkSync();
+    }, [user]);
 
 
 
@@ -296,12 +327,12 @@ export default function DashboardPage() {
                                             <div className="flex items-center gap-1">
                                                 <button
                                                     onClick={() => handleAnalyzeRepo(repoOwner, repoName, repo.repo_id || index)}
-                                                    disabled={!outOfSyncRepos.includes(repo.repo_name) || isAnalyzing}
-                                                    className={`p-1.5 rounded-full transition-colors ${!outOfSyncRepos.includes(repo.repo_name)
+                                                    disabled={!outOfSyncRepos.includes(repo.repo_id)}
+                                                    className={`p-1.5 rounded-full transition-colors ${!outOfSyncRepos.includes(repo.repo_id)
                                                         ? "text-slate-300 dark:text-slate-700 cursor-not-allowed"
                                                         : "bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400"
                                                         }`}
-                                                    title={!outOfSyncRepos.includes(repo.repo_name) ? "Repository is up to date" : "Sync with Origin"}
+                                                    title={!outOfSyncRepos.includes(repo.repo_id) ? "Repository is up to date" : "Sync with Origin"}
                                                 >
                                                     <RotateCcw className={`w-4 h-4 ${isAnalyzing ? "animate-spin" : ""}`} />
                                                 </button>
@@ -343,7 +374,7 @@ export default function DashboardPage() {
                                             )}
                                             {repo.sync_status && (
                                                 <span className={`text-[10px] px-1.5 py-0.5 rounded uppercase font-bold ${repo.sync_status === 'done' || repo.sync_status === 'completed' ? 'bg-green-100 text-green-700' :
-                                                        repo.sync_status === 'failed' ? 'bg-red-100 text-red-700' : 'bg-gray-100'
+                                                    repo.sync_status === 'failed' ? 'bg-red-100 text-red-700' : 'bg-gray-100'
                                                     }`}>
                                                     {repo.sync_status}
                                                 </span>
