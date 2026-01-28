@@ -372,9 +372,13 @@ export default function DashboardPage() {
                                                     <span>{repo.language}</span>
                                                 </div>
                                             )}
-                                            {repo.sync_status && (
-                                                <span className={`text-[10px] px-1.5 py-0.5 rounded uppercase font-bold ${repo.sync_status === 'done' || repo.sync_status === 'completed' ? 'bg-green-100 text-green-700' :
-                                                    repo.sync_status === 'failed' ? 'bg-red-100 text-red-700' : 'bg-gray-100'
+                                            {outOfSyncRepos.includes(repo.repo_id) ? (
+                                                <span className="text-[10px] px-1.5 py-0.5 rounded uppercase font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-500">
+                                                    Sync Required
+                                                </span>
+                                            ) : repo.sync_status && (
+                                                <span className={`text-[10px] px-1.5 py-0.5 rounded uppercase font-bold ${repo.sync_status === 'done' || repo.sync_status === 'completed' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-500' :
+                                                    repo.sync_status === 'failed' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-500' : 'bg-gray-100 dark:bg-slate-800'
                                                     }`}>
                                                     {repo.sync_status}
                                                 </span>

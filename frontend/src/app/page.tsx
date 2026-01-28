@@ -1,29 +1,12 @@
-import Link from "next/link";
-import { ArrowRight, SquareTerminal, Github } from "lucide-react";
-import UserProfile from "@/components/UserProfile";
+import { ArrowRight, Github } from "lucide-react";
 import RepoSearch from "@/components/RepoSearch";
+import Navbar from "@/components/Navbar";
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-white dark:bg-black font-sans selection:bg-black selection:text-white dark:selection:bg-white dark:selection:text-black">
       {/* Navigation */}
-      <header className="fixed top-0 w-full z-50 bg-white/80 dark:bg-black/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-900">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <SquareTerminal className="w-6 h-6" />
-            <span className="font-bold tracking-tight text-lg">CodeAtlas</span>
-          </div>
-          <nav className="flex items-center gap-6">
-            <Link
-              href="/dashboard"
-              className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-black dark:hover:text-white transition-colors"
-            >
-              Dashboard
-            </Link>
-            <UserProfile />
-          </nav>
-        </div>
-      </header>
+      <Navbar />
 
       {/* Hero Section */}
       <main className="pt-32 pb-16 px-6">
