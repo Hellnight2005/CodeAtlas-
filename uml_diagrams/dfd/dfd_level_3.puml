@@ -1,0 +1,58 @@
+@startuml
+title DFD Level 3 - AST Generation Process (astController.js)
+
+!theme plain
+hide empty members
+
+storage "MySQL (Repo DB)" as MySQL
+storage "Neo4j (Graph DB)" as Neo4j
+storage "User Config/Req" as Req
+
+rectangle "3.0 Determine Files to Process" {
+    process "3.1 Query Pending Files" as P3_1
+    process "3.2 Check Force Flag" as P3_2
+}
+
+rectangle "4.0 Batch Processing" {
+    process "4.1 Batch Split (Size 10)" as P4_1
+    process "4.2 Decode Content" as P4_2
+    process "4.3 Check Extension" as P4_3
+    process "4.4 TreeSitter Parse" as P4_4
+    process "4.5 Normalize AST" as P4_5
+    process "4.6 Handle Errors" as P4_6
+}
+
+rectangle "5.0 Persistence & Sync" {
+    process "5.1 Update File Status" as P5_1
+    process "5.2 Wipe Neo4j DB" as P5_2
+    process "5.3 Full Import Neo4j" as P5_3
+    process "5.4 Update User Status" as P5_4
+}
+
+' Flow
+Req --> P3_2 : Start Request
+P3_2 --> P3_1 : Criteria (Pending/All)
+MySQL --> P3_1 : Fetch Files (raw_content)
+P3_1 --> P4_1 : List of Files
+
+P4_1 --> P4_2 : Next Batch
+P4_2 --> P4_3 : Decoded Text
+P4_3 --> P4_6 : Non-Code (Skip)
+P4_3 --> P4_4 : Code File
+P4_4 --> P4_5 : AST
+P4_4 --> P4_6 : Parse Error
+P4_5 --> P5_1 : Normalized JSON (sorted_content)
+P4_6 --> P5_1 : Error/Skip Info
+
+P5_1 --> MySQL : Update Status='done'
+
+' Completion Flow
+P5_1 --> P5_2 : All Batches Done
+P5_2 --> Neo4j : DETACH DELETE (Clean)
+P5_2 --> P5_3 : Ready for Import
+P5_3 --> MySQL : Read All Nodes
+P5_3 --> Neo4j : Create Graph
+P5_3 --> P5_4 : Import Complete
+P5_4 --> MySQL : Update Sync Status
+
+@enduml
