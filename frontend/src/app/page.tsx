@@ -1,6 +1,9 @@
 import { ArrowRight, Github } from "lucide-react";
 import RepoSearch from "@/components/RepoSearch";
 import Navbar from "@/components/Navbar";
+import AboutSection from "@/components/AboutSection";
+import JourneySection from "@/components/JourneySection";
+import ContactSection from "@/components/ContactSection";
 
 export default function Home() {
   return (
@@ -68,6 +71,10 @@ export default function Home() {
           </div>
         </div>
       </main>
+
+      <AboutSection />
+      <JourneySection />
+      <ContactSection />
     </div>
   );
 }

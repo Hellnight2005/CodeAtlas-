@@ -1,0 +1,18 @@
+@startuml
+title DFD Level 0 - Context Diagram - CodeAtlas
+
+!theme plain
+hide empty members
+
+entity "User" as User
+entity "GitHub API" as GitHub
+
+process "CodeAtlas System" as System
+
+User --> System : 1. Request Repository Analysis
+System --> User : 2. Analysis Status/Results
+
+System --> GitHub : 3. Fetch Repository Data (Tree, Content)
+GitHub --> System : 4. Repository Data
+
+@enduml

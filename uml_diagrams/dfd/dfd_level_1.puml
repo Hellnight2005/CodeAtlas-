@@ -1,0 +1,41 @@
+@startuml
+title DFD Level 1 - System Interaction - CodeAtlas
+
+!theme plain
+hide empty members
+
+entity "User" as User
+entity "GitHub API" as GitHub
+
+package "CodeAtlas System" {
+    process "1.0 Git Auth Service" as GitAuth
+    process "2.0 Repo Parser Service" as RepoParser
+    
+    storage "MySQL (Repo DB)" as MySQL
+    storage "Kafka (repo-files-processing)" as Kafka1
+    storage "Kafka (repo-files-with-content)" as Kafka2
+    storage "Neo4j (Graph DB)" as Neo4j
+}
+
+' Flow 1: User Request
+User --> GitAuth : 1. Authentication & Repo Request
+
+' Flow 2: Git Auth Processing
+GitAuth --> GitHub : 2. Fetch Repo Tree
+GitHub --> GitAuth : 3. Tree JSON
+GitAuth --> MySQL : 4. Initialize Metadata (Pending)
+GitAuth --> Kafka1 : 5. Queue File Events (Path, SHA)
+
+' Flow 3: Parser Processing
+Kafka1 --> RepoParser : 6. Consume File Event
+RepoParser --> GitHub : 7. Fetch File Content
+GitHub --> RepoParser : 8. Content
+RepoParser --> MySQL : 9. Store Raw Content
+RepoParser --> RepoParser : 10. Generate AST (In-Memory)
+RepoParser --> MySQL : 11. Store AST/Sorted Content
+RepoParser --> Neo4j : 12. Export Graph Nodes/Edges
+
+' Feedback
+GitAuth --> User : 13. Processing Started (202)
+
+@enduml

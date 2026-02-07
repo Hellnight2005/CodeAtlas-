@@ -93,7 +93,9 @@ export default function Sidebar({ owner, repo, selectedFile, onFileSelect }: Sid
                     <GitBranch className="w-4 h-4 mr-2" />
                     <span className="truncate" title={`${owner}/${repo}`}>{owner === "undefined" ? repo : `${owner}/${repo}`}</span>
                 </h2>
-                <div className="relative">
+
+                {/* Search Bar Hidden as per request */}
+                {/* <div className="relative">
                     <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
                     <input
                         type="text"
@@ -111,7 +113,7 @@ export default function Sidebar({ owner, repo, selectedFile, onFileSelect }: Sid
                             <X className="w-3 h-3" />
                         </button>
                     )}
-                </div>
+                </div> */}
             </div>
 
             {/* File Tree or Search Results */}
@@ -170,6 +172,6 @@ export default function Sidebar({ owner, repo, selectedFile, onFileSelect }: Sid
             <div className="p-3 border-t border-sharp bg-white dark:bg-black text-[10px] text-slate-400 font-mono text-center">
                 CodeAtlas v1.0
             </div>
-        </div>
+        </div >
     );
 }
