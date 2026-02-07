@@ -49,4 +49,21 @@ Each service is independently managed. Please refer to their respective READMEs 
 5.  Navigate to `http://localhost:3001` and login with GitHub.
 
 ## 🤝 Contributing
-Contributions are welcome! Please check the individual service directories for specific contribution guidelines.
+We welcome contributions to CodeAtlas! Whether it's reporting a bug, suggesting a feature, or writing code, your help is appreciated.
+
+### 🐛 Reporting Issues
+If you find a bug or have a feature request, please check the [existing issues](https://github.com/Hellnight2005/CodeAtlas-/issues) first to see if it has already been reported.
+
+If not, please open a new issue using one of our templates:
+- **[Bug Report](https://github.com/Hellnight2005/CodeAtlas-/issues/new?template=bug_report.md)**: For reporting errors or unexpected behavior.
+- **[Feature Request](https://github.com/Hellnight2005/CodeAtlas-/issues/new?template=feature_request.md)**: For proposing new features or improvements.
+
+### 🛠️ Development
+Please check the individual service directories for specific setup and contribution guidelines:
+- [Frontend Guide](./frontend/README.md)
+- [GitAuth Guide](./git_auth/README.md)
+- [Repo Parser Guide](./repo_parser/README.md)
+
+## 📚 Documentation & Blog
+Follow our journey and read detailed documentation in our **Document Week Blog**:
+- [**CodeAtlas Series on Hashnode**](https://projectlog.hashnode.dev/series/code-atlas)

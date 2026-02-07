@@ -53,7 +53,10 @@ Start the server:
 ```bash
 npm start
 ```
-For development with auto-restart:
 ```bash
 npm run dev
 ```
+
+## 📚 Documentation & Blog
+Follow our journey and read detailed documentation in our **Document Week Blog**:
+- [**CodeAtlas Series on Hashnode**](https://projectlog.hashnode.dev/series/code-atlas)

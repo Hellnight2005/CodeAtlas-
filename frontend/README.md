@@ -46,3 +46,7 @@ The application will be available at `http://localhost:3000` (or `3001` if confi
 
 ## Environment Variables
 Ensure you have the necessary environment variables set in `.env.local` (if applicable), such as backend API URLs.
+
+## 📚 Documentation & Blog
+Follow our journey and read detailed documentation in our **Document Week Blog**:
+- [**CodeAtlas Series on Hashnode**](https://projectlog.hashnode.dev/series/code-atlas)

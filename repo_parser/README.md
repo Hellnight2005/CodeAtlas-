@@ -49,3 +49,7 @@ npm run dev
 ```
 
 The service runs on port **5001** by default.
+
+## 📚 Documentation & Blog
+Follow our journey and read detailed documentation in our **Document Week Blog**:
+- [**CodeAtlas Series on Hashnode**](https://projectlog.hashnode.dev/series/code-atlas)
